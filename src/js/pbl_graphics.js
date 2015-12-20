@@ -65,7 +65,7 @@ function PblGraphics() {
             }, msPerStep);
             updateHandler(0);
         }, msDelay);
-    }
+    };
 
     this.GPoint = function(x,y) {
         if (arguments.length != 2) {
@@ -81,9 +81,10 @@ function PblGraphics() {
             w = typeof(w[0]) != "undefined" ? w[0] : w.w;
         }
         return {w: w, h: h};
-    }
+    };
 
     this.GRect = function(x, y, w, h) {
+        var origin, size;
         if (arguments.length == 1) {
             // array or single object
             h = typeof(x[3]) != "undefined" ? x[3] : x.h;
@@ -101,9 +102,8 @@ function PblGraphics() {
             origin = this.GPoint(x, y);
             size = this.GSize(w, h);
         }
-
-        return {origin, size}
-    }
+        return {origin: origin, size:size}
+    };
 
     this.drawPixel = function(point) {
         var pt = this.GPoint(point);
@@ -111,7 +111,7 @@ function PblGraphics() {
                      null,
                      ['number', 'number', 'number'],
                      [gCtx, pt.x, pt.y]);
-    }
+    };
 
     this.drawLine = function(p0, p1) {
         var pt0 = this.GPoint(p0);
@@ -120,7 +120,7 @@ function PblGraphics() {
                      null,
                      ['number', 'number', 'number', 'number', 'number'],
                      [gCtx, pt0.x, pt0.y, pt1.x, pt1.y]);
-    }
+    };
 
     this.drawCircle = function(point, radius) {
         var pt = this.GPoint(point);
@@ -129,14 +129,14 @@ function PblGraphics() {
                      ['number', 'number', 'number', 'number'],
                      [gCtx, pt.x, pt.y, radius]);
 
-    }
+    };
 
     this.setStrokeColor = function(color) {
         Module.ccall("emx_graphics_context_set_stroke_color",
                      null,
                      ["number", "number"],
                      [gCtx, color]);
-    }
+    };
 
     this.drawPDC = function(resource_id, point) {
         var pt = this.GPoint(point);
@@ -148,7 +148,7 @@ function PblGraphics() {
                      null,
                      ['number', 'number', 'number', 'number'],
                      [gCtx, gdciPtr, pt.x, pt.y]);
-    }
+    };
 
     this.playPDCS = function(resource_id, point) {
         var pt = this.GPoint(point);
@@ -178,9 +178,9 @@ function PblGraphics() {
                 framebuffer.markDirty();
             },
             stop: function() {
-            },
+            }
         });
-    }
+    };
 
     this.drawText = function(text, font, box) {
         var rect = this.GRect(box);
@@ -198,9 +198,9 @@ function PblGraphics() {
                       0, /* OverflowModeWrap */
                       0, /* GTextAlignmentCenter */
                       0]); /* Attributes */
-    }
+    };
 
     this.framebuffer.markDirty();
 }
-pblGraphics = new PblGraphics()
+pblGraphics = new PblGraphics();
 
