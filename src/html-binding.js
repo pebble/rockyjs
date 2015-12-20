@@ -3,8 +3,7 @@ if (typeof(Rocky) == "undefined") {
 }
 
 Rocky.bindCanvas= function(canvas) {
-    // TODO create a single instance only
-    var module = Module;
+    var module = this.Module();
 
     var w = canvas.width;
     var h = canvas.height;
@@ -17,6 +16,7 @@ Rocky.bindCanvas= function(canvas) {
 
     var non_c_binding_keys = [];
     var binding = {
+        module: module,
         update_proc: function(ctx, bounds) {
         },
         mark_dirty: function() {

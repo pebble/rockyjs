@@ -1,3 +1,5 @@
+var Module = Rocky.Module();
+
 function _bindCanvas(canvas) {
     var w = canvas.width;
     var h = canvas.height;
