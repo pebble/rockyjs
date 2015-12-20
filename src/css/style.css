@@ -1,0 +1,6 @@
+canvas {
+    border: 1px solid darkgray;
+    transform: scale(3);
+    transform-origin: 0 0;
+    image-rendering: pixelated;
+}
