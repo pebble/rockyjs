@@ -15,19 +15,36 @@ module.exports = function(grunt) {
             rockyjs: {
                 src: ['src/html-binding.js', 'src/functions-manual.js', 'src/functions-generated.js',
                       'src/transpiled.js'],
-                dest: 'build/js/rocky.js'
+                dest: 'build/rocky.js'
             }
         },
         newer: {
             options: {
                 cache: '.cache'
             }
+        },
+        processhtml: {
+            examples:{
+                options: {
+                    process: true
+                },
+                files: [
+                    {
+                        expand: true,     // Enable dynamic expansion.
+                        cwd: 'examples',      // Src matches are relative to this path.
+                        src: ['**/*.*'], // Actual pattern(s) to match.
+                        dest: 'build/examples'   // Destination path prefix.
+                    }
+                ]
+            }
         }
+
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-newer');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-processhtml');
 
     var default_tasks = [];
 
@@ -38,7 +55,7 @@ module.exports = function(grunt) {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    default_tasks.push('concat:rockyjs');
+    default_tasks.push('concat:rockyjs', 'processhtml:examples');
 
     // Default task(s).
     grunt.registerTask('default', default_tasks);
