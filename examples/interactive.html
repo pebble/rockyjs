@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Pebble Interactive Example</title>
+
+    <!-- build:js ../rocky.js -->
+    <script src="../src/html-binding.js"></script>
+    <script src="../src/functions-manual.js"></script>
+    <script src="../src/functions-generated.js"></script>
+    <script src="../src/transpiled.js"></script>
+    <!-- /build -->
+    <link rel="stylesheet" href="css/style.css">
+
+	<!-- Tangle -->
+	<script type="text/javascript" src="TangleKit/Tangle.js"></script>
+
+	<!-- TangleKit (optional) -->
+	<link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css">
+	<script type="text/javascript" src="TangleKit/mootools.js"></script>
+	<script type="text/javascript" src="TangleKit/sprintf.js"></script>
+	<script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
+	<script type="text/javascript" src="TangleKit/TangleKit.js"></script>
+
+	<!-- example -->
+	<script type="text/javascript">
+
+		function setUpTangle () {
+
+			var element = document.getElementById("example");
+            var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+
+			var tangle = new Tangle(element, {
+				initialize: function () {
+                    this.inset = 10;
+                    this.angle_start = 142;
+				    this.angle_end = 402;
+                    this.rect_x = 10;
+                    this.rect_y = 12;
+                    this.rect_w = 90;
+                    this.rect_h = 125;
+                    this.oval_scale_mode = 0;
+                    this.debug_mode = 1;
+				},
+				update: function () {
+                    rocky.mark_dirty();
+				}
+			});
+
+            rocky.update_proc = function(ctx, bounds) {
+                var rect = rocky.GRect(
+                        tangle.getValue("rect_x"),
+                        tangle.getValue("rect_y"),
+                        tangle.getValue("rect_w"),
+                        tangle.getValue("rect_h")
+                );
+                if (tangle.getValue("debug_mode")) {
+                    rocky.graphics_context_set_stroke_color(ctx, rocky.GColorLightGray);
+                    var p0 = [rect.x, rect.y];
+                    var p1 = [rect.x + rect.w, rect.y];
+                    var p2 = [rect.x + rect.w, rect.y + rect.h];
+                    var p3 = [rect.x, rect.y + rect.h];
+                    rocky.graphics_draw_line(ctx, p0, p1);
+                    rocky.graphics_draw_line(ctx, p1, p2);
+                    rocky.graphics_draw_line(ctx, p2, p3);
+                    rocky.graphics_draw_line(ctx, p3, p0);
+                }
+
+                rocky.graphics_fill_radial(
+                        ctx, rect,
+                        tangle.getValue("oval_scale_mode"),
+                        tangle.getValue("inset"), /* inset */
+                        rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_start")), /* angle_start */
+                        rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_end"))  /* angle_end */
+                );
+            };
+            rocky.mark_dirty();
+
+		}
+
+	</script>
+</head>
+
+<body onload="setUpTangle();">
+    <canvas id="pebble" class="noscale" width="144" height="168"></canvas>
+
+	<pre id="example">
+const GRect rect = GRect(<span
+            data-var="rect_x" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_y" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_w" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_h" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>);
+
+if (<span class="TKSelect TKSwitch" data-var="debug_mode"><span>false</span><span>true</span></span>) {
+  graphics_set_stroke_color(ctx, GColorGray);
+  graphics_draw_rect(ctx, rect);
+}
+
+graphics_fill_radial(
+  ctx, rect,
+  <span class="TKSelect TKSwitch" data-var="oval_scale_mode"><span>GOvalScaleModeFitCircle</span><span>GOvalScaleModeFillCircle</span></span>,
+  <span data-var="inset" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>, /* inset */
+  DEG_TO_TRIGANGLE(<span data-var="angle_start" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>), /* angle_start */
+  DEG_TO_TRIGANGLE(<span data-var="angle_end" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>)  /* angle_end */
+);
+</pre>
+
+</body>
+</html>
