@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="css/style.css">
 
 	<!-- Tangle -->
+
+	<script type="text/javascript" src="js/tangle-rocky.js"></script>
 	<script type="text/javascript" src="TangleKit/Tangle.js"></script>
 
 	<!-- TangleKit (optional) -->
@@ -47,35 +49,19 @@ graphics_fill_radial(
 );
 </pre>
     <script type="text/javascript">
-
-        (function() {
-            var target = document.documentElement; // start at the root element
-            while (target.childNodes.length && target.lastChild.nodeType == 1) { // find last HTMLElement child node
-                target = target.lastChild;
-            }
-// target is now the script element
-            element = target.parentNode;
-            var canvas = element.querySelector("canvas");
-            var rocky = Rocky.bindCanvas(canvas);
-
-            var tangle = new Tangle(element, {
-                initialize: function () {
-                    this.inset = 10;
-                    this.angle_start = 142;
-                    this.angle_end = 402;
-                    this.rect_x = 10;
-                    this.rect_y = 12;
-                    this.rect_w = 90;
-                    this.rect_h = 125;
-                    this.oval_scale_mode = 0;
-                    this.debug_mode = 1;
-                },
-                update: function () {
-                    rocky.mark_dirty();
-                }
-            });
-
-            rocky.update_proc = function(ctx, bounds) {
+        Rocky.bindTangle({
+            initialize: function () {
+                this.inset = 10;
+                this.angle_start = 142;
+                this.angle_end = 402;
+                this.rect_x = 10;
+                this.rect_y = 12;
+                this.rect_w = 90;
+                this.rect_h = 125;
+                this.oval_scale_mode = 0;
+                this.debug_mode = 1;
+            },
+            update_proc: function(rocky, tangle, ctx, bounds) {
                 var rect = rocky.GRect(
                         tangle.getValue("rect_x"),
                         tangle.getValue("rect_y"),
@@ -95,10 +81,8 @@ graphics_fill_radial(
                         rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_start")), /* angle_start */
                         rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_end"))  /* angle_end */
                 );
-            };
-            rocky.mark_dirty();
-
-        })();
+            }
+        });
     </script>
     </div>
 
@@ -126,35 +110,19 @@ graphics_draw_arc(
 );
 </pre>
         <script type="text/javascript">
-
-            (function() {
-                var target = document.documentElement; // start at the root element
-                while (target.childNodes.length && target.lastChild.nodeType == 1) { // find last HTMLElement child node
-                    target = target.lastChild;
-                }
-// target is now the script element
-                element = target.parentNode;
-                var canvas = element.querySelector("canvas");
-                var rocky = Rocky.bindCanvas(canvas);
-
-                var tangle = new Tangle(element, {
-                    initialize: function () {
-                        this.stroke_width = 3;
-                        this.angle_start = 142;
-                        this.angle_end = 402;
-                        this.rect_x = 10;
-                        this.rect_y = 12;
-                        this.rect_w = 90;
-                        this.rect_h = 125;
-                        this.oval_scale_mode = 0;
-                        this.debug_mode = 1;
-                    },
-                    update: function () {
-                        rocky.mark_dirty();
-                    }
-                });
-
-                rocky.update_proc = function(ctx, bounds) {
+            Rocky.bindTangle({
+                initialize: function () {
+                    this.stroke_width = 3;
+                    this.angle_start = 142;
+                    this.angle_end = 402;
+                    this.rect_x = 10;
+                    this.rect_y = 12;
+                    this.rect_w = 90;
+                    this.rect_h = 125;
+                    this.oval_scale_mode = 0;
+                    this.debug_mode = 1;
+                },
+                update_proc: function(rocky, tangle, ctx, bounds) {
                     var rect = rocky.GRect(
                             tangle.getValue("rect_x"),
                             tangle.getValue("rect_y"),
@@ -174,10 +142,8 @@ graphics_draw_arc(
                             rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_start")), /* angle_start */
                             rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_end"))  /* angle_end */
                     );
-                };
-                rocky.mark_dirty();
-
-            })();
+                }
+            });
         </script>
     </div>
 
