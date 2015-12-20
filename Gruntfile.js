@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         uglify: {
             applib: {
                 src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/applib.js',
-                dest: 'src/js/rocky_transpiled.js'
+                dest: 'src/js/transpiled.js'
             }
         },
         newer: {

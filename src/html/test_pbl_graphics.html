@@ -1,0 +1,25 @@
+<html>
+<head>
+    <script type='text/javascript' src="../js/transpiled.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<canvas id="pebble" width="144" height="168"></canvas>
+<script type='text/javascript' src="../js/pbl_graphics.js"></script>
+</body>
+<script>
+    pblGraphics.setStrokeColor(0xF8);
+    pblGraphics.drawLine([0, 0], [100, 100]);
+    pblGraphics.drawLine([0, 10], [100, 10]);
+    pblGraphics.drawLine([0, 20], [100, 20]);
+    pblGraphics.drawLine([0, 30], [100, 30]);
+    pblGraphics.drawCircle([30, 30], 10);
+    //pblGraphics.drawPDC(318, [50, 50]);
+    pblGraphics.framebuffer.markDirty();
+
+    // pblGraphics.playPDCS(352, [0,0])
+
+    // pblGraphics.drawText("test", "RESOURCE_ID_GOTHIC_28", [0, 0, 100, 100])
+    // pblGraphics.framebuffer.markDirty()
+</script>
+</html>

@@ -1,0 +1,45 @@
+<html>
+<head>
+    <!-- these individual JS files are concatenated in the delivered rocky.js -->
+    <script src="../js/transpiled.js"></script>
+    <script src="../js/html-binding.js"></script>
+    <script src="../js/functions-manual.js"></script>
+    <script src="../js/functions-generated.js"></script>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<canvas id="pebble" width="144" height="168"></canvas>
+</body>
+<script>
+    (function () {
+        var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+        // puts all C-symbols from rocky onto window.* so they can be used almost
+        // the same way you were using them in C
+        rocky.export_global_c_symbols();
+
+        var value = 0;
+        rocky.update_proc = function (ctx, bounds) {
+            graphics_context_set_stroke_color(ctx, GColorRed);
+            graphics_context_set_stroke_width(ctx, 10);
+            graphics_draw_line(ctx, [value, 0], [100, value]);
+
+            var rect = rocky.GRect(10, 10, 125, 125);
+            rocky.graphics_fill_radial(
+                    ctx, bounds,
+                    GOvalScaleModeFitCircle,
+                    20, /* inset */
+                    DEG_TO_TRIGANGLE(value), /* angle_start */
+                    DEG_TO_TRIGANGLE(value * 2)  /* angle_end */
+            );
+        };
+
+        setInterval(function () {
+            value += 1;
+            rocky.mark_dirty();
+        }, 1000 / 20);
+
+        rocky.mark_dirty();
+    })();
+</script>
+</html>
