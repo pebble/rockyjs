@@ -8,13 +8,13 @@ module.exports = function(grunt) {
         uglify: {
             applib: {
                 src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/applib.js',
-                dest: 'src/js/transpiled.js'
+                dest: 'src/transpiled.js'
             }
         },
         concat: {
             rockyjs: {
-                src: ['src/js/html-binding.js', 'src/js/functions-manual.js', 'src/js/functions-generated.js',
-                      'src/js/transpiled.js'],
+                src: ['src/html-binding.js', 'src/functions-manual.js', 'src/functions-generated.js',
+                      'src/transpiled.js'],
                 dest: 'build/js/rocky.js'
             }
         },

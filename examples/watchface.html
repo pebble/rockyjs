@@ -1,0 +1,21 @@
+<html>
+<head>
+    <!-- these individual JS files are concatenated in the delivered rocky.js -->
+    <script src="../src/html-binding.js"></script>
+    <script src="../src/functions-manual.js"></script>
+    <script src="../src/functions-generated.js"></script>
+    <script src="../src/transpiled.js"></script>
+    <script src="js/espruino-compat.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="pebble" width="144" height="168"></canvas>
+</body>
+<script>
+    (function(){
+        var binding = Rocky.bindCanvas(document.getElementById("pebble"));
+    })();
+</script>
+<script src="js/watchface.js"></script>
+
+</html>
