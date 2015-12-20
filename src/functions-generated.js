@@ -40,11 +40,25 @@ Rocky.addGenericFunctions = function (obj) {
         emx_fill_radial(ctx, rect.x, rect.y, rect.w, rect.h, scale_mode, inset_thickness, angle_start, angle_end);
     };
 
+    var emx_draw_arc = obj.module.cwrap("emx_draw_arc", "void", ["number", "number", "number", "number", "number", "number", "number", "number"]);
+    obj.graphics_draw_arc = function(ctx, rect, scale_mode, angle_start, angle_end) {
+        rect = obj.GRect(rect);
+        var TRIG_MAX_ANGLE = 0x10000;
+        angle_start = (angle_start * TRIG_MAX_ANGLE) / (Math.PI * 2);
+        angle_end = (angle_end * TRIG_MAX_ANGLE) / (Math.PI * 2);
+        emx_draw_arc(ctx, rect.x, rect.y, rect.w, rect.h, scale_mode, angle_start, angle_end);
+    };
+
     var emx_fill_rect = obj.module.cwrap("emx_fill_rect", "void", ["number", "number", "number", "number", "number"]);
     obj.graphics_fill_rect = function(ctx, rect) {
         rect = obj.GRect(rect);
         emx_fill_rect(ctx, rect.x, rect.y, rect.w, rect.h);
     };
 
+    var emx_draw_rect = obj.module.cwrap("emx_draw_rect", "void", ["number", "number", "number", "number", "number"]);
+    obj.graphics_draw_rect = function(ctx, rect) {
+        rect = obj.GRect(rect);
+        emx_draw_rect(ctx, rect.x, rect.y, rect.w, rect.h);
+    };
 
 };
