@@ -2,8 +2,3 @@ canvas {
     border: 1px solid darkgray;
     image-rendering: pixelated;
 }
-
-canvas:not(.noscale) {
-    transform: scale(3);
-    transform-origin: 0 0;
-}
