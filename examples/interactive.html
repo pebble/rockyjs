@@ -30,37 +30,26 @@
     <canvas class="noscale" width="144" height="168"></canvas>
 	<pre>
 const GRect rect = GRect(<span
-            data-var="rect_x" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
-            data-var="rect_y" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
-            data-var="rect_w" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
-            data-var="rect_h" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>);
+            data-var="rect_x" data-init="10" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_y" data-init="12" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_w" data-init="90" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_h" data-init="125" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>);
 
-if (<span class="TKSelect TKSwitch" data-var="debug_mode"><span>false</span><span>true</span></span>) {
+if (<span class="TKSelect TKSwitch" data-var="debug_mode" data-init="1"><span>false</span><span>true</span></span>) {
   graphics_set_stroke_color(ctx, GColorGray);
   graphics_draw_rect(ctx, rect);
 }
 
 graphics_fill_radial(
   ctx, rect,
-  <span class="TKSelect TKSwitch" data-var="oval_scale_mode"><span>GOvalScaleModeFitCircle</span><span>GOvalScaleModeFillCircle</span></span>,
-  <span data-var="inset" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>, /* inset */
-  DEG_TO_TRIGANGLE(<span data-var="angle_start" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>), /* angle_start */
-  DEG_TO_TRIGANGLE(<span data-var="angle_end" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>)  /* angle_end */
+  <span class="TKSelect TKSwitch" data-var="oval_scale_mode" data-init="0"><span>GOvalScaleModeFitCircle</span><span>GOvalScaleModeFillCircle</span></span>,
+  <span data-var="inset" data-init="10" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>, /* inset */
+  DEG_TO_TRIGANGLE(<span data-var="angle_start" data-init="142" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>), /* angle_start */
+  DEG_TO_TRIGANGLE(<span data-var="angle_end" data-init="402" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>)  /* angle_end */
 );
 </pre>
     <script type="text/javascript">
         Rocky.bindTangle({
-            initialize: function () {
-                this.inset = 10;
-                this.angle_start = 142;
-                this.angle_end = 402;
-                this.rect_x = 10;
-                this.rect_y = 12;
-                this.rect_w = 90;
-                this.rect_h = 125;
-                this.oval_scale_mode = 0;
-                this.debug_mode = 1;
-            },
             update_proc: function(rocky, tangle, ctx, bounds) {
                 var rect = rocky.GRect(
                         tangle.getValue("rect_x"),
@@ -91,37 +80,26 @@ graphics_fill_radial(
         <canvas class="noscale" width="144" height="168"></canvas>
 	<pre>
 const GRect rect = GRect(<span
-            data-var="rect_x" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
-            data-var="rect_y" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
-            data-var="rect_w" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
-            data-var="rect_h" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>);
-if (<span class="TKSelect TKSwitch" data-var="debug_mode"><span>false</span><span>true</span></span>) {
+            data-var="rect_x" data-init="10" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_y" data-init="12" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_w" data-init="90" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_h" data-init="125" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>);
+if (<span class="TKSelect TKSwitch" data-var="debug_mode" data-init="1"><span>false</span><span>true</span></span>) {
   graphics_set_stroke_color(ctx, GColorGray);
   graphics_draw_rect(ctx, rect);
   graphics_set_stroke_color(ctx, GColorBlack);
 }
 
-graphics_context_set_stroke_width(ctx, <span data-var="stroke_width" class="TKAdjustableNumber" data-min="-0" data-max="100" data-step="1"></span>);
+graphics_context_set_stroke_width(ctx, <span data-var="stroke_width" data-init="3" class="TKAdjustableNumber" data-min="-0" data-max="100" data-step="1"></span>);
 graphics_draw_arc(
   ctx, rect,
-  <span class="TKSelect TKSwitch" data-var="oval_scale_mode"><span>GOvalScaleModeFitCircle</span><span>GOvalScaleModeFillCircle</span></span>,
-  DEG_TO_TRIGANGLE(<span data-var="angle_start" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>), /* angle_start */
-  DEG_TO_TRIGANGLE(<span data-var="angle_end" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>)  /* angle_end */
+  <span class="TKSelect TKSwitch" data-var="oval_scale_mode" data-init="0"><span>GOvalScaleModeFitCircle</span><span>GOvalScaleModeFillCircle</span></span>,
+  DEG_TO_TRIGANGLE(<span data-var="angle_start" data-init="142" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>), /* angle_start */
+  DEG_TO_TRIGANGLE(<span data-var="angle_end" data-init="402" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>)  /* angle_end */
 );
 </pre>
         <script type="text/javascript">
             Rocky.bindTangle({
-                initialize: function () {
-                    this.stroke_width = 3;
-                    this.angle_start = 142;
-                    this.angle_end = 402;
-                    this.rect_x = 10;
-                    this.rect_y = 12;
-                    this.rect_w = 90;
-                    this.rect_h = 125;
-                    this.oval_scale_mode = 0;
-                    this.debug_mode = 1;
-                },
                 update_proc: function(rocky, tangle, ctx, bounds) {
                     var rect = rocky.GRect(
                             tangle.getValue("rect_x"),

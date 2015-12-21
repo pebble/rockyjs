@@ -20,7 +20,21 @@ Rocky.bindTangle = function(args) {
     var rocky = Rocky.bindCanvas(canvas);
 
     var tangle = new Tangle(element, {
-        initialize: args.initialize,
+        initialize: function () {
+            var subElements = element.querySelectorAll('[data-var][data-init]')
+            for (var i = 0; i < subElements.length; i++) {
+                var subElement = subElements[i];
+                var name = subElement.attributes["data-var"].value;
+                var stringValue = subElement.attributes["data-init"].value;
+
+                // this code can only handle numbers
+                // as soon as we have more complex tangles, we need a more capable implementation
+                this[name] = parseFloat(stringValue);
+            }
+            if (typeof(args.initialize) === "function") {
+                args.initialize.call(this, element);
+            }
+        },
         update: function () {
             rocky.mark_dirty();
         }
