@@ -1,15 +1,46 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>JSConf code example</title>
+
     <!-- build:js ../rocky.js -->
     <script src="../src/html-binding.js"></script>
     <script src="../src/functions-manual.js"></script>
     <script src="../src/functions-generated.js"></script>
     <script src="../src/transpiled.js"></script>
     <!-- /build -->
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div class="container">
+    <div class="page-header">
+        <h1>JSConf code example</h1>
+        <p class="lead">
+            This is the example <a href="https://youtu.be/2TslKh1tdm4?t=14m5s">as seen at JSConf (YouTube)</a>.<br>
+            Look at the HTML source to learn how simple it is to use RockyJS.
+            In addition to <code>var rocky = Rocky.bindCanvas(element)</code> this example also uses
+            <code>rocky.export_global_c_symbols()</code> to get very close to <a href="https://developer.getpebble.com/docs/c/">today's C-API for Pebble</a>
+            (read: pollute the global namespace).
+        </p>
+    </div>
+
 <canvas id="pebble" width="432" height="504"></canvas>
+</div>
 </body>
 <script>
     (function () {
