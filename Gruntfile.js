@@ -47,7 +47,7 @@ module.exports = function(grunt) {
                 ]
             }
         },
-        markdown: {
+        md2html: {
             all: {
                 files: [
                     {
@@ -62,7 +62,8 @@ module.exports = function(grunt) {
                     }
                 ],
                 options: {
-                    template: 'html/markdown/template.html'
+                    basePath: 'build',
+                    layout: 'html/markdown/template.html'
                 }
             }
         },
@@ -96,7 +97,7 @@ module.exports = function(grunt) {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    default_tasks.push('concat:rockyjs', 'processhtml:examples', 'markdown', 'copy');
+    default_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy');
 
     grunt.registerTask('default', default_tasks);
     grunt.registerTask('publish', ['default', 'gh-pages']);
