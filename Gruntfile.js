@@ -30,21 +30,47 @@ module.exports = function(grunt) {
                 },
                 files: [
                     {
-                        expand: true,     // Enable dynamic expansion.
-                        cwd: 'examples',      // Src matches are relative to this path.
-                        src: ['**/*.*'], // Actual pattern(s) to match.
-                        dest: 'build/examples'   // Destination path prefix.
+                        expand: true,
+                        cwd: 'examples',
+                        src: ['**/*.*', '!**/*.md'],
+                        dest: 'build/examples'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'html',
+                        src: ['css/*'],
+                        dest: 'build'
+
                     }
                 ]
             }
+        },
+        markdown: {
+            all: {
+                files: [
+                    {
+                        expand: true,
+                        src: ['examples/*.md', 'readme.md'],
+                        dest: 'build',
+                        ext: '.html',
+                        rename: function(dir, file) {
+                            // readme.html -> index.html
+                            return dir + "/" + file.replace(/(\breadme)\.html$/, "/index.html")
+                        }
+                    }
+                ],
+                options: {
+                    template: 'html/markdown/template.html'
+                }
+            }
         }
-
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-newer');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-processhtml');
+    grunt.loadNpmTasks('grunt-markdown');
 
     var default_tasks = [];
 
@@ -55,7 +81,7 @@ module.exports = function(grunt) {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    default_tasks.push('concat:rockyjs', 'processhtml:examples');
+    default_tasks.push('concat:rockyjs', 'processhtml:examples', 'markdown');
 
     // Default task(s).
     grunt.registerTask('default', default_tasks);
