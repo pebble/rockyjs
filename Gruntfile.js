@@ -76,6 +76,12 @@ module.exports = function(grunt) {
                     }
                 ]
             }
+        },
+        'gh-pages': {
+            options: {
+                base: 'build'
+            },
+            src: ['**']
         }
     });
 
@@ -92,7 +98,6 @@ module.exports = function(grunt) {
 
     default_tasks.push('concat:rockyjs', 'processhtml:examples', 'markdown', 'copy');
 
-    // Default task(s).
     grunt.registerTask('default', default_tasks);
-
+    grunt.registerTask('publish', ['default', 'gh-pages']);
 };
