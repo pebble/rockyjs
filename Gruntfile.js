@@ -5,6 +5,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
         pkg: grunt.file.readJSON('package.json'),
+        rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
         uglify: {
             applib: {
                 src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/applib.js',
@@ -15,7 +16,7 @@ module.exports = function(grunt) {
             rockyjs: {
                 src: ['src/html-binding.js', 'src/functions-manual.js', 'src/functions-generated.js',
                       'src/transpiled.js'],
-                dest: 'build/rocky.js'
+                dest: '<%= rockyjs_path %>'
             }
         },
         newer: {
@@ -26,7 +27,8 @@ module.exports = function(grunt) {
         processhtml: {
             examples:{
                 options: {
-                    process: true
+                    process: true,
+                    data: {rockyjs_path: "<%=rockyjs_path%>"}
                 },
                 files: [
                     {
@@ -63,6 +65,17 @@ module.exports = function(grunt) {
                     template: 'html/markdown/template.html'
                 }
             }
+        },
+        copy: {
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        src: ['dist/**/*'],
+                        dest: 'build'
+                    }
+                ]
+            }
         }
     });
 
@@ -71,6 +84,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-processhtml');
     grunt.loadNpmTasks('grunt-markdown');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     var default_tasks = [];
 
@@ -81,7 +95,7 @@ module.exports = function(grunt) {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    default_tasks.push('concat:rockyjs', 'processhtml:examples', 'markdown');
+    default_tasks.push('concat:rockyjs', 'processhtml:examples', 'markdown', 'copy');
 
     // Default task(s).
     grunt.registerTask('default', default_tasks);

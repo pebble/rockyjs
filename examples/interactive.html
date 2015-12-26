@@ -7,7 +7,11 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Pebble Interactive Example</title>
 
-    <!-- build:js ../rocky.js -->
+    <!-- build:template
+    <script src="../<%= rockyjs_path %>"></script>
+    /build -->
+    <!-- build:remove -->
+    <!-- this template/remove construct is a workaround as processhtml doesn't support variables for values -->
     <script src="../src/html-binding.js"></script>
     <script src="../src/functions-manual.js"></script>
     <script src="../src/functions-generated.js"></script>
