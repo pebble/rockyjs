@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/pebble/rockyjs.svg?token=u4rPSjFthB3eVsUfx8As&branch=master)](https://travis-ci.com/pebble/rockyjs)
+
 # Examples
 
 There are [several examples](examples/) that demonstrate how RockyJS could be used.
