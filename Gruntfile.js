@@ -1,6 +1,8 @@
 module.exports = function(grunt) {
 
-    var glob = require('glob')
+    var glob = require('glob');
+
+    require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
@@ -82,24 +84,67 @@ module.exports = function(grunt) {
             options: {
                 base: 'build'
             },
-            src: ['**']
+            publish: {
+                src: ['**']
+            },
+            'publish-ci': {
+                options: {
+                    user: {
+                        name: 'travis',
+                        email: 'travis@pebble.com'
+                    },
+                    repo: 'https://' + process.env.GH_TOKEN + '@github.com/pebble/rockyjs.git',
+                    message: 'publish gh-pages (auto)' + getDeployMessage(),
+                    silent: true // don't leak the token
+                },
+                src: ['**/*']
+            }
         }
     });
 
-    require('load-grunt-tasks')(grunt);
+    // see http://bartvds.github.io/demo-travis-gh-pages/
+    function getDeployMessage() {
+        var ret = '\n\n';
+        if (process.env.TRAVIS !== 'true') {
+            ret += 'missing env vars for travis-ci';
+            return ret;
+        }
+        ret += 'branch:       ' + process.env.TRAVIS_BRANCH + '\n';
+        ret += 'SHA:          ' + process.env.TRAVIS_COMMIT + '\n';
+        ret += 'range SHA:    ' + process.env.TRAVIS_COMMIT_RANGE + '\n';
+        ret += 'build id:     ' + process.env.TRAVIS_BUILD_ID  + '\n';
+        ret += 'build number: ' + process.env.TRAVIS_BUILD_NUMBER + '\n';
+        return ret;
+    }
 
-    var default_tasks = [];
+    grunt.registerTask('publish-ci', function() {
+        // need this
+        this.requires(['build']);
+
+        // only deploy under these conditions
+        if (process.env.TRAVIS === 'true' && process.env.TRAVIS_SECURE_ENV_VARS === 'true' && process.env.TRAVIS_PULL_REQUEST === 'false') {
+            grunt.log.writeln('executing deployment');
+            // queue deploy
+            grunt.task.run('gh-pages:publish-ci');
+        }
+        else {
+            grunt.log.writeln('skipped deployment');
+        }
+    });
+
+    var build_tasks = [];
 
     // only run uglify per default if transpiled applib exists at TINTIN_ROOT
     if (glob.sync(grunt.config('uglify').applib.src).length > 0) {
-        default_tasks.push("newer:uglify:applib");
+        build_tasks.push("newer:uglify:applib");
     } else {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    default_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy');
+    build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy');
 
-    grunt.registerTask('default', default_tasks);
-    grunt.registerTask('publish', ['default', 'gh-pages']);
+    grunt.registerTask('build', build_tasks);
+    grunt.registerTask('default', ['build']);
     grunt.registerTask('test', ['default']); // no real tests for now
+    grunt.registerTask('publish', ['build', 'gh-pages:publish']);
 };
