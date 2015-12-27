@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>RockyJS</title>
+
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container">
+    <h1 id="examples">Examples</h1>
+<p>There are <a href="examples/">several examples</a> that demonstrate how RockyJS could be used.</p>
+<h1 id="development">Development</h1>
+<p>RockyJS uses <a href="http://gruntjs.com">Grunt</a> as a build system and <a href="https://www.npmjs.com">npm</a> for dependency management.
+If you are unfamiliar with these technologies, we recommend you read their respective guides. 
+Otherwise, <code>npm install -g grunt-cli</code> followed by <code>npm install</code> should do the trick.</p>
+<p>All examples should work directly from the file system without building them. 
+The default task (simply run <code>grunt</code>) will combine all JavaScript, render markdown, and replace file references.</p>
+<h2 id="transpile-pebble-firmware">Transpile Pebble Firmware</h2>
+<p>If you have access to the <a href="https://github.com/pebble/tintin">Pebble firmware repository</a>, 
+make sure you build applib with <code>-target emscripten</code>.
+The default Grunt task of this repository will replace the file <code>src/transpiled.js</code> with 
+<code>${tintin_root}/build/applib/applib-targets/emscripten/applib.js</code> if it exists. 
+Run <code>grunt newer:uglify:applib --verbose</code> to debug this step if necessary (be aware that the minification task might take a while).</p>
+
+</div>
+</body>
+</html>

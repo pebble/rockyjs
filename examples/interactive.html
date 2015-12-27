@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Pebble Interactive Example</title>
+
+    <script src="../dist/rocky-0.1.0.js"></script>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="css/style.css">
+
+	<!-- Tangle -->
+
+	<script type="text/javascript" src="js/tangle-rocky.js"></script>
+	<script type="text/javascript" src="TangleKit/Tangle.js"></script>
+
+	<!-- TangleKit (optional) -->
+	<link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css">
+	<script type="text/javascript" src="TangleKit/mootools.js"></script>
+	<script type="text/javascript" src="TangleKit/sprintf.js"></script>
+	<script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
+	<script type="text/javascript" src="TangleKit/TangleKit.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>C-API examples</h1>
+        <p class="lead">
+            This example page uses RockyJS to build interactive code samples of <a href="https://developer.getpebble.com/docs/c/">today's C-API for Pebble</a>.
+            Inspired by <a href="http://worrydream.com/#!2/LadderOfAbstraction">Bret Victor's interactive</a> essays, it uses <a href="http://worrydream.com/Tangle/reference.html">Tangle.js</a> to bind interactive code snippets with live-previews.
+            The actual rendering of the output is done in RockyJS, making sure that you can see pixel-perfect results.
+        </p>
+        <p class="lead">Scroll down and explore Pebble's classy C-API directly in your browser by clicking and dragging the highlighted elements in the code snippets!</p>
+    </div>
+
+    <div id="graphics_fill_radial">
+        <h3>graphics_fill_radial</h3>
+        <p><code><a href="https://developer.getpebble.com/docs/c/Graphics/Drawing_Primitives/#graphics_fill_radial">graphics_fill_radial</a></code> fills a circle clockwise between <code>angle_start</code> and <code>angle_end</code>, where 0° is the top of the circle. If the difference between <code>angle_start</code> and <code>angle_end</code> is greater than 360°, a full circle will be drawn and filled. If <code>angle_start</code> is greater than <code>angle_end</code> nothing will be drawn.</p>
+    <div class="row">
+    <div class="col-md-4 col-md-push-8"><canvas width="288" height="336"></canvas></div>
+    <div class="col-md-8 col-md-pull-4"><pre>
+const GRect rect = GRect(<span
+            data-var="rect_x" data-init="10" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_y" data-init="12" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_w" data-init="90" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_h" data-init="125" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>);
+
+if (<span class="TKSelect TKSwitch" data-var="debug_mode" data-init="0"><span>false</span><span>true</span></span>) {
+  graphics_set_stroke_color(ctx, GColorGray);
+  graphics_draw_rect(ctx, rect);
+}
+
+graphics_fill_radial(
+  ctx, rect,
+  <span class="TKSelect TKSwitch" data-var="oval_scale_mode" data-init="0"><span>GOvalScaleModeFitCircle</span><span>GOvalScaleModeFillCircle</span></span>,
+  <span data-var="inset" data-init="10" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>, /* inset */
+  DEG_TO_TRIGANGLE(<span data-var="angle_start" data-init="142" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>), /* angle_start */
+  DEG_TO_TRIGANGLE(<span data-var="angle_end" data-init="402" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>)  /* angle_end */
+);
+</pre></div></div>
+    <script type="text/javascript">
+        Rocky.bindTangle({
+            update_proc: function(rocky, tangle, ctx, bounds) {
+                var rect = rocky.GRect(
+                        tangle.getValue("rect_x"),
+                        tangle.getValue("rect_y"),
+                        tangle.getValue("rect_w"),
+                        tangle.getValue("rect_h")
+                );
+                if (tangle.getValue("debug_mode")) {
+                    rocky.graphics_context_set_stroke_color(ctx, rocky.GColorLightGray);
+                    rocky.graphics_draw_rect(ctx, rect);
+
+                }
+
+                rocky.graphics_fill_radial(
+                        ctx, rect,
+                        tangle.getValue("oval_scale_mode"),
+                        tangle.getValue("inset"), /* inset */
+                        rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_start")), /* angle_start */
+                        rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_end"))  /* angle_end */
+                );
+            }
+        });
+    </script>
+    </div>
+
+
+    <div id="graphics_draw_arc">
+
+        <h1>graphics_draw_arc</h1>
+        <p>
+            Draws a line arc clockwise between <code>angle_start</code> and <code>angle_end</code>, where 0° is the top of the circle. If the difference between <code>angle_start</code> and <code>angle_end</code> is greater than 360°, a full circle will be drawn.
+        </p>
+        <div class="row">
+            <div class="col-md-4 col-md-push-8"><canvas width="288" height="336"></canvas></div>
+            <div class="col-md-8 col-md-pull-4"><pre>
+const GRect rect = GRect(<span
+            data-var="rect_x" data-init="10" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_y" data-init="12" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_w" data-init="90" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>, <span
+            data-var="rect_h" data-init="125" class="TKAdjustableNumber" data-min="-50" data-max="200"></span>);
+if (<span class="TKSelect TKSwitch" data-var="debug_mode" data-init="0"><span>false</span><span>true</span></span>) {
+  graphics_set_stroke_color(ctx, GColorGray);
+  graphics_draw_rect(ctx, rect);
+  graphics_set_stroke_color(ctx, GColorBlack);
+}
+
+graphics_context_set_stroke_width(ctx, <span data-var="stroke_width" data-init="3" class="TKAdjustableNumber" data-min="-0" data-max="100" data-step="1"></span>);
+graphics_draw_arc(
+  ctx, rect,
+  <span class="TKSelect TKSwitch" data-var="oval_scale_mode" data-init="0"><span>GOvalScaleModeFitCircle</span><span>GOvalScaleModeFillCircle</span></span>,
+  DEG_TO_TRIGANGLE(<span data-var="angle_start" data-init="142" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>), /* angle_start */
+  DEG_TO_TRIGANGLE(<span data-var="angle_end" data-init="402" class="TKAdjustableNumber" data-min="-100" data-max="500" data-step="2"></span>)  /* angle_end */
+);
+</pre></div></div>
+        <script type="text/javascript">
+            Rocky.bindTangle({
+                update_proc: function(rocky, tangle, ctx, bounds) {
+                    var rect = rocky.GRect(
+                            tangle.getValue("rect_x"),
+                            tangle.getValue("rect_y"),
+                            tangle.getValue("rect_w"),
+                            tangle.getValue("rect_h")
+                    );
+                    if (tangle.getValue("debug_mode")) {
+                        rocky.graphics_context_set_stroke_color(ctx, rocky.GColorLightGray);
+                        rocky.graphics_draw_rect(ctx, rect);
+                        rocky.graphics_context_set_stroke_color(ctx, rocky.GColorBlack);
+                    }
+
+                    rocky.graphics_context_set_stroke_width(ctx, tangle.getValue("stroke_width"));
+                    rocky.graphics_draw_arc(
+                            ctx, rect,
+                            tangle.getValue("oval_scale_mode"),
+                            rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_start")), /* angle_start */
+                            rocky.DEG_TO_TRIGANGLE(tangle.getValue("angle_end"))  /* angle_end */
+                    );
+                }
+            });
+        </script>
+    </div>
+    </div> <!-- /container -->
+
+</body>
+</html>
