@@ -101,4 +101,5 @@ module.exports = function(grunt) {
 
     grunt.registerTask('default', default_tasks);
     grunt.registerTask('publish', ['default', 'gh-pages']);
+    grunt.registerTask('test', ['default']); // no real tests for now
 };

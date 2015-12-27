@@ -1,6 +1,9 @@
 {
   "name": "rocky.js",
   "version": "0.1.0",
+  "scripts": {
+    "test": "grunt test"
+  },
   "devDependencies": {
     "glob": "^6.0.1",
     "grunt": "~0.4.5",
