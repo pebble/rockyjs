@@ -1,4 +1,5 @@
 canvas {
     border: 1px solid darkgray;
     image-rendering: pixelated;
+    margin: 20px;
 }
