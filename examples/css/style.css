@@ -3,3 +3,7 @@ canvas {
     image-rendering: pixelated;
     margin: 20px;
 }
+
+pre.interactive-code {
+  margin-top: 20px;
+}
