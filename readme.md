@@ -2,13 +2,13 @@
 
 # RockyJS
 
-At [Pebble](https://pebble.com), we are currently exploring the possibility of including a JavaScript runtime on our OS and enabling developers to create JavaScript apps that can run natively on the watch.
+At [Pebble](https://pebble.com), we are currently exploring the possibility of including a JavaScript runtime in our OS and enabling developers to create JavaScript apps that can run natively on the watch.
 
 To date, we have [transpiled](https://en.wikipedia.org/wiki/Source-to-source_compiler) our firmware to JavaScript, and enabled it to be attached to a canvas. This allows developers to play with a hybrid C/JavaScript Pebble API - using JavaScript syntax, and loose typing with Pebble's existing [C functionality](https://developer.getpebble.com/docs/c/). 
 
 ## Contributing
 
-JavaScript is somewhat new territory for Pebble, and we're excited to hear what you have to say about this project. We are planning to release early versions of RockyJS so we can gather feedback from the JavaScript community and incorporate it into our project.
+JavaScript is somewhat new territory for Pebble, and we're excited to hear what you have to say about this project. We are planning to release early versions of RockyJS so we can easily explore what native JavaScript APIs for Pebble could look like, as well as gather feedback from the JavaScript community and incorporate it into our work.
 
 We're interested in seeing what kinds of tools developers create when they have access to a browser-based and pixel-perfect Pebble, as well as how developers wrap our C-style APIs to make them more JavaScript friendly!
 
