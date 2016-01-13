@@ -42,7 +42,7 @@ The default build task (`grunt`) will combine all JavaScript, render markdown, a
 
 The [examples](examples/) are designed to be run directly from the file system without needing to build them, and demonstrate some of the things that can be accomplished with the current implementation.
 
-More information about each example can be found in the example's README file.
+More information aobut each example can be found on the example's webpage.
 
 # Miscellaneous
 
