@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>JSConf code example</title>
+    <title>Simple Example</title>
 
     <script src="../dist/rocky-0.1.0.js"></script>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
@@ -22,19 +22,45 @@
 <body>
 <div class="container">
     <div class="page-header">
-        <h1>JSConf code example</h1>
+        <h1>Simple Example</h1>
         <p class="lead">
-            This is the example <a href="https://youtu.be/2TslKh1tdm4?t=14m5s">as seen at JSConf (YouTube)</a>.<br>
-            Look at the HTML source to learn how simple it is to use RockyJS.
-            In addition to <code>var rocky = Rocky.bindCanvas(element)</code> this example also uses
-            <code>rocky.export_global_c_symbols()</code> to get very close to <a href="https://developer.getpebble.com/docs/c/">today's C-API for Pebble</a>
-            (read: pollute the global namespace).
+            This is the example <a href="https://youtu.be/2TslKh1tdm4?t=14m5s">as seen at JSConf (YouTube)</a>, and is designed to help you understand how to get started with RockyJS. 
         </p>
     </div>
+    
+    <div class="col-md-6">
+        <canvas id="pebble" width="432" height="504"></canvas>    
+    </div>
 
-<canvas id="pebble" width="432" height="504"></canvas>
+    <div class="col-md-6">
+        <h2>What's going on?</h2>
+        <p>
+            This example demonstrates how to bind RockyJS to a canvas, and update the output at a regular interval. More information about the key RockyJS API calls for this example can be found below. 
+        </p>
+
+        <h3><code>var rocky = Rocky.bindCanvas(el)</code></h2>
+        <p>
+            This method creates an instance of Rocky, and binds it to a canvas object. Once we have a Rocky object, we can use it to invoke a subset of Pebble's C API, and have the results rendered on the canvas.
+        </p>
+        
+        <h3><code>rocky.export_global_c_symbols()</code></h2>
+        <p>
+            This method pollutes the global namespace with a subset of Pebble's C API. This allows you to invoke (the implemented) functions from Pebble's C API without having to preface every call with <code>rocky.<code>functionName</code></code>.
+        </p>
+        
+        <h3><code>rocky.mark_dirty()</code></h2>
+        <p>
+            This method indicates to Rocky that <code>update_proc</code> should be invoked.
+        </p>
+        
+        <h3><code>rocky.update_proc</code></h2>
+        </p>
+            Rocky's <code>update_proc</code> is a method that will be invoked everytime the canvas is marked as dirty with the <code>mark_dirty</code> method. The update_proc takes two parameters: <em>ctx</em> - the graphics context, and <em>bounds</em> - the bounds of the window.
+        </p>
+    </div>
 </div>
 </body>
+
 <script>
     (function () {
         var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
