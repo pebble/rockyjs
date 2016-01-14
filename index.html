@@ -32,7 +32,7 @@
 <h2 id="dependencies">Dependencies</h2>
 <p>RockyJS uses <a href="http://gruntjs.com">Grunt</a> as a build system and <a href="https://www.npmjs.com">npm</a> for dependency management. If you are unfamiliar with these technologies, we recommend you read their respective guides.</p>
 <h2 id="getting-started">Getting Started</h2>
-<p>To begin working with the RockyJS repository, run the following commands:</p>
+<p>To being working with the RockyJS repository, run the following commands:</p>
 <pre><code class="lang-bash">&gt; git clone git@github.com:pebble/rockyjs.git
 &gt; cd rockyjs
 &gt; npm install -g grunt-cli
@@ -40,13 +40,17 @@
 &gt; grunt
 </code></pre>
 <p>The default build task (<code>grunt</code>) will combine all JavaScript, render markdown, and replace file references. </p>
+<h2 id="rockyjs-api-functionality">RockyJS API / Functionality</h2>
+<p>One of the main goals of RockyJS is to better understand how JavaScript developers approach the Pebble API, and Pebble development in general. </p>
+<p>The initial version of RockyJS uses Pebble&#39;s existing C-style API and JavaScript syntax, though at the moment not <em>all</em> APIs are implemented.</p>
+<p>See <a href="/docs">Rocky Documentation</a> for more details.</p>
 <h2 id="working-with-the-examples">Working with the Examples</h2>
 <p>The <a href="examples/">examples</a> are designed to be run directly from the file system without needing to build them, and demonstrate some of the things that can be accomplished with the current implementation.</p>
-<p>More information about each example can be found on the example&#39;s webpage.</p>
+<p>More information aobut each example can be found on the example&#39;s webpage.</p>
 <h1 id="miscellaneous">Miscellaneous</h1>
 <h2 id="a-note-on-rockyjs-and-pebble-js">A Note on RockyJS and Pebble.js</h2>
 <p>If you&#39;re familiar with Pebble and JavaScript, you may also be familiar with <a href="https://developer.getpebble.com/docs/pebblejs">Pebble.js</a>. </p>
-<p>It&#39;s worth noting that RockyJS is significantly different from Pebble.js. Pebble.js allows you to write your <em>application logic</em> in JavaScript, and interfaces with a C application (that the developer does not modify) through <a href="https://developer.getpebble.com/docs/c/Foundation/AppMessage/">AppMessages</a>. The AppMessages indicate what to render on the watch, and pass event information such as button presses, accelerometer data, etc between the C app and the JS logic.</p>
+<p>It&#39;s worth noting that RockyJS is significantly different than Pebble.js. PebbleJS allows you to write your <em>application logic</em> in JavaScript, and interfaces with a C application (that the developer does not modify) through <a href="https://developer.getpebble.com/docs/c/Foundation/AppMessage/">AppMessages</a>. The AppMessages indicate what to render on the watch, and pass event information such as button presses, accelerometer data, etc between the C app and the JS logic.</p>
 <h2 id="transpiling-the-pebble-firmware">Transpiling the Pebble Firmware</h2>
 <p><strong>NOTE:</strong> If you are <em>not</em> a Pebble employee, you should ignore this section of the README.</p>
 <p>If you have access to the <a href="https://github.com/pebble/tintin">Pebble firmware repository</a>, 
