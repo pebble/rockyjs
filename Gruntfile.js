@@ -82,6 +82,12 @@ module.exports = function(grunt) {
         },
         jshint: {
             src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/TangleKit/**/*.js'],
+            test: ['test/**/*.js']
+        },
+        mochaTest: {
+            all: {
+                src: ['test/**/*.js']
+            }
         },
         'gh-pages': {
             options: {
@@ -148,6 +154,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
-    grunt.registerTask('test', ['default']); // no real tests for now
+    grunt.registerTask('test', ['jshint:test', 'mochaTest']);
     grunt.registerTask('publish', ['build', 'gh-pages:publish']);
 };
