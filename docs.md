@@ -77,7 +77,7 @@ Instances of RockyJS include a property, `update_proc`, that will be invoked eac
 - ctx: A JavaScript version of the [GContext](https://developer.pebble.com/docs/c/Graphics/Graphics_Context/) object.
 - bounds: A JavaScript version of the [GRect](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#GRect) object indicating the bounds of the virtual display.
 
-See [rocky.mark_dirty](#rocky_mark_dirty) for sample usage.
+See [rocky.mark_dirty](#rocky-mark_dirty) for sample usage.
 
 ## RockyJS Pebble API
 
