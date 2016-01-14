@@ -1,3 +1,5 @@
+// Requires /examples/js/rocky-extended.js
+
 // some library code, could be extracted into some JS files
 {
     function scheduleAnimation(options) {

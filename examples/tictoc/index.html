@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>TicToc Example</title>
+
+    <script src="../../dist/rocky-0.1.0.js"></script>    
+
+    <link rel="stylesheet" href="../../css/bootstrap.min.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="js/rocky-extended.js"></script>
+    <link rel="stylesheet" href="../common/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>TicToc Example</h1>
+        <p class="lead">
+            This is a sample implementation of Pebble's TicToc watchface written entierly in JavaScript. This is the example, <a href="https://youtu.be/2TslKh1tdm4?t=24m46s">as seen at JSConf (YouTube)</a>, was run both in the browser using RockyJS, and on a physical watch that have a modified firmware that included the Espruino runtime, and the API implemented in <a href="js/rocky-extended.js">rocky-extended.js</a>.
+        </p>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>    
+    </div>
+    <div class="col-md-6">
+        <h2>What's going on?</h2>
+        <p>
+        This example demonstrates how you can create wrappers on top of Pebble's existing C-Style API to extend functionality and write code that "looks" more like JavaScript. There are 2 important files to look at to fully understand this example.
+        </p>
+
+        <h3><a href="js/rocky-extended.js">js/rocky-extended.js</a></h3>
+        <p>
+        The code in <em>espruino-compat.js</em> wraps and extends the available functionality to include a Window class similar to Pebble's standard <a href="https://developer.pebble.com/docs/c/User_Interface/Window/">Window object</a>, and a TimerService similar to Pebble's <a href="https://developer.pebble.com/docs/c/Foundation/Event_Service/TickTimerService/#tick_timer_service_subscribe">TickTimerService</a>.
+        </p>
+        <p>
+        In addition to creating new objects for the developer to use, the <code>Window</code> constructor extends the <code>context</code> parameter passed into the <code>rocky.update_proc</code> callback to simplify a variety of graphics related API calls.
+        </p>
+
+        <h3><a href="js/tictoc.js">js/tictoc.js</a></h3>
+        <p>
+        The code in <em>tictoc.js</em> implements the TicToc watchface using the extended API defined in <em>rocky-extended.js</em>. 
+        </p>
+    </div>
+</div>
+</body>
+<script>
+    (function(){
+        var binding = Rocky.bindCanvas(document.getElementById("pebble"));
+    })();
+</script>
+
+<!-- JavaScript Implementation of TicToc --> 
+<script src="js/tictoc.js"></script>
+
+</html>
