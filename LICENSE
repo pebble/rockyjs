@@ -1,1 +1,189 @@
-TODO: PBL-31464 store actual license here
+PEBBLE JAVASCRIPT LICENSE AGREEMENT
+
+1.	DEFINITIONS.
+1.1	“Pebble” means Pebble Technology Corp., a Delaware corporation having
+its principal place of business at 900 Middlefield Road, Redwood City, CA,
+94063.
+
+1.2	“Pebble Platform” means the Pebble hardware mobile device firmware and
+software application platform.
+
+1.3	“Pebble JavaScript Software” means the Pebble JavaScript software
+licensed to you under the terms of this Pebble JavaScript License Agreement
+(the “Agreement”).
+
+2.	AGREEMENT FORMATION.
+2.1.	Acceptance of this Agreement.
+You must accept this Agreement before you can use the Pebble JavaScript
+software.  By using any portion of the Pebble JavaScript software, you hereby
+agree to the terms and conditions of this Agreement.  Do not accept this
+Agreement or use the Pebble JavaScript Software if you or your company is
+barred from use of the Pebble JavaScript Software under the laws or regulations
+of the United States or any other country.
+
+2.2.	Authority.
+You represent and warrant that you are of the legal age of majority in the
+country in which you reside (typically 18).  If you are agreeing to be bound by
+this Agreement on behalf of your employer or another entity, you represent and
+warrant that you have full legal authority to bind your employer or such entity
+to this Agreement. If you do not have such legal authority, you may not accept
+the Agreement or use the Pebble JavaScript Software on behalf of your employer
+or any other entity.
+
+3.	PEBBLE JAVASCRIPT SOFTWARE LICENSE AND DISTRIBUTION TERMS.
+3.1.	License.
+Subject to the terms and conditions contained herein, Pebble grants to you a
+personal, limited, non-transferable, non-sublicensable, non-exclusive and
+worldwide, license to use and modify the Pebble JavaScript Software solely to
+a) develop, test and operate applications or portions of applications, that run
+solely on the Pebble Platform and b) develop, test and operate tools that
+create applications or portions of applications, that run solely on the Pebble
+Platform. Pebble grants to you a limited, transferable, non-sublicensable,
+non-exclusive and worldwide license to transfer the Pebble JavaScript Software
+and any modifications you make to the Pebble JavaScript Software solely to
+allow others to a) develop, test and operate applications or portions of
+applications, that run solely on the Pebble Platform and b) develop, test and
+operate tools that create applications or portions of applications, that run
+solely on the Pebble Platform.  Except as described above, you will have no
+right to license, distribute or otherwise transfer the Pebble JavaScript
+Software or any rights therein.  Your rights in the Pebble JavaScript Software
+will be limited to those expressly granted in this Agreement.
+
+3.2.	Distribution.
+You must provide a copy of this Agreement or a link to this Agreement along
+with any distribution of the Pebble JavaScript Software or your modifications
+to the Pebble JavaScript Software.
+
+4.	OPEN SOURCE COMPONENTS.
+Use, reproduction and distribution of components of the Pebble JavaScript
+Software licensed under an open source software license are governed solely by
+the terms of the applicable open source software license and not this
+Agreement. The list of open source components in this JavaScript Software can
+be found at https://www.pebble.com/legal/open_source.
+
+5.	RESTRICTIONS.
+You will not:(a) disassemble, decompile or reverse engineer any part of the
+Pebble JavaScript Software (except as described above in Section 3); (b) copy
+or otherwise reproduce the Pebble JavaScript Software (except as described
+above in Section 3 and with all labeling and copyright notices intact), in
+whole or in part, or modify, adapt, alter, translate or incorporate into or
+with other software or create a derivative work of any part of the Pebble
+JavaScript Software except as described in Section 3; (c) remove, modify or
+otherwise tamper with notices or legends on the Pebble JavaScript Software or
+any labeling on any physical media; (d) use the Pebble JavaScript Software in
+any manner to provide service bureau, time sharing or other computer services
+to third parties; or (e) commercially distribute (i) hardware with the Pebble
+JavaScript Software or (ii) hardware purposed for running Pebble JavaScript
+Software, without prior written approval from Pebble.
+
+6.	OWNERSHIP AND USE.
+
+6.1.	Intellectual Property Rights.
+Title to and ownership of the Pebble JavaScript Software will remain
+exclusively in Pebble at all times. You will promptly notify Pebble of any
+claim which may be adverse to Pebble’s interest in the Pebble JavaScript
+Software.  The Pebble JavaScript Software will be used only by you, unless
+Pebble authorizes other parties in advance in writing to use the Pebble
+JavaScript Software under your supervision.
+
+6.2.	Feedback.
+If you provide Pebble with verbal and/or written feedback related to your use
+of the Pebble JavaScript Software, including, but not limited to, a report of
+any errors which you may discover in the Pebble JavaScript Software, or
+suggestions for improvements or changes to the Pebble JavaScript Software, you
+hereby grant Pebble a perpetual, irrevocable right to use such feedback to
+develop and improve the Pebble JavaScript Software, the Pebble Platform or any
+other Pebble product or service.
+
+6.3.	Pebble JavaScript Software Changes.
+You agree that the form and nature of the Pebble JavaScript Software may change
+without prior notice and that future versions of the Pebble JavaScript Software
+may be incompatible with applications developed on previous versions of the
+Pebble JavaScript Software.  You agree that Pebble may stop (permanently or
+temporarily) providing the Pebble JavaScript Software (or any features within
+the Pebble JavaScript Software) at Pebble’s sole discretion at any time and
+without prior notice.
+
+6.4.	Trademarks and Rights Notices.
+Nothing in this Agreement gives you a right to use any of Pebble’s trade names,
+trademarks, service marks, logos, domain names or other distinctive brand
+features.  You agree that you will not adopt, use or attempt to register,
+whether as a corporate name, domain name, product name, trademark, service mark
+or other indication of origin, any trademark of Pebble or any mark that is
+confusingly similar to or will dilute the distinctive nature of the Pebble
+trademarks.  You also agree that you will not include the term “Pebble” as part
+of the name for any application that you develop using the Pebble JavaScript
+Software.  Acceptable usage of Pebble’s trademarks can be found in trademark
+guidelines on Pebble’s website. You agree that you will not remove, obscure or
+alter any proprietary rights notices (including copyright and trademark
+notices) that may be affixed to or contained within the Pebble JavaScript
+Software.
+
+6.5.	Compliance with Law and Industry Standards.
+You agree to only use the Pebble JavaScript Software to enable the writing of
+applications for purposes that are permitted by: (a) this Agreement; and (b)
+any applicable law, regulation or generally accepted practices or guidelines in
+the relevant jurisdictions.
+
+7.	TERM AND TERMINATION.
+This Agreement is effective until terminated by Pebble as described below.
+
+7.1.	Pebble may terminate this Agreement at any time if: (a) you have
+breached any provision of the this Agreement; (b) Pebble is legally required to
+do so; or (c) Pebble decides not to provide the Pebble JavaScript Software or
+services related to the Pebble JavaScript Software to users in the country in
+which you reside.
+
+7.2.	Upon any termination of this Agreement you will immediately: (a) cease
+the use of all of the Pebble JavaScript Software; and (b) destroy all copies of
+the Pebble JavaScript Software (except for any sample code from the Pebble
+JavaScript Software that you have embedded in your authorized applications).
+The provisions of Sections 1, 6, 7.3, and 8 through 10 inclusive of this
+Agreement will survive any termination or expiration of this Agreement.
+
+8.	NO WARRANTY.
+The Pebble JavaScript Software is provided to you on an "AS IS" basis and
+without warranty of any kind.  PEBBLE DISCLAIMS ALL WARRANTIES, STATUTORY,
+EXPRESS OR IMPLIED, RELATING TO THE PEBBLE JAVASCRIPT SOFTWARE, INCLUDING, BUT
+NOT LIMITED TO, THE WARRANTIES OF NON-INFRINGEMENT OF THIRD PARTY RIGHTS,
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. YOU AGREE THAT YOUR USE
+OF THE PEBBLE JAVASCRIPT SOFTWARE IS AT YOUR OWN DISCRETION AND RISK AND YOU
+ARE SOLELY RESPONSIBLE FOR ANY DAMAGE TO YOUR COMPUTER SYSTEM OR OTHER DEVICE
+OR ANY LOSS OF DATA THAT RESULTS FROM SUCH USE.
+
+9.	EXPORT.
+You acknowledge and agree that you will not import, export, or re-export,
+directly or indirectly, any commodity (including, without limitation, the
+Pebble JavaScript Software or related information) to any country in violation
+of the laws and regulations of any applicable jurisdiction.  This restriction
+expressly includes, without limitation, the export regulations of the United
+States, and the import and export restrictions of the various European
+countries.  You further agree to defend, indemnify and hold harmless Pebble,
+its affiliates and their respective directors, officers, employees, agents and
+representatives from any losses, costs, claims or other liabilities arising out
+of your breach of this Section 9.
+
+10.	GENERAL PROVISIONS.
+This Agreement is not assignable or transferable, in whole or in part, by you,
+whether involuntarily, by merger, operation of law or otherwise, without
+Pebble’s prior written consent.  Any amalgamation or merger of a party with any
+third party, or the purchase or all or substantially all of the assets of a
+party, will be deemed an assignment requiring consent.  Any attempted transfer
+in violation of this section is void.  A waiver of any default hereunder or of
+any of the terms and conditions of this Agreement will not be deemed to be a
+continuing waiver or a waiver of any other default or of any other term or
+condition, but will apply solely to the instance to which such waiver is
+directed.  The exercise of any right or remedy provided in this Agreement will
+be without prejudice to the right to exercise any other right or remedy
+provided by law or equity, except as expressly limited by this Agreement.
+Captions in this Agreement are for the convenience of the parties only and will
+not affect the interpretation or construction of this Agreement.  In the event
+any provision of this Agreement is held to be invalid or unenforceable, such
+provision will be severed from the remainder of this Agreement, and such
+remainder will remain in force and effect.  The parties agree to replace any
+such invalid provision with a valid provision that most closely approximates
+the intent and economic effect of the invalid provision.  This Agreement
+constitutes the entire agreement between the parties relating to this subject
+matter and supersedes all prior and/or simultaneous representations,
+discussions, negotiations and agreements relating to the Pebble JavaScript
+Software, whether written or oral.
