@@ -1,44 +1,42 @@
 // some library code, could be extracted into some JS files
-{
-    function scheduleAnimation(options) {
-        options = options || {};
-        var msDelay = options.delay || 0;
-        var msDuration = options.duration || 0;
-        var updateHandler = options.update || function () {
-            };
-        var stopHandler = options.stop || function () {
-            };
 
-        // todo: remove these globals by fixing jswrap_interactive.c
-        _timeout = setTimeout(function () {
-            var msPassed = 0;
-            var msPerStep = 1000 / 30;
+function scheduleAnimation(options) {
+    options = options || {};
+    var msDelay = options.delay || 0;
+    var msDuration = options.duration || 0;
+    var updateHandler = options.update || function () {
+        };
+    var stopHandler = options.stop || function () {
+        };
 
-            _intervalId = setInterval(function () {
-                msPassed += msPerStep;
-                var progress = Math.min(1, msPassed / msDuration);
-                updateHandler(progress);
-                if (progress >= 1) {
-                    stopHandler();
-                    clearInterval(_intervalId);
-                }
-            }, msPerStep);
-            updateHandler(0);
-        }, msDelay);
-    }
+    // todo: remove these globals by fixing jswrap_interactive.c
+    _timeout = setTimeout(function () {
+        var msPassed = 0;
+        var msPerStep = 1000 / 30;
 
-    function interpolate(f, a, b) {
-        return a * (1 - f) + f * b;
-    }
-
-    var SECOND_UNIT = 1 << 0;
-    var MINUTE_UNIT = 1 << 1;
-    var HOUR_UNIT = 1 << 2;
-    var DAY_UNIT = 1 << 3;
-    var MONTH_UNIT = 1 << 4;
-    var YEAR_UNIT = 1 << 5;
-
+        _intervalId = setInterval(function () {
+            msPassed += msPerStep;
+            var progress = Math.min(1, msPassed / msDuration);
+            updateHandler(progress);
+            if (progress >= 1) {
+                stopHandler();
+                clearInterval(_intervalId);
+            }
+        }, msPerStep);
+        updateHandler(0);
+    }, msDelay);
 }
+
+function interpolate(f, a, b) {
+    return a * (1 - f) + f * b;
+}
+
+var SECOND_UNIT = 1 << 0;
+var MINUTE_UNIT = 1 << 1;
+var HOUR_UNIT = 1 << 2;
+var DAY_UNIT = 1 << 3;
+var MONTH_UNIT = 1 << 4;
+var YEAR_UNIT = 1 << 5;
 
 var win = new Window();
 var angle_funny = 0;
@@ -72,7 +70,7 @@ win.setWindowHandlers({
             canvasLayer.mark_dirty();
 
             function romanize (num) {
-                if (!+num)
+                if (!+num) // jshint ignore:line
                     return false;
                 var digits = String(+num).split(""),
                     key = ["","C","CC","CCC","CD","D","DC","DCC","DCCC","CM",
