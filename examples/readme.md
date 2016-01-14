@@ -4,5 +4,5 @@ This folder contains a variety of examples designed to help you understand some 
  
  - [Simple Example](simple.html) – Minimal example that binds RockyJS to a canvas and draws some primitives.
  - [Interactive Documentation](interactive.html) – Create interactive pages that render pixel-perfect Pebble screens.
- - [watchface](watchface.html) – how to build another API on top of today's RockJS
+ - [TicToc](tictoc.html) – Implementation of Pebble's TicToc watchface using a custom / wrapped JS API.
  
