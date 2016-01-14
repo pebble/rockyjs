@@ -104,7 +104,7 @@ function PblGraphics() {
             origin = this.GPoint(x, y);
             size = this.GSize(w, h);
         }
-        return {origin: origin, size:size}
+        return {origin: origin, size:size};
     };
 
     this.drawPixel = function(point) {
