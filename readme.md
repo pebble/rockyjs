@@ -26,7 +26,7 @@ RockyJS uses [Grunt](http://gruntjs.com) as a build system and [npm](https://www
 
 ## Getting Started 
 
-To being working with the RockyJS repository, run the following commands:
+To begin working with the RockyJS repository, run the following commands:
 
 ```bash
 > git clone git@github.com:pebble/rockyjs.git
@@ -42,7 +42,7 @@ The default build task (`grunt`) will combine all JavaScript, render markdown, a
 
 The [examples](examples/) are designed to be run directly from the file system without needing to build them, and demonstrate some of the things that can be accomplished with the current implementation.
 
-More information aobut each example can be found on the example's webpage.
+More information about each example can be found on the example's webpage.
 
 # Miscellaneous
 
@@ -50,7 +50,7 @@ More information aobut each example can be found on the example's webpage.
 
 If you're familiar with Pebble and JavaScript, you may also be familiar with [Pebble.js](https://developer.getpebble.com/docs/pebblejs). 
 
-It's worth noting that RockyJS is significantly different than Pebble.js. PebbleJS allows you to write your *application logic* in JavaScript, and interfaces with a C application (that the developer does not modify) through [AppMessages](https://developer.getpebble.com/docs/c/Foundation/AppMessage/). The AppMessages indicate what to render on the watch, and pass event information such as button presses, accelerometer data, etc between the C app and the JS logic.
+It's worth noting that RockyJS is significantly different from Pebble.js. Pebble.js allows you to write your *application logic* in JavaScript, and interfaces with a C application (that the developer does not modify) through [AppMessages](https://developer.getpebble.com/docs/c/Foundation/AppMessage/). The AppMessages indicate what to render on the watch, and pass event information such as button presses, accelerometer data, etc between the C app and the JS logic.
 
 ## Transpiling the Pebble Firmware
 
