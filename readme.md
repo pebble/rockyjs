@@ -38,6 +38,14 @@ To being working with the RockyJS repository, run the following commands:
 
 The default build task (`grunt`) will combine all JavaScript, render markdown, and replace file references. 
 
+## RockyJS API / Functionality
+
+One of the main goals of RockyJS is to better understand how JavaScript developers approach the Pebble API, and Pebble development in general. 
+
+The initial version of RockyJS uses Pebble's existing C-style API and JavaScript syntax, though at the moment not *all* APIs are implemented.
+
+See [Rocky Documentation](/docs) for more details.
+
 ## Working with the Examples
 
 The [examples](examples/) are designed to be run directly from the file system without needing to build them, and demonstrate some of the things that can be accomplished with the current implementation.
