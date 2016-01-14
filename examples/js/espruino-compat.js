@@ -5,7 +5,7 @@ if (typeof(Rocky) == "undefined") {
 TimerService = {
     "subscribe": function(granularity, cb) {
         function do_it(){
-            var date = new Date();
+            var date = new Date;
             var dt = {
                 hour: date.getHours(),
                 min: date.getMinutes(),
@@ -24,7 +24,7 @@ function Window() {
         "bounds": {"origin":{"x":0, "y":0}, "size":{"w": 144, "h": 168}},
         "mark_dirty": function(){
             var rocky = Rocky.activeBinding;
-            rocky.mark_dirty();
+            rocky.mark_dirty()
         },
         "setUpdateProc": function(proc) {
             var rocky = Rocky.activeBinding;
@@ -57,7 +57,7 @@ function Window() {
                     }
                 };
                 proc.apply(that.rootLayer, [enhanced_context]);
-            };
+            }
         }
     };
 
