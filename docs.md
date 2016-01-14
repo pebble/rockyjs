@@ -81,5 +81,60 @@ See [rocky.mark_dirty](#rocky_mark_dirty) for sample usage.
 
 ## RockyJS Pebble API
 
-RockyJS currently implements a subset of Pebble's C-Style API - this section of the documentation indicates what sections of the API are implemented, and what should be used in place of sections of the API that are not implemented. 
+RockyJS currently implements a subset of Pebble's C-Style API. This section of the document outlines what methods have been implemented, as well as recommendations for how to manage some of the sections of the API that are not implemented.
+
+### Implemented APIs
+
+The following APIs have already been implemented in RockyJS:
+
+- [Graphics](https://developer.pebble.com/docs/c/Graphics/) (partial)
+    + [Basic Types](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/):
+        * GColor (partial)
+        * GPoint
+        * GRect
+    + [GContext](https://developer.pebble.com/docs/c/Graphics/Graphics_Context/)
+    + [Drawing Primitives](https://developer.pebble.com/docs/c/Graphics/Drawing_Primitives/)
+    + [Drawing Text](https://developer.pebble.com/docs/c/Graphics/Drawing_Text/)
+
+### APIs replaced with standard JavaScript APIs
+
+The following APIs have had their functionality replaced with existing JavaScript APIs:
+
+-  Handling Date/Time: [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+- [Accelerometer](https://developer.pebble.com/docs/c/Foundation/Event_Service/AccelerometerService/) & [Compass](https://developer.pebble.com/docs/c/Foundation/Event_Service/CompassService/): [Device Motion and Orientation APIs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+- [Tick Service](https://developer.pebble.com/docs/c/Foundation/Event_Service/TickTimerService/): [setInterval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval)
+- [Timer](https://developer.pebble.com/docs/c/Foundation/Timer/): [setInterval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval), [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout)
+- [Logging](https://developer.pebble.com/docs/c/Foundation/Logging/): [console.log](https://developer.mozilla.org/en-US/docs/Web/API/Console/log)
+- [Dictation Service](https://developer.pebble.com/docs/c/Foundation/Dictation/): [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
+- [Persistant Storage](https://developer.pebble.com/docs/c/Foundation/Storage/): [localStorage API](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
+- [Animation](https://developer.pebble.com/docs/c/User_Interface/Animation/): [setInterval](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setInterval), [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout)
+
+### Planned APIs 
+
+The following APIs are on the roadmap for RockyJS, but have not yet been implemented:
+
+- [AppFocus](https://developer.pebble.com/docs/c/Foundation/Event_Service/AppFocusService/)
+- [AppMessage](https://developer.pebble.com/docs/c/Foundation/AppMessage/) + [Dictionary](https://developer.pebble.com/docs/c/Foundation/Dictionary/) - *will be replaced with [WebWorker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) semantics*.
+- [Battery Service](https://developer.pebble.com/docs/c/Foundation/Event_Service/BatteryStateService/)
+- [Bitmap](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#gbitmap_get_bytes_per_row) / [BitmapSequence](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#gbitmap_sequence_create_with_resource)
+- [ConnectionService](https://developer.pebble.com/docs/c/Foundation/Event_Service/ConnectionService/)
+- [DrawCommand](https://developer.pebble.com/docs/c/Graphics/Draw_Commands/)
+- [Fonts](https://developer.pebble.com/docs/c/Graphics/Fonts/)
+- [Frame Buffer](https://developer.pebble.com/docs/c/Graphics/Drawing_Primitives/#graphics_capture_frame_buffer)
+- [GPath](https://developer.pebble.com/docs/c/Graphics/Drawing_Paths/#GPath)
+- [Light](https://developer.pebble.com/docs/c/User_Interface/Light/)
+- [WatchInfo](https://developer.pebble.com/docs/c/Foundation/WatchInfo/)
+- [Layer](https://developer.pebble.com/docs/c/User_Interface/Layers/)/[Window](https://developer.pebble.com/docs/c/User_Interface/Window/)/[WindowStack](https://developer.pebble.com/docs/c/User_Interface/Window_Stack/)
+- [Vibes](https://developer.pebble.com/docs/c/User_Interface/Vibes/)
+
+### Unplanned APIs
+
+The following APIs are not currently on the roadmap for RockyJS:
+
+- [Worker](https://developer.pebble.com/docs/c/Worker/)
+- [Clicks](https://developer.pebble.com/docs/c/User_Interface/Clicks/)
+- [DataLogging](https://developer.pebble.com/docs/c/Foundation/DataLogging/)
+- [Memory Management / Heap](https://developer.pebble.com/docs/c/Foundation/Memory_Management/)
+- [SmartStraps](https://developer.pebble.com/docs/c/Smartstrap/)
+- [Wakeup](https://developer.pebble.com/docs/c/Foundation/Wakeup/) / [Launch Reason](https://developer.pebble.com/docs/c/Foundation/Launch_Reason/)
 
