@@ -80,6 +80,9 @@ module.exports = function(grunt) {
                 ]
             }
         },
+        jshint: {
+            src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/TangleKit/**/*.js'],
+        },
         'gh-pages': {
             options: {
                 base: 'build'
@@ -132,7 +135,7 @@ module.exports = function(grunt) {
         }
     });
 
-    var build_tasks = [];
+    var build_tasks = ['jshint:src'];
 
     // only run uglify per default if transpiled applib exists at TINTIN_ROOT
     if (glob.sync(grunt.config('uglify').applib.src).length > 0) {
