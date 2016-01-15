@@ -2,7 +2,7 @@
 
 # RockyJS
 
-RockyJS is a version of Pebble's firmware that has been [transpiled](https://en.wikipedia.org/wiki/Source-to-source_compiler) to JavaScript, and that can be attached to a HTML canvas. This is our first step towards exploring the possibility of including a JavaScript runtime in our operating system.
+RockyJS is a version of Pebble's firmware that has been [transpiled](https://en.wikipedia.org/wiki/Source-to-source_compiler) to JavaScript, and that can be attached to an HTML canvas. This is our first step towards exploring the possibility of including a JavaScript runtime in our operating system.
 
 <a class="jsbin-embed" href="///jsbin.com/jucetom/embed?js,output&height=300px">Interactive RockyJS example on jsbin.com</a>
 <script src="https://static.jsbin.com/js/embed.min.js?3.35.9"></script>
