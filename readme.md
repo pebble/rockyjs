@@ -69,7 +69,7 @@ More information about each example can be found on the example's webpage.
 
 # Transpiling the Pebble Firmware
 
-**NOTE:** If you are *not* a Pebble employee, you should ignore this section of the README.
+**NOTE:** If you are *not* a Pebble employee, you should ignore this section of the README. If you would like to be a Pebble employee, checkout our [jobs page](https://pebble.com/jobs).
 
 If you have access to the [Pebble firmware repository](https://github.com/pebble/tintin), 
 make sure you build applib with `-target emscripten`.
