@@ -19,20 +19,45 @@
 <body>
 <div class="container">
     <p><a href="https://travis-ci.com/pebble/rockyjs"><img src="https://travis-ci.com/pebble/rockyjs.svg?token=u4rPSjFthB3eVsUfx8As&amp;branch=master" alt="Build Status"></a></p>
-<h1 id="examples">Examples</h1>
-<p>There are <a href="examples/">several examples</a> that demonstrate how RockyJS could be used.</p>
+<h1 id="rockyjs">RockyJS</h1>
+<p>RockyJS is a version of Pebble&#39;s firmware that has been <a href="https://en.wikipedia.org/wiki/Source-to-source_compiler">transpiled</a> to JavaScript, and that can be attached to a HTML canvas. This is our first step towards exploring the possibility of including a JavaScript runtime in our operating system.</p>
+<h3 id="that-s-a-weird-first-step-">That&#39;s a weird first step!</h3>
+<p>You&#39;re right! Typically when people want to include a JavaScript runtime on some hardware they begin by evaluating various JavaScript runtimes (or writing their own), and getting one of those running on their hardware.</p>
+<p>We&#39;re doing this in parallel - but by first creating (and publishing) a transpiled version of our firmware that can be run in the browser, we&#39;re enabling ourselves, and the wonderful JavaScript community, to rapidly experiment with what things could look like when JavaScript is a first-class language on our platform.</p>
+<p>We&#39;re interested in seeing how you approach JavaScript watchface development, as well as how you interact with (and wrap) our existing <a href="developer.pebble.com/docs/c/">C-style API</a> to make it look and feel more like JavaScript.</p>
+<h3 id="what-about-pebble-js-">What about Pebble.js?</h3>
+<p>If you&#39;re familiar with Pebble and JavaScript, there&#39;s a good chance you may also be familiar with <a href="https://developer.pebble.com/docs/pebblejs/">Pebble.js</a>.</p>
+<p>Pebble.js allows you to write your <em>application logic</em> in JavaScript (which is executed on the phone with <a href="https://developer.pebble.com/docs/js/">PebbleKit JS</a>). Pebble.js also includes a significant amount of C and JavaScript code that interacts with your application logic and passes messages between the phone (where the application logic takes place), and the watchapp (where the UI is displayed, and events occur).</p>
+<p>The goal of RockyJS is to include a JS runtime in Pebble&#39;s firmware, which would allow us to run JavaScript applications <em>directly on the watch</em>.</p>
+<h1 id="contributing">Contributing</h1>
+<p>We&#39;re interested in seeing what kinds of tools developers create when they have access to a browser-based and pixel-perfect Pebble, as well as how developers wrap our C-style APIs to make them more JavaScript friendly!</p>
+<p>If you create something interesting with RockyJS, add it to the examples folder, submit a PR, and we&#39;ll take a look. This is a great opportunity to <em>directly</em> influence how Pebble approaches JavaScript documentation and API design.</p>
+<h2 id="learn-more">Learn More</h2>
+<p>If you&#39;re interested in staying up to date with our RockyJS development efforts, you can subscribe to our <a href="http://pbl.io/jsapps">JSApps newsletter</a>, and follow <a href="https://twitter.com/pebbledev">@pebbledev</a> (or simply star this repo).</p>
 <h1 id="development">Development</h1>
-<p>RockyJS uses <a href="http://gruntjs.com">Grunt</a> as a build system and <a href="https://www.npmjs.com">npm</a> for dependency management.
-If you are unfamiliar with these technologies, we recommend you read their respective guides. 
-Otherwise, <code>npm install -g grunt-cli</code> followed by <code>npm install</code> should do the trick.</p>
-<p>All examples should work directly from the file system without building them. 
-The default task (simply run <code>grunt</code>) will combine all JavaScript, render markdown, and replace file references.</p>
-<h2 id="transpile-pebble-firmware">Transpile Pebble Firmware</h2>
+<h2 id="dependencies">Dependencies</h2>
+<p>RockyJS uses <a href="http://gruntjs.com">Grunt</a> as a build system and <a href="https://www.npmjs.com">npm</a> for dependency management. If you are unfamiliar with these technologies, we recommend you read their respective guides.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>To begin working with the RockyJS repository, run the following commands:</p>
+<pre><code class="lang-bash">&gt; git clone git@github.com:pebble/rockyjs.git
+&gt; cd rockyjs
+&gt; npm install -g grunt-cli
+&gt; npm install
+&gt; grunt
+</code></pre>
+<p>The default build task (<code>grunt</code>) will combine all JavaScript, render markdown, and replace file references. </p>
+<h2 id="working-with-the-examples">Working with the Examples</h2>
+<p>The <a href="examples/">examples</a> are designed to be run directly from the file system without needing to build them, and demonstrate some of the things that can be accomplished with the current implementation.</p>
+<p>More information about each example can be found on the example&#39;s webpage.</p>
+<h1 id="transpiling-the-pebble-firmware">Transpiling the Pebble Firmware</h1>
+<p><strong>NOTE:</strong> If you are <em>not</em> a Pebble employee, you should ignore this section of the README.</p>
 <p>If you have access to the <a href="https://github.com/pebble/tintin">Pebble firmware repository</a>, 
 make sure you build applib with <code>-target emscripten</code>.
 The default Grunt task of this repository will replace the file <code>src/transpiled.js</code> with 
 <code>${tintin_root}/build/applib/applib-targets/emscripten/applib.js</code> if it exists. 
 Run <code>grunt newer:uglify:applib --verbose</code> to debug this step if necessary (be aware that the minification task might take a while).</p>
+<h1 id="license">LICENSE</h1>
+<p>RockyJS is licensed under the <a href="https://github.com/pebble/rockyjs/blob/master/LICENSE">PEBBLE JAVASCRIPT LICENSE AGREEMENT</a>.</p>
 
 </div>
 </body>
