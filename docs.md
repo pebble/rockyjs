@@ -3,7 +3,7 @@
 This document is split into two major sections:
 
 - [RockyJS Web API](#rockyjs-web-api) - The APIs used to create and update an instance of RockyJS on a webpage.
-- [RockyJS Pebble API](#pebble-api-compatibility) - A subset of Pebble's [C-style API](https://developer.pebble.com/docs/c) that can invoked through JavaScript.
+- [Pebble API Compatibility](#pebble-api-compatibility) - A subset of Pebble's [C-style API](https://developer.pebble.com/docs/c) that can invoked through JavaScript.
 
 ## RockyJS Web API
 
