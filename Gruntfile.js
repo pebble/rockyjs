@@ -5,6 +5,7 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt);
 
     var pkg = grunt.file.readJSON('package.json');
+    var githubBanner = grunt.template.process(grunt.file.read('html/misc/githubBanner.html'), {data: {pkg: pkg}});
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
         pkg: pkg,
@@ -38,7 +39,7 @@ module.exports = function(grunt) {
             examples:{
                 options: {
                     process: true,
-                    data: {rockyjs_path: "<%=rockyjs_path%>"}
+                    data: {rockyjs_path: "<%=rockyjs_path%>", github_banner: githubBanner}
                 },
                 files: [
                     {
@@ -75,7 +76,8 @@ module.exports = function(grunt) {
                     basePath: 'build',
                     layout: 'html/markdown/template.html',
                     templateData: {
-                        pkg: pkg
+                        pkg: pkg,
+                        github_banner: githubBanner,
                     }
                 }
             }

@@ -5,6 +5,10 @@
     "test": "grunt test"
   },
   "homepage": "http://pebble.github.io/rockyjs/",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/pebble/rockyjs.git"
+  },
   "license" : "Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. http://pebble.github.io/rockyjs/LICENSE",
   "devDependencies": {
     "chai": "^3.4.1",
