@@ -91,6 +91,16 @@ module.exports = function(grunt) {
                         dest: 'build'
                     }
                 ]
+            },
+            build: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'html',
+                        src: ['img/*'],
+                        dest: 'build'
+                    }
+                ]
             }
         },
         jshint: {

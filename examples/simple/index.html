@@ -21,6 +21,9 @@
     <!-- build:css ../../css/bootstrap.min.css -->
     <link href="../../html/css/bootstrap.min.css" rel="stylesheet">
     <!-- /build -->
+    <!-- build:css ../../css/style.css -->
+    <link href="../../html/css/style.css" rel="stylesheet">
+    <!-- /build -->
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -70,6 +73,9 @@
             Rocky's <code>update_proc</code> is a method that will be invoked everytime the canvas is marked as dirty with the <code>mark_dirty</code> method. The update_proc takes two parameters: <em>ctx</em> - the graphics context, and <em>bounds</em> - the bounds of the window.
         </p>
     </div>
+    <!-- build:template
+    <%= github_banner %>
+    /build -->
 </div>
 </body>
 
@@ -103,8 +109,4 @@
         }, 1000 / 20);
     })();
 </script>
-
-<!-- build:template
-<%= github_banner %>
-/build -->
 </html>
