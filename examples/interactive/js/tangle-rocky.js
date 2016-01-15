@@ -21,7 +21,7 @@ Rocky.bindTangle = function(args) {
 
     var tangle = new Tangle(element, {
         initialize: function () {
-            var subElements = element.querySelectorAll('[data-var][data-init]')
+            var subElements = element.querySelectorAll('[data-var][data-init]');
             for (var i = 0; i < subElements.length; i++) {
                 var subElement = subElements[i];
                 var name = subElement.attributes["data-var"].value;
