@@ -138,7 +138,7 @@ module.exports = function(grunt) {
                 fields: {
                     main: '<%=rockyjs_path%>'
                 },
-                indent: 2
+                indent: 4
             },
             files: ['package.json']
         }
