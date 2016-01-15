@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>pblGraphics ideas</title>
+    <!-- a change to verify if the travis build works -->
+
+    <script src="../dist/rocky-0.1.0.js"></script>
+    <link rel="stylesheet" href="../css/bootstrap.min.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <p>Some code <a href="https://github.com/franc0is">@franc0is</a> uses to tinker with the transpiled firmware code.</p>
+    <canvas id="pebble" width="144" height="168"></canvas>
+    <script type='text/javascript' src="js/pbl_graphics.js"></script>
+</div>
+</body>
+<script>
+    pblGraphics.setStrokeColor(0xF8);
+    pblGraphics.drawLine([0, 0], [100, 100]);
+    pblGraphics.drawLine([0, 10], [100, 10]);
+    pblGraphics.drawLine([0, 20], [100, 20]);
+    pblGraphics.drawLine([0, 30], [100, 30]);
+    pblGraphics.drawCircle([30, 30], 10);
+    //pblGraphics.drawPDC(318, [50, 50]);
+    pblGraphics.framebuffer.markDirty();
+
+    // pblGraphics.playPDCS(352, [0,0])
+
+    // pblGraphics.drawText("test", "RESOURCE_ID_GOTHIC_28", [0, 0, 100, 100])
+    // pblGraphics.framebuffer.markDirty()
+</script>
+</html>
