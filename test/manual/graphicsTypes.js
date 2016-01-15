@@ -106,15 +106,21 @@ describe('Graphic Types', function() {
                 expect(GRect([1, 2, 3])).to.eql({x:1, y:2, w:3, h:undefined});
                 expect(GRect([1, 2])).to.eql({x:1, y:2, w:undefined, h:undefined});
                 expect(GRect([1])).to.eql({x:1, y:undefined, w:undefined, h:undefined});
-                expect(GRect([])).to.eql({x:undefined, y:undefined, w:undefined, h:undefined});
+                var empty = GRect([]);
+                expect(empty.x).to.equal(undefined);
+                expect(empty.y).to.equal(undefined);
+                expect(empty.w).to.equal(undefined);
+                expect(empty.h).to.equal(undefined);
             });
         });
         describe('object', function() {
             it('works with object', function () {
                 expect(GRect({x:1, y:2, w:3, h:4})).to.eql({x:1, y:2, w:3, h:4});
             });
-            it('ignores everything beyond x,y,w,h', function() {
-                expect(GRect({x:1, y:2, w:3, h:4, z:5})).to.eql({x:1, y:2, w:3, h:4});
+            it('preserves identity x,y,w,h', function() {
+                var obj = {x:1, y:2, w:3, h:4, z:5};
+                var rect = GRect(obj);
+                expect(rect).to.equal(obj);
             });
             it('treats missing properties as undefined', function() {
                 expect(GRect({x:1, y:2, w:3})).to.eql({x:1, y:2, w:3, h:undefined});
