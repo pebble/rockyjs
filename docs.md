@@ -20,9 +20,21 @@ var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
 
 ### rocky.export_global_c_symbols()
 
-The `export_global_c_symbos` will pollute the global namespace with the subset of available APIs calls from Pebble's C-style API. This allows you to invoke (the implemented) functions from Pebble's C API without having to preface every call with `rocky.functionName`.
+Rocky exposes a [subset of Pebble's C-Style](#RockyJS-Pebble-API) that can invoked with `rocky.c_api_function_name(...)`. The `export_global_c_symbols` adds all of the available methods from the C-Style API to the global namespace, removing the need to preface each API call with `rocky.`.
 
-This method should typically not be used if there are multiple instances of RockyJS on the same page. See the two exampls below for 
+The following two examples demonstrate how `rocky.export_global_c_symbols()` affects a simple implementation:
+
+```
+// Calling a C-Style API without rocky.export_global_c_symbols
+var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+
+rocky.update_proc = function (ctx, bounds) {
+    rocky.graphics_context_set_stroke_color(ctx, rocky.GColorRed);
+    rocky.graphics_context_set_stroke_width(ctx, 10);
+    rocky.graphics_draw_line(ctx, [50, 0], [100, 50]);
+};
+
+```
 
 ```
 // Calling a C-Style API after rocky.export_global_c_symbols
@@ -36,17 +48,9 @@ rocky.update_proc = function (ctx, bounds) {
 };
 ```
 
-```
-// Calling a C-Style API without rocky.export_global_c_symbols
-var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+**NOTE 1:** This method should *only* be invoked in isolated playgrounds when there is a single instance of Rocky.
 
-rocky.update_proc = function (ctx, bounds) {
-    rocky.graphics_context_set_stroke_color(ctx, rocky.GColorRed);
-    rocky.graphics_context_set_stroke_width(ctx, 10);
-    rocky.graphics_draw_line(ctx, [50, 0], [100, 50]);
-};
-
-```
+**NOTE 2:** Adding functions to the global namespace is generally considered an anti-pattern. The `export_global_c_symbols` may be invoked with an optional parameter (a namespace object) - when invoked in this way, the functions will be bound to the namespace object rather than the window.
 
 ### rocky.mark_dirty()
 
@@ -74,8 +78,8 @@ setInterval(function() {
 
 Instances of RockyJS include a property, `update_proc`, that will be invoked each time the instance is marked dirty with `rocky.mark_dirty`. The update_proc method should be set to a callback function with parameters: 
 
-- ctx: A JavaScript version of the [GContext](https://developer.pebble.com/docs/c/Graphics/Graphics_Context/) object.
-- bounds: A JavaScript version of the [GRect](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#GRect) object indicating the bounds of the virtual display.
+- `ctx`: A JavaScript version of the [GContext](https://developer.pebble.com/docs/c/Graphics/Graphics_Context/) object.
+- `bounds`: A JavaScript version of the [GRect](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#GRect) object indicating the bounds of the virtual display.
 
 See [rocky.mark_dirty](#rocky-mark_dirty) for sample usage.
 
