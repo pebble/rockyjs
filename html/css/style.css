@@ -1,0 +1,14 @@
+#githubForkLink {
+    background: url(../img/forkBanner.png) no-repeat top right;
+    position: absolute;
+    display: block;
+    width: 149px;
+    height: 149px;
+    top: 0;
+    right: 0;
+
+    /* Hide the text. */
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+}

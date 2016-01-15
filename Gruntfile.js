@@ -4,9 +4,11 @@ module.exports = function(grunt) {
 
     require('load-grunt-tasks')(grunt);
 
+    var pkg = grunt.file.readJSON('package.json');
+    var githubBanner = grunt.template.process(grunt.file.read('html/misc/githubBanner.html'), {data: {pkg: pkg}});
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: pkg,
         rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
         license_banner: "/* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. <%=pkg.license%> */\n\n",
         uglify: {
@@ -38,7 +40,7 @@ module.exports = function(grunt) {
             examples:{
                 options: {
                     process: true,
-                    data: {rockyjs_path: "<%=rockyjs_path%>"}
+                    data: {rockyjs_path: "<%=rockyjs_path%>", github_banner: githubBanner}
                 },
                 files: [
                     {
@@ -73,7 +75,11 @@ module.exports = function(grunt) {
                 ],
                 options: {
                     basePath: 'build',
-                    layout: 'html/markdown/template.html'
+                    layout: 'html/markdown/template.html',
+                    templateData: {
+                        pkg: pkg,
+                        github_banner: githubBanner,
+                    }
                 }
             }
         },
@@ -83,6 +89,16 @@ module.exports = function(grunt) {
                     {
                         expand: true,
                         src: ['dist/**/*'],
+                        dest: 'build'
+                    }
+                ]
+            },
+            build: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'html',
+                        src: ['img/*'],
                         dest: 'build'
                     }
                 ]
