@@ -93,6 +93,10 @@ Rocky.bindCanvas= function(canvas, options) {
 
     // needed for Espruino compatibility (where functions are global and need a reference)
     Rocky.activeBinding = binding;
+
+    // schedule one render pass for the next run iteration of the run loop
+    setTimeout(function(){binding.mark_dirty();}, 0);
+
     return binding;
 };
 
