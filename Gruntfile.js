@@ -4,9 +4,10 @@ module.exports = function(grunt) {
 
     require('load-grunt-tasks')(grunt);
 
+    var pkg = grunt.file.readJSON('package.json');
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: pkg,
         rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
         uglify: {
             options: {
@@ -72,7 +73,10 @@ module.exports = function(grunt) {
                 ],
                 options: {
                     basePath: 'build',
-                    layout: 'html/markdown/template.html'
+                    layout: 'html/markdown/template.html',
+                    templateData: {
+                        pkg: pkg
+                    }
                 }
             }
         },
