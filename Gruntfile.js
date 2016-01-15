@@ -104,6 +104,10 @@ module.exports = function(grunt) {
                 ]
             }
         },
+        eslint: {
+            src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/interactive/js/TangleKit/**/*.js'],
+            test: ['test/**/*.js']
+        },
         jshint: {
             src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/interactive/js/TangleKit/**/*.js'],
             test: ['test/**/*.js']
@@ -159,6 +163,8 @@ module.exports = function(grunt) {
         return ret;
     }
 
+    grunt.loadNpmTasks("grunt-contrib-eslint");
+
     grunt.registerTask('publish-ci', function() {
         // need this
         this.requires(['build']);
@@ -174,7 +180,7 @@ module.exports = function(grunt) {
         }
     });
 
-    var build_tasks = ['jshint:src'];
+    var build_tasks = ['jshint:src', 'eslint:src'];
 
     // only run uglify per default if transpiled applib exists at TINTIN_ROOT
     if (glob.sync(grunt.config('uglify').applib.src).length > 0) {
@@ -187,6 +193,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
-    grunt.registerTask('test', ['build', 'jshint:test', 'mochaTest']);
+    grunt.registerTask('test', ['build', 'jshint:test', 'eslint:test', 'mochaTest']);
     grunt.registerTask('publish', ['build', 'gh-pages:publish']);
 };
