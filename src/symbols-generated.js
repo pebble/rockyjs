@@ -72,7 +72,7 @@ Rocky.addGeneratedSymbols = function (obj) {
     // void graphics_context_set_antialiased(GContext* ctx, bool enable);
     obj.graphics_context_set_antialiased = obj.module.cwrap("graphics_context_set_antialiased", "void", ["number", "number"]);
 
-    // Color definitions
+    // GColor definitions
     obj.GColorBlack =                 0xC0;
     obj.GColorOxfordBlue =            0xC1;
     obj.GColorDukeBlue =              0xC2;
@@ -164,6 +164,7 @@ Rocky.addGeneratedSymbols = function (obj) {
         return emx_graphics_draw_arc(ctx, rect.x, rect.y, rect.w, rect.h, scale_mode, angle_start, angle_end);
     };
 
+    // GCornerMask
     obj.GCornerNone = 0;
     obj.GCornerTopLeft = 1 << 0;
     obj.GCornerTopRight = 1 << 1;
@@ -233,28 +234,44 @@ Rocky.addGeneratedSymbols = function (obj) {
     // void grect_standardize(GRect *rect);
     // void emx_grect_standardize(int16_t rect_origin_x, int16_t rect_origin_y,
     //                            int16_t rect_size_w, int16_t rect_size_h) {
-    var emx_grect_standardize = obj.module.cwrap("emx_grect_standardize", "void", []);
+    var emx_grect_standardize = obj.module.cwrap("emx_grect_standardize", "number", []);
     obj.grect_standardize = function(rect) {
         rect = obj.GRect(rect);
-        return emx_grect_standardize(rect.x, rect.y, rect.w, rect.h);
+        var returnRectPTR = emx_grect_standardize(rect.x, rect.y, rect.w, rect.h);
+        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
+                                   getValue(returnRectPTR + 2, i16),
+                                   getValue(returnRectPTR + 4, i16),
+                                   getValue(returnRectPTR + 6, i16));
+        rect.x = returnRect.x;
+        rect.y = returnRect.y;
+        rect.w = returnRect.w;
+        rect.h = returnRect.h;
     };
 
     // void grect_clip(GRect *rect_to_clip, GRect *rect_clipper);
     // void emx_grect_clip(int16_t to_clip_x, int16_t to_clip_y, int16_t to_clip_w, int16_t to_clip_h,
     //                     int16_t clipper_x, int16_t clipper_y, int16_t clipper_w, int16_t clipper_h) {
-    var emx_grect_clip = obj.module.cwrap("emx_grect_clip", "void",
+    var emx_grect_clip = obj.module.cwrap("emx_grect_clip", "number",
                                          ["number", "number", "number", "number",
                                           "number", "number", "number", "number"]);
     obj.grect_clip = function(rect_to_clip, rect_clipper) {
         rect_to_clip = obj.GRrect(rect_to_clip);
         rect_clipper = obj.GRect(rect_clipper);
-        return emx_grect_clip(rect_to_clip.x, rect_to_clip.y, rect_to_clip.w, rect_to_clip.h,
-                              rect_clipper.x, rect_clipper.y, rect_clipper.w, rect_clipper.h);
+        var returnRectPTR =  emx_grect_clip(rect_to_clip.x, rect_to_clip.y, rect_to_clip.w, rect_to_clip.h,
+                                            rect_clipper.x, rect_clipper.y, rect_clipper.w, rect_clipper.h);
+        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
+                                   getValue(returnRectPTR + 2, i16),
+                                   getValue(returnRectPTR + 4, i16),
+                                   getValue(returnRectPTR + 6, i16));
+        rect_to_clip.x = returnRect.x;
+        rect_to_clip.y = returnRect.y;
+        rect_to_clip.w = returnRect.w;
+        rect_to_clip.h = returnRect.h;
     };
 
     // bool grect_contains_point(GRect *rect, GPoint *point):
-    //  bool emx_grect_contains_point(int16_t r_x, int16_t r_y, int16_t r_w, int16_t r_h,
-    //                                int16_t p_x, int16_t p_y) {
+    // bool emx_grect_contains_point(int16_t r_x, int16_t r_y, int16_t r_w, int16_t r_h,
+    //                               int16_t p_x, int16_t p_y) {
     var emx_grect_contains_point = obj.module.cwrap("emx_grect_contains_point", "number",
                                                    ["number", "number", "number", "number",
                                                     "number", "number"]);
@@ -275,7 +292,7 @@ Rocky.addGeneratedSymbols = function (obj) {
         return returnPoint;
     };
 
-    // GRect grect_crop(GRect *rect, int32_t crop_size_px)
+    // GRect grect_crop(GRect rect, const int32_t crop_size_px)
     // GRect *emx_grect_crop(int16_t r_x, int16_t r_y, int16_t r_w, int16_t r_h, int32_t crop_size_px) {
     var emx_grect_crop = obj.module.cwrap("emx_grect_crop", "number",
                                          ["number", "number", "number", "number",
@@ -290,6 +307,7 @@ Rocky.addGeneratedSymbols = function (obj) {
         return returnRect;
     };
 
+    // GAlign
     obj.GAlignCenter = 0x0;
     obj.GAlignTopLeft = 0x1;
     obj.GAlignTopRight = 0x2;
@@ -304,14 +322,22 @@ Rocky.addGeneratedSymbols = function (obj) {
     // void emx_grect_align(int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h,
     //                     int16_t inside_x, int16_t inside_y, int16_t inside_w, int16_t inside_h,
     //                     const GAlign alignment, const bool clip) {
-    var emx_grect_align = obj.module.cwrap("emx_grect_align", "void",
+    var emx_grect_align = obj.module.cwrap("emx_grect_align", "number",
                                           ["number", "number", "number", "number",
                                            "number", "number", "number", "number",
                                            "number", "number"]);
     obj.grect_align = function(rect, inside_rect, alignment, clip) {
         rect = obj.GRect(rect);
         inside_rect = obj.GRect(inside_rect);
-        emx_grect_align(rect, inside_rect, alignment, clip);
+        var returnRectPTR = emx_grect_align(rect, inside_rect, alignment, clip);
+        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
+                                   getValue(returnRectPTR + 2, i16),
+                                   getValue(returnRectPTR + 4, i16),
+                                   getValue(returnRectPTR + 6, i16));
+        rect.x = returnRect.x;
+        rect.y = returnRect.y;
+        rect.w = returnRect.w;
+        rect.h = returnRect.h;
     };
 
     // void graphics_draw_circle(GContext *ctx, GPoint center, uin16_t radius);
@@ -322,7 +348,7 @@ Rocky.addGeneratedSymbols = function (obj) {
                                                    ["number", "number", "number"]);
     obj.graphics_draw_circle = function(center, radius) {
         center = obj.GPoint(center);
-        emx_graphics_draw_circle(center.x, center.y, radius);
+        return emx_graphics_draw_circle(center.x, center.y, radius);
     };
 
 
@@ -332,10 +358,10 @@ Rocky.addGeneratedSymbols = function (obj) {
                                                    ["number", "number", "number"]);
     obj.graphics_fill_circle = function(center, radius) {
         center = obj.GPoint(center);
-        emx_graphics_fill_circle(center.x, center.y, radius);
+        return emx_graphics_fill_circle(center.x, center.y, radius);
     };
 
-    // void graphics_draw_round_rect(GContext *ctx, GRect *rect, uin16_t radius);
+    // void graphics_draw_round_rect(GContext *ctx, GRect rect, uint16_t radius)
     // void emx_graphics_draw_round_rect(GContext* ctx,
     //                                   int16_t rect_origin_x, int16_t rect_origin_y,
     //                                   int16_t rect_size_w, int16_t rect_size_h,
@@ -344,9 +370,10 @@ Rocky.addGeneratedSymbols = function (obj) {
                                                        ["number", "number", "number", "number", "number"]);
     obj.graphics_draw_round_rect = function(ctx, rect, radius) {
         rect = obj.GRect(rect);
-        emx_graphics_draw_round_rect(ctx, rect.x, rect.y, rect.w, rect.h, radius);
+        return emx_graphics_draw_round_rect(ctx, rect.x, rect.y, rect.w, rect.h, radius);
     };
 
+    // GOvalScaleMode
     obj.GOvalScaleModeFitCircle = 0;
     obj.GOvalScaleModeFillCircle = 1;
 
