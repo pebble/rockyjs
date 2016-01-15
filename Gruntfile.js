@@ -23,7 +23,7 @@ module.exports = function(grunt) {
                 banner: '/* <%=pkg.license%> */\n\n'
             },
             rockyjs: {
-                src: ['src/html-binding.js', 'src/functions-manual.js', 'src/functions-generated.js',
+                src: ['src/html-binding.js', 'src/symbols-manual.js', 'src/symbols-generated.js',
                       'src/transpiled.js'],
                 dest: '<%= rockyjs_path %>'
             }
@@ -87,6 +87,15 @@ module.exports = function(grunt) {
                 ]
             }
         },
+        jshint: {
+            src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/interactive/js/TangleKit/**/*.js'],
+            test: ['test/**/*.js']
+        },
+        mochaTest: {
+            all: {
+                src: ['test/**/*.js']
+            }
+        },
         'gh-pages': {
             options: {
                 base: 'build'
@@ -139,7 +148,7 @@ module.exports = function(grunt) {
         }
     });
 
-    var build_tasks = [];
+    var build_tasks = ['jshint:src'];
 
     // only run uglify per default if transpiled applib exists at TINTIN_ROOT
     if (glob.sync(grunt.config('uglify').applib.src).length > 0) {
@@ -152,6 +161,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
-    grunt.registerTask('test', ['default']); // no real tests for now
+    grunt.registerTask('test', ['jshint:test', 'mochaTest']);
     grunt.registerTask('publish', ['build', 'gh-pages:publish']);
 };
