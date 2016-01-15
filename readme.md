@@ -61,7 +61,7 @@ One of the main goals of RockyJS is to better understand how JavaScript develope
 
 The initial version of RockyJS uses Pebble's existing C-style API and JavaScript syntax, though at the moment not *all* APIs are implemented.
 
-See [Rocky Documentation](docs.html) for more details.
+See [Rocky Documentation](docs/) for more details.
 
 ## Working with the Examples
 
