@@ -1,3 +1,5 @@
+/* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. http://pebble.github.io/rockyjs/LICENSE */
+
 if (typeof(Rocky) == "undefined") {
     Rocky = {};
 }

@@ -4,7 +4,7 @@ if (typeof(Rocky) == "undefined") {
 
 TimerService = {
     "subscribe": function(granularity, cb) {
-        function do_it(){
+        function timer_loop(){
             var date = new Date();
             var dt = {
                 hour: date.getHours(),
@@ -13,8 +13,8 @@ TimerService = {
             };
             cb(dt);
         }
-        setInterval(do_it, 1000);
-        do_it();
+        setInterval(timer_loop, 1000);
+        timer_loop();
     }
 };
 

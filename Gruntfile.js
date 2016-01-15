@@ -9,12 +9,19 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
         uglify: {
+            options: {
+                banner: '/* <%=pkg.license%> */\n\n'
+            },
             applib: {
                 src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/applib.js',
                 dest: 'src/transpiled.js'
             }
         },
         concat: {
+            options: {
+                stripBanners: true,
+                banner: '/* <%=pkg.license%> */\n\n'
+            },
             rockyjs: {
                 src: ['src/html-binding.js', 'src/functions-manual.js', 'src/functions-generated.js',
                       'src/transpiled.js'],
@@ -81,7 +88,7 @@ module.exports = function(grunt) {
             }
         },
         jshint: {
-            src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/TangleKit/**/*.js'],
+            src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/interactive/js/TangleKit/**/*.js'],
             test: ['test/**/*.js']
         },
         mochaTest: {
