@@ -5,7 +5,7 @@
     "test": "grunt test"
   },
   "homepage": "http://pebble.github.io/rockyjs/",
-  "license" : "Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. http://pebble.github.io/rockyjs/LICENSE",
+  "license" : "http://pebble.github.io/rockyjs/LICENSE",
   "devDependencies": {
     "chai": "^3.4.1",
     "glob": "^6.0.1",

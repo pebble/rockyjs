@@ -8,9 +8,10 @@ module.exports = function(grunt) {
         tintin_root: process.env.TINTIN_ROOT,
         pkg: grunt.file.readJSON('package.json'),
         rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
+        license_banner: "/* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. <%=pkg.license%> */\n\n",
         uglify: {
             options: {
-                banner: '/* <%=pkg.license%> */\n\n'
+                banner: '<%=license_banner%>'
             },
             applib: {
                 src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/applib.js',
@@ -20,7 +21,7 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 stripBanners: true,
-                banner: '/* <%=pkg.license%> */\n\n'
+                banner: '<%=license_banner%>'
             },
             rockyjs: {
                 src: ['src/html-binding.js', 'src/symbols-manual.js', 'src/symbols-generated.js',
