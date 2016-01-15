@@ -198,7 +198,10 @@ Rocky.addGeneratedSymbols = function (obj) {
     };
 
     // bool gcolor_legible_over(GColor8 background_color);
-    obj.gcolor_legible_over = obj.module.cwrap("gcolor_legible_over", "number", ["number"]);
+    var emx_gcolor_legible_over = obj.module.cwrap("emx_gcolor_legible_over", "number", ["number"]);
+    obj.gcolor_legible_over = function(color) {
+        return emx_gcolor_legible_over(color);
+    };
 
     // bool gpoint_equal(GPoint *a, GPoint *b);
     // bool emx_gpoint_equal(int16_t a_x, int16_t a_y, int16_t b_x, int16_t b_y);
