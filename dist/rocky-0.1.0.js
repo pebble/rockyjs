@@ -411,7 +411,7 @@ Rocky.addGeneratedSymbols = function (obj) {
                                          ["number", "number", "number", "number",
                                           "number", "number", "number", "number"]);
     obj.grect_clip = function(rect_to_clip, rect_clipper) {
-        rect_to_clip = obj.GRrect(rect_to_clip);
+        rect_to_clip = obj.GRect(rect_to_clip);
         rect_clipper = obj.GRect(rect_clipper);
         var returnRectPTR =  emx_grect_clip(rect_to_clip.x, rect_to_clip.y, rect_to_clip.w, rect_to_clip.h,
                                             rect_clipper.x, rect_clipper.y, rect_clipper.w, rect_clipper.h);
