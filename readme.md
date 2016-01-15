@@ -7,13 +7,15 @@ RockyJS is a version of Pebble's firmware that has been [transpiled](https://en.
 <a class="jsbin-embed" href="///jsbin.com/jucetom/embed?js,output&height=300px">Interactive RockyJS example on jsbin.com</a>
 <script src="https://static.jsbin.com/js/embed.min.js?3.35.9"></script>
 
+[More examples in this repository](examples/)
+
 ### That's a weird first step!
 
 You're right! Typically when people want to include a JavaScript runtime on some hardware they begin by evaluating various JavaScript runtimes (or writing their own), and getting one of those running on their hardware.
 
 We're doing this in parallel - but by first creating (and publishing) a transpiled version of our firmware that can be run in the browser, we're enabling ourselves, and the wonderful JavaScript community, to rapidly experiment with what things could look like when JavaScript is a first-class language on our platform.
 
-We're interested in seeing how you approach JavaScript watchface development, as well as how you interact with (and wrap) our existing [C-style API](developer.pebble.com/docs/c/) to make it look and feel more like JavaScript.
+We're interested in seeing how you approach JavaScript watchface development, as well as how you interact with (and wrap) our existing [C-style API](http://developer.pebble.com/docs/c/) to make it look and feel more like JavaScript.
 
 ### What about Pebble.js?
 
