@@ -2,9 +2,25 @@
 
 # RockyJS
 
-At [Pebble](https://pebble.com), we are currently exploring the possibility of including a JavaScript runtime in our OS and enabling developers to create JavaScript apps that can run natively on the watch.
+RockyJS is a version Pebble's firmware that has been [transpiled](https://en.wikipedia.org/wiki/Source-to-source_compiler) to JavaScript, and that can be attached to a HTML canvas. This is our first step towards exploring the possibility of including a JavaScript runtime in our operating system.
 
-To date, we have [transpiled](https://en.wikipedia.org/wiki/Source-to-source_compiler) our firmware to JavaScript, and enabled it to be attached to a canvas. This allows developers to play with a hybrid C/JavaScript Pebble API - using JavaScript syntax, and loose typing with Pebble's existing [C functionality](https://developer.getpebble.com/docs/c/). 
+### That's a weird first step!
+
+You're right! Kind of..
+
+Typically when people want to include a JavaScript runtime on some hardware they begin by evaluating various JavaScript runtimes (or writing their own), and getting one of those running on their hardware.
+
+We're doing this in parallel - but by first creating (and publishing) a transpiled version of our hardware that can be run in the browser, we're enabling ourselves, and the wonderful JavaScript community, to rapidly experiment with on what it looks like when JavaScript is a first-class language on our platform.
+
+We're interested in seeing how you approach JavaScript watchface development, as well as how you interact with (and wrap) our existing [C-style API](developer.pebble.com/docs/c/) to make it look and feel more like JavaScript.
+
+### What about Pebble.js?
+
+If you're familiar with Pebble and JavaScript, there's a good chance you may also be familiar with [Pebble.js](https://developer.pebble.com/docs/pebblejs/).
+
+Pebble.js allows you to write your *application logic* in JavaScript (which is executed on the phone with [PebbleKit JS](https://developer.pebble.com/docs/js/)). Pebble.js also includes a significant amount of C and JavaScript code that interacts with your application logic and passes messages between the phone (where the application logic takes place), and the watchapp (where the UI is displayed, and events occur).
+
+The goal of RockyJS is include a JS runtime in Pebble's firmware, which would allow us to run JavaScript applications *directly on the watch*.
 
 ## Contributing
 
@@ -44,15 +60,8 @@ The [examples](examples/) are designed to be run directly from the file system w
 
 More information about each example can be found on the example's webpage.
 
-# Miscellaneous
 
-## A Note on RockyJS and Pebble.js
-
-If you're familiar with Pebble and JavaScript, you may also be familiar with [Pebble.js](https://developer.getpebble.com/docs/pebblejs). 
-
-It's worth noting that RockyJS is significantly different from Pebble.js. Pebble.js allows you to write your *application logic* in JavaScript, and interfaces with a C application (that the developer does not modify) through [AppMessages](https://developer.getpebble.com/docs/c/Foundation/AppMessage/). The AppMessages indicate what to render on the watch, and pass event information such as button presses, accelerometer data, etc between the C app and the JS logic.
-
-## Transpiling the Pebble Firmware
+# Transpiling the Pebble Firmware
 
 **NOTE:** If you are *not* a Pebble employee, you should ignore this section of the README.
 
