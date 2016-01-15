@@ -11,6 +11,47 @@ describe('Graphic Types', function() {
        });
     });
 
+    describe('GSize', function () {
+        var GSize = symbols.GSize;
+        describe('array', function() {
+            it('works with arrays', function () {
+                expect(GSize([1, 2])).to.eql({w:1, h:2});
+            });
+            it('ignores everything beyond two elements', function() {
+                expect(GSize([1, 2, 3])).to.eql({w:1, h:2});
+            });
+            it('treats too short arrays as undefined values', function() {
+                expect(GSize([1])).to.eql({w:1, h:undefined});
+                expect(GSize([])).to.eql({w:undefined, h:undefined});
+            });
+        });
+        describe('object', function() {
+            it('works with object', function () {
+                expect(GSize({w:1, h:2})).to.eql({w:1, h:2});
+            });
+            it('ignores everything beyond w,h', function() {
+                expect(GSize({w:1, h:2, z:3})).to.eql({w:1, h:2});
+            });
+            it('treats missing properties as undefined', function() {
+                expect(GSize({w:1})).to.eql({w:1, h:undefined});
+                expect(GSize({h:2})).to.eql({w:undefined, h:2});
+                expect(GSize({z:3})).to.eql({w:undefined, h:undefined});
+                expect(GSize([])).to.eql({w:undefined, h:undefined});
+            });
+        });
+        describe('values', function() {
+            it('works with values', function () {
+                expect(GSize(1, 2)).to.eql({w:1, h:2});
+            });
+            it('ignores everything beyond two values', function() {
+                expect(GSize(1, 2, 3)).to.eql({w:1, h:2});
+            });
+            it('treats missing values as undefined', function() {
+                expect(GSize(1)).to.eql({w:1, h:undefined});
+            });
+        });
+    });
+
     describe('GPoint', function () {
         var GPoint = symbols.GPoint;
         describe('array', function() {
