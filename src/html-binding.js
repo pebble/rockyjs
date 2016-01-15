@@ -88,7 +88,7 @@ Rocky.bindCanvas= function(canvas, options) {
         }
     }
 
-    Rocky.addGenericFunctions(binding);
+    Rocky.addGeneratedSymbols(binding);
     Rocky.addManualFunctions(binding);
 
     // needed for Espruino compatibility (where functions are global and need a reference)
