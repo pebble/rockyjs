@@ -78,6 +78,9 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.GColorYellow = 0xFC;
     obj.GColorWhite = 0xFF;
     obj.GColorBlack = 0xC0;
+    obj.GColorBlueMoon = 0xC7;
+    obj.GColorJaegerGreen = 0xC9;
+    obj.GColorJazzberryJam = 0xE1;
 
     // void graphics_fill_radial(GContext *ctx, GRect rect, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);
     // void emx_graphics_fill_radial(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);

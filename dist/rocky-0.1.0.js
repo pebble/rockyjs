@@ -105,6 +105,10 @@ Rocky.bindCanvas= function(canvas, options) {
 
     // useful if clients only have a single Rocky instance
     Rocky.activeBinding = binding;
+
+    // schedule one render pass for the next run iteration of the run loop
+    setTimeout(function(){binding.mark_dirty();}, 0);
+
     return binding;
 };
 
@@ -137,6 +141,36 @@ Rocky.addManualSymbols = function (obj) {
         }
         return {x: x, y: y, w: w, h: h};
     };
+
+    obj.GRectZero = obj.GRect(0, 0, 0, 0);
+
+    obj.GEdgeInsets = function(top, right, bottom, left) {
+        if (arguments.length == 1 && typeof top === "object") {
+            var obj = top;
+            return {
+                top: typeof(obj[0]) != "undefined" ? obj[0] : obj.top,
+                right: typeof(obj[1]) != "undefined" ? obj[1] : obj.right,
+                bottom: typeof(obj[2]) != "undefined" ? obj[2] : obj.bottom,
+                left: typeof(obj[3]) != "undefined" ? obj[3] : obj.left
+            };
+        }
+        right = arguments.length <= 1 ? top : right;
+        bottom = arguments.length <= 2 ? top : bottom;
+        left = arguments.length <= 3 ? right : left;
+        return {top:top, right:right, bottom:bottom, left:left};
+    };
+
+    obj.grect_inset = function(rect, insets) {
+        rect = obj.GRect(rect);
+        insets = obj.GEdgeInsets(insets);
+        var w = rect.w - insets.left - insets.right;
+        var h = rect.h - insets.top - insets.bottom;
+        if (w < 0 || h < 0) {
+            return obj.GRectZero;
+        }
+        return obj.GRect(rect.x + insets.left, rect.y + insets.top, w, h);
+    };
+
 };
 
 // export to enable unit tests
@@ -193,6 +227,9 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.GColorYellow = 0xFC;
     obj.GColorWhite = 0xFF;
     obj.GColorBlack = 0xC0;
+    obj.GColorBlueMoon = 0xC7;
+    obj.GColorJaegerGreen = 0xC9;
+    obj.GColorJazzberryJam = 0xE1;
 
     // void graphics_fill_radial(GContext *ctx, GRect rect, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);
     // void emx_graphics_fill_radial(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);

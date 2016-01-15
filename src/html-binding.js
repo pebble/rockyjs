@@ -112,5 +112,9 @@ Rocky.bindCanvas= function(canvas, options) {
 
     // useful if clients only have a single Rocky instance
     Rocky.activeBinding = binding;
+
+    // schedule one render pass for the next run iteration of the run loop
+    setTimeout(function(){binding.mark_dirty();}, 0);
+
     return binding;
 };
