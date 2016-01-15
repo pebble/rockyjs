@@ -140,7 +140,9 @@ Rocky.addGeneratedSymbols = function (obj) {
 
     // void graphics_fill_radial(GContext *ctx, GRect rect, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);
     // void emx_graphics_fill_radial(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);
-    var emx_graphics_fill_radial = obj.module.cwrap("emx_fill_radial", "void", ["number", "number", "number", "number", "number", "number", "number", "number", "number"]);
+    var emx_graphics_fill_radial = obj.module.cwrap("emx_graphics_fill_radial", "void",
+                                                   ["number", "number", "number", "number", "number",
+                                                    "number", "number", "number", "number"]);
     obj.graphics_fill_radial = function(ctx, rect, scale_mode, inset_thickness, angle_start, angle_end) {
         rect = obj.GRect(rect);
         var TRIG_MAX_ANGLE = 0x10000;
@@ -151,7 +153,9 @@ Rocky.addGeneratedSymbols = function (obj) {
 
     // void graphics_draw_arc(GContext *ctx, GRect rect, GOvalScaleMode scale_mode,int32_t angle_start, int32_t angle_end);
     // void emx_graphics_draw_arc(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h, GOvalScaleMode scale_mode,int32_t angle_start, int32_t angle_end);
-    var emx_graphics_draw_arc = obj.module.cwrap("emx_draw_arc", "void", ["number", "number", "number", "number", "number", "number", "number", "number"]);
+    var emx_graphics_draw_arc = obj.module.cwrap("emx_graphics_draw_arc", "void",
+                                                ["number", "number", "number", "number", "number",
+                                                 "number", "number", "number"]);
     obj.graphics_draw_arc = function(ctx, rect, scale_mode, angle_start, angle_end) {
         rect = obj.GRect(rect);
         var TRIG_MAX_ANGLE = 0x10000;
@@ -160,18 +164,33 @@ Rocky.addGeneratedSymbols = function (obj) {
         return emx_graphics_draw_arc(ctx, rect.x, rect.y, rect.w, rect.h, scale_mode, angle_start, angle_end);
     };
 
-    // FIXME Signature
-    // void graphics_fill_rect(GContext *ctx, const GRect rect);
-    // void emx_graphics_fill_rect(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h);
-    var emx_graphics_fill_rect = obj.module.cwrap("emx_fill_rect", "void", ["number", "number", "number", "number", "number"]);
-    obj.graphics_fill_rect = function(ctx, rect) {
+    obj.GCornerNone = 0;
+    obj.GCornerTopLeft = 1 << 0;
+    obj.GCornerTopRight = 1 << 1;
+    obj.GCornerBottomLeft = 1 << 2;
+    obj.GCornerBottomRight = 1 << 3;
+    obj.GCornersAll = obj.GCornerTopLeft | obj.GCornerTopRight | obj.GCornerBottomLeft | obj.GCornerBottomRight;
+    obj.GCornersTop = obj.GCornerTopLeft | obj.GCornerTopRight;
+    obj.GCornersBottom = obj.GCornerBottomLeft | obj.GCornerBottomRight;
+    obj.GCornersLeft = obj.GCornerTopLeft | obj.GCornerBottomLeft;
+    obj.GCornersRight = obj.GCornerTopRight | obj.GCornerBottomRight;
+
+    // void graphics_fill_rect(GContext *ctx, const GRect rect, uin16_t radius, GCornerMask corner_mask);
+    // void emx_fill_rect(GContext* ctx, int16_t rect_origin_x, int16_t rect_origin_y,
+    //                    int16_t rect_size_w, int16_t rect_size_h,
+    //                    uint16_t radius, GCornerMask corner_mask) {
+    var emx_graphics_fill_rect = obj.module.cwrap("emx_graphics_fill_rect", "void",
+                                                 ["number", "number", "number", "number", "number",
+                                                  "number", "number"]);
+    obj.graphics_fill_rect = function(ctx, rect, radius, corner_mask) {
         rect = obj.GRect(rect);
-        return emx_graphics_fill_rect(ctx, rect.x, rect.y, rect.w, rect.h);
+        return emx_graphics_fill_rect(ctx, rect.x, rect.y, rect.w, rect.h, radius, corner_mask);
     };
 
     // void graphics_draw_rect(GContext *ctx, const GRect rect);
     // void emx_graphics_draw_rect(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h);
-    var emx_draw_rect = obj.module.cwrap("emx_draw_rect", "void", ["number", "number", "number", "number", "number"]);
+    var emx_draw_rect = obj.module.cwrap("emx_graphics_draw_rect", "void",
+                                        ["number", "number", "number", "number", "number"]);
     obj.graphics_draw_rect = function(ctx, rect) {
         rect = obj.GRect(rect);
         return emx_draw_rect(ctx, rect.x, rect.y, rect.w, rect.h);
