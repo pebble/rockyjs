@@ -144,30 +144,31 @@ Rocky.addManualSymbols = function (obj) {
 
     obj.GRectZero = obj.GRect(0, 0, 0, 0);
 
-    obj.GEdgeInsets = function(t, r, b, l) {
-        if (arguments.length == 1 && typeof t === "object") {
+    obj.GEdgeInsets = function(top, right, bottom, left) {
+        if (arguments.length == 1 && typeof top === "object") {
+            var obj = top;
             return {
-                t: typeof(t[0]) != "undefined" ? t[0] : t.t,
-                r: typeof(t[1]) != "undefined" ? t[1] : t.r,
-                b: typeof(t[2]) != "undefined" ? t[2] : t.b,
-                l: typeof(t[3]) != "undefined" ? t[3] : t.l
+                top: typeof(obj[0]) != "undefined" ? obj[0] : obj.top,
+                right: typeof(obj[1]) != "undefined" ? obj[1] : obj.right,
+                bottom: typeof(obj[2]) != "undefined" ? obj[2] : obj.bottom,
+                left: typeof(obj[3]) != "undefined" ? obj[3] : obj.left
             };
         }
-        r = arguments.length <= 1 ? t : r;
-        b = arguments.length <= 2 ? t : b;
-        l = arguments.length <= 3 ? r : l;
-        return {t:t, r:r, b:b, l:l};
+        right = arguments.length <= 1 ? top : right;
+        bottom = arguments.length <= 2 ? top : bottom;
+        left = arguments.length <= 3 ? right : left;
+        return {top:top, right:right, bottom:bottom, left:left};
     };
 
     obj.grect_inset = function(rect, insets) {
         rect = obj.GRect(rect);
         insets = obj.GEdgeInsets(insets);
-        var w = rect.w - insets.l - insets.r;
-        var h = rect.h - insets.t - insets.b;
+        var w = rect.w - insets.left - insets.right;
+        var h = rect.h - insets.top - insets.bottom;
         if (w < 0 || h < 0) {
             return obj.GRectZero;
         }
-        return obj.GRect(rect.x + insets.l, rect.y + insets.t, w, h);
+        return obj.GRect(rect.x + insets.left, rect.y + insets.top, w, h);
     };
 
 };

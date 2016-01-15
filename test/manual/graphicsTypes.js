@@ -102,32 +102,32 @@ describe('Graphic Types', function() {
         var rect = {x:10, y:20, w:30, h:40};
 
         it('works for postive and negative insets', function() {
-            expect(grect_inset(rect, {t:2, r:3, b:4, l:5})).to.eql({x:15, y:22, w:22, h:34});
-            expect(grect_inset(rect, {t:-2, r:-3, b:-4, l:-5})).to.eql({x:5, y:18, w:38, h:46});
+            expect(grect_inset(rect, {top:2, right:3, bottom:4, left:5})).to.eql({x:15, y:22, w:22, h:34});
+            expect(grect_inset(rect, {top:-2, right:-3, bottom:-4, left:-5})).to.eql({x:5, y:18, w:38, h:46});
         });
         it('returns GRectZero for too large insets', function() {
-            expect(grect_inset(rect, {t:100, r:50, b: 25, l: 12})).to.eql({x:0, y:0, w:0, h:0});
+            expect(grect_inset(rect, {top:100, right:50, bottom: 25, left: 12})).to.eql({x:0, y:0, w:0, h:0});
         });
     });
     describe('GEdgeInsets', function() {
         var GEdgeInsets = symbols.GEdgeInsets;
         it('accepts an array', function() {
-            expect(GEdgeInsets([1, 2, 3, 4])).to.eql({t:1, r:2, b:3, l:4});
-            expect(GEdgeInsets([1, 2, 3, 4, 5])).to.eql({t:1, r:2, b:3, l:4});
-            expect(GEdgeInsets([1, 2, 3])).to.eql({t:1, r:2, b:3, l:undefined});
+            expect(GEdgeInsets([1, 2, 3, 4])).to.eql({top:1, right:2, bottom:3, left:4});
+            expect(GEdgeInsets([1, 2, 3, 4, 5])).to.eql({top:1, right:2, bottom:3, left:4});
+            expect(GEdgeInsets([1, 2, 3])).to.eql({top:1, right:2, bottom:3, left:undefined});
         });
         it('accepts an object', function() {
-            expect(GEdgeInsets({t:1, r:2, b:3, l:4})).to.eql({t:1, r:2, b:3, l:4});
-            expect(GEdgeInsets({t:1, r:2, b:3, l:4, z:5})).to.eql({t:1, r:2, b:3, l:4});
-            expect(GEdgeInsets({t:1, r:2, b:3})).to.eql({t:1, r:2, b:3, l:undefined});
+            expect(GEdgeInsets({top:1, right:2, bottom:3, left:4})).to.eql({top:1, right:2, bottom:3, left:4});
+            expect(GEdgeInsets({top:1, right:2, bottom:3, left:4, z:5})).to.eql({top:1, right:2, bottom:3, left:4});
+            expect(GEdgeInsets({top:1, right:2, bottom:3})).to.eql({top:1, right:2, bottom:3, left:undefined});
         });
         it('accepts values', function() {
-            expect(GEdgeInsets()).to.eql({t:undefined, r:undefined, b:undefined, l:undefined});
-            expect(GEdgeInsets(1)).to.eql({t:1, r:1, b:1, l:1});
-            expect(GEdgeInsets(1, 2)).to.eql({t:1, r:2, b:1, l:2});
-            expect(GEdgeInsets(1, 2, 3)).to.eql({t:1, r:2, b:3, l:2});
-            expect(GEdgeInsets(1, 2, 3, 4)).to.eql({t:1, r:2, b:3, l:4});
-            expect(GEdgeInsets(1, 2, 3, 4, 5)).to.eql({t:1, r:2, b:3, l:4});
+            expect(GEdgeInsets()).to.eql({top:undefined, right:undefined, bottom:undefined, left:undefined});
+            expect(GEdgeInsets(1)).to.eql({top:1, right:1, bottom:1, left:1});
+            expect(GEdgeInsets(1, 2)).to.eql({top:1, right:2, bottom:1, left:2});
+            expect(GEdgeInsets(1, 2, 3)).to.eql({top:1, right:2, bottom:3, left:2});
+            expect(GEdgeInsets(1, 2, 3, 4)).to.eql({top:1, right:2, bottom:3, left:4});
+            expect(GEdgeInsets(1, 2, 3, 4, 5)).to.eql({top:1, right:2, bottom:3, left:4});
         });
     });
 });
