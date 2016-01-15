@@ -116,6 +116,15 @@ module.exports = function(grunt) {
                 },
                 src: ['**/*']
             }
+        },
+        modify_json: {
+            options: {
+                fields: {
+                    main: '<%=rockyjs_path%>'
+                },
+                indent: 2
+            },
+            files: ['package.json']
         }
     });
 
@@ -158,7 +167,7 @@ module.exports = function(grunt) {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy');
+    build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy', 'modify_json');
 
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
