@@ -4,13 +4,16 @@ module.exports = function(grunt) {
 
     require('load-grunt-tasks')(grunt);
 
+    var pkg = grunt.file.readJSON('package.json');
+    var githubBanner = grunt.template.process(grunt.file.read('html/misc/githubBanner.html'), {data: {pkg: pkg}});
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: pkg,
         rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
+        license_banner: "/* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. <%=pkg.license%> */\n\n",
         uglify: {
             options: {
-                banner: '/* <%=pkg.license%> */\n\n'
+                banner: '<%=license_banner%>'
             },
             applib: {
                 src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/applib.js',
@@ -20,7 +23,7 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 stripBanners: true,
-                banner: '/* <%=pkg.license%> */\n\n'
+                banner: '<%=license_banner%>'
             },
             rockyjs: {
                 src: ['src/html-binding.js', 'src/symbols-manual.js', 'src/symbols-generated.js',
@@ -37,7 +40,7 @@ module.exports = function(grunt) {
             examples:{
                 options: {
                     process: true,
-                    data: {rockyjs_path: "<%=rockyjs_path%>"}
+                    data: {rockyjs_path: "<%=rockyjs_path%>", github_banner: githubBanner}
                 },
                 files: [
                     {
@@ -72,7 +75,11 @@ module.exports = function(grunt) {
                 ],
                 options: {
                     basePath: 'build',
-                    layout: 'html/markdown/template.html'
+                    layout: 'html/markdown/template.html',
+                    templateData: {
+                        pkg: pkg,
+                        github_banner: githubBanner,
+                    }
                 }
             }
         },
@@ -82,6 +89,16 @@ module.exports = function(grunt) {
                     {
                         expand: true,
                         src: ['dist/**/*'],
+                        dest: 'build'
+                    }
+                ]
+            },
+            build: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'html',
+                        src: ['img/*'],
                         dest: 'build'
                     }
                 ]
@@ -115,6 +132,15 @@ module.exports = function(grunt) {
                 },
                 src: ['**/*']
             }
+        },
+        modify_json: {
+            options: {
+                fields: {
+                    main: '<%=rockyjs_path%>'
+                },
+                indent: 4
+            },
+            files: ['package.json']
         }
     });
 
@@ -157,10 +183,10 @@ module.exports = function(grunt) {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy');
+    build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy', 'modify_json');
 
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
-    grunt.registerTask('test', ['jshint:test', 'mochaTest']);
+    grunt.registerTask('test', ['build', 'jshint:test', 'mochaTest']);
     grunt.registerTask('publish', ['build', 'gh-pages:publish']);
 };
