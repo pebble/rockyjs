@@ -7,8 +7,8 @@
 
     It contains constants such as GOvalScaleModeFitCircle or GColorRed.
 
-    The seconds set of symbols are functions that overcome Emscripten's lack of support of structs.
-    During the transpilation process we generated additional C code that take multiple values instead
+    The second set of symbols are functions that overcome Emscripten's lack of support for structs.
+    During the transpilation process we generated additional C code that takes multiple values instead
     of a single struct. As an example:
 
         original C:
