@@ -31,7 +31,9 @@ Rocky.addGenericFunctions = function (obj) {
     obj.GColorYellow = 0xFC;
     obj.GColorWhite = 0xFF;
     obj.GColorBlack = 0xC0;
-
+    obj.GColorBlueMoon = 0xC7;
+    obj.GColorJaegerGreen = 0xC9;
+    obj.GColorJazzberryJam = 0xE1;
 
     var emx_fill_radial = obj.module.cwrap("emx_fill_radial", "void", ["number", "number", "number", "number", "number", "number", "number", "number", "number"]);
     obj.graphics_fill_radial = function(ctx, rect, scale_mode, inset_thickness, angle_start, angle_end) {

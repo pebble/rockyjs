@@ -93,6 +93,10 @@ Rocky.bindCanvas= function(canvas, options) {
 
     // needed for Espruino compatibility (where functions are global and need a reference)
     Rocky.activeBinding = binding;
+
+    // schedule one render pass for the next run iteration of the run loop
+    setTimeout(function(){binding.mark_dirty();}, 0);
+
     return binding;
 };
 
@@ -123,6 +127,26 @@ Rocky.addManualFunctions = function (obj) {
         }
         return {x: x, y: y, w: w, h: h};
     };
+
+    obj.GRectZero = obj.GRect(0, 0, 0, 0);
+
+    obj.GEdgeInsets = function(t, r, b, l) {
+        r = arguments.length <= 1 ? t : r;
+        b = arguments.length <= 2 ? t : b;
+        l = arguments.length <= 3 ? r : l;
+        return {t:t, r:r, b:b, l:l};
+    };
+
+    obj.grect_inset = function(rect, insets) {
+        rect = obj.GRect(rect);
+        insets = GEdgeInsets(insets);
+        var w = rect.w - insets.l - insets.r;
+        var h = rect.h - insets.t - insets.b;
+        if (w < 0 || h < 0) {
+            return obj.GRectZero;
+        }
+        return GRect(rect.x + insets.l, rect.y + insets.t, w, h);
+    }
 };
 if (typeof(Rocky) == "undefined") {
     Rocky = {};
@@ -155,7 +179,9 @@ Rocky.addGenericFunctions = function (obj) {
     obj.GColorYellow = 0xFC;
     obj.GColorWhite = 0xFF;
     obj.GColorBlack = 0xC0;
-
+    obj.GColorBlueMoon = 0xC7;
+    obj.GColorJaegerGreen = 0xC9;
+    obj.GColorJazzberryJam = 0xE1;
 
     var emx_fill_radial = obj.module.cwrap("emx_fill_radial", "void", ["number", "number", "number", "number", "number", "number", "number", "number", "number"]);
     obj.graphics_fill_radial = function(ctx, rect, scale_mode, inset_thickness, angle_start, angle_end) {

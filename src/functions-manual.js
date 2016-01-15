@@ -26,4 +26,24 @@ Rocky.addManualFunctions = function (obj) {
         }
         return {x: x, y: y, w: w, h: h};
     };
+
+    obj.GRectZero = obj.GRect(0, 0, 0, 0);
+
+    obj.GEdgeInsets = function(t, r, b, l) {
+        r = arguments.length <= 1 ? t : r;
+        b = arguments.length <= 2 ? t : b;
+        l = arguments.length <= 3 ? r : l;
+        return {t:t, r:r, b:b, l:l};
+    };
+
+    obj.grect_inset = function(rect, insets) {
+        rect = obj.GRect(rect);
+        insets = GEdgeInsets(insets);
+        var w = rect.w - insets.l - insets.r;
+        var h = rect.h - insets.t - insets.b;
+        if (w < 0 || h < 0) {
+            return obj.GRectZero;
+        }
+        return GRect(rect.x + insets.l, rect.y + insets.t, w, h);
+    }
 };
