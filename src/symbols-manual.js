@@ -31,6 +31,15 @@ Rocky.addManualSymbols = function (obj) {
         return {x: x, y: y};
     };
 
+    // #define GSize(w, h) ((GSize){(w), (h)})
+    obj.GSize = function (w, h) {
+        if (arguments.length == 1 && typeof(arguments[0]) === "object") {
+            h = typeof(w[1]) != "undefined" ? w[1] : w.h;
+            w = typeof(w[0]) != "undefined" ? w[0] : w.w;
+        }
+        return {w: w, h: h};
+    };
+
     // #define GRect(x, y, w, h) ((GRect){{(x), (y)}, {(w), (h)}})
     obj.GRect = function (x, y, w, h) {
         if (arguments.length == 1 && typeof(arguments[0]) === "object") {
