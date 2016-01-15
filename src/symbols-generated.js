@@ -346,9 +346,9 @@ Rocky.addGeneratedSymbols = function (obj) {
     //                               uint16_t radius) {
     var emx_graphics_draw_circle = obj.module.cwrap("emx_graphics_draw_circle", "void",
                                                    ["number", "number", "number"]);
-    obj.graphics_draw_circle = function(center, radius) {
+    obj.graphics_draw_circle = function(ctx, center, radius) {
         center = obj.GPoint(center);
-        return emx_graphics_draw_circle(center.x, center.y, radius);
+        return emx_graphics_draw_circle(ctx, center.x, center.y, radius);
     };
 
 
@@ -356,9 +356,9 @@ Rocky.addGeneratedSymbols = function (obj) {
     // void emx_graphics_fill_circle(GContext *ctx, int16_t center_x, int16_t center_y, uint16_t radius) {
     var emx_graphics_fill_circle = obj.module.cwrap("emx_graphics_fill_circle", "void",
                                                    ["number", "number", "number"]);
-    obj.graphics_fill_circle = function(center, radius) {
+    obj.graphics_fill_circle = function(ctx, center, radius) {
         center = obj.GPoint(center);
-        return emx_graphics_fill_circle(center.x, center.y, radius);
+        return emx_graphics_fill_circle(ctx, center.x, center.y, radius);
     };
 
     // void graphics_draw_round_rect(GContext *ctx, GRect rect, uint16_t radius)

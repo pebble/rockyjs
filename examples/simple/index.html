@@ -81,11 +81,16 @@
         rocky.export_global_c_symbols();
 
         var value = 0;
-        
+
         rocky.update_proc = function (ctx, bounds) {
             graphics_context_set_stroke_color(ctx, GColorRed);
             graphics_context_set_stroke_width(ctx, 10);
             graphics_draw_line(ctx, [value, 0], [100, value]);
+
+            graphics_fill_rect(ctx, [value, value, 10, 10], 2, rocky.GCornerTopRight);
+
+            graphics_fill_circle(ctx, [value, 168 - value] , 10);
+            graphics_draw_circle(ctx, [value, 168 - value] , 10);
 
             var rect = rocky.GRect(10, 10, 125, 125);
             graphics_fill_radial(
