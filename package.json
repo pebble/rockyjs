@@ -1,5 +1,6 @@
 {
   "name": "rocky.js",
+  "title": "Run Pebble code in the browser",
   "version": "1.1.1",
   "main": "dist/rocky-1.1.1.js",
   "scripts": {
