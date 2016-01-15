@@ -396,14 +396,10 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_standardize = function(rect) {
         rect = obj.GRect(rect);
         var returnRectPTR = emx_grect_standardize(rect.x, rect.y, rect.w, rect.h);
-        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
-                                   getValue(returnRectPTR + 2, i16),
-                                   getValue(returnRectPTR + 4, i16),
-                                   getValue(returnRectPTR + 6, i16));
-        rect.x = returnRect.x;
-        rect.y = returnRect.y;
-        rect.w = returnRect.w;
-        rect.h = returnRect.h;
+        rect.x = obj.module.getValue(returnRectPTR, i16);
+        rect.y = obj.module.getValue(returnRectPTR + 2, i16);
+        rect.w = obj.module.getValue(returnRectPTR + 4, i16);
+        rect.h = obj.module.getValue(returnRectPTR + 6, i16);
     };
 
     // void grect_clip(GRect *rect_to_clip, GRect *rect_clipper);
@@ -417,14 +413,10 @@ Rocky.addGeneratedSymbols = function (obj) {
         rect_clipper = obj.GRect(rect_clipper);
         var returnRectPTR =  emx_grect_clip(rect_to_clip.x, rect_to_clip.y, rect_to_clip.w, rect_to_clip.h,
                                             rect_clipper.x, rect_clipper.y, rect_clipper.w, rect_clipper.h);
-        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
-                                   getValue(returnRectPTR + 2, i16),
-                                   getValue(returnRectPTR + 4, i16),
-                                   getValue(returnRectPTR + 6, i16));
-        rect_to_clip.x = returnRect.x;
-        rect_to_clip.y = returnRect.y;
-        rect_to_clip.w = returnRect.w;
-        rect_to_clip.h = returnRect.h;
+        rect_to_clip.x = obj.module.getValue(returnRectPTR, i16);
+        rect_to_clip.y = obj.module.getValue(returnRectPTR + 2, i16);
+        rect_to_clip.w = obj.module.getValue(returnRectPTR + 4, i16);
+        rect_to_clip.h = obj.module.getValue(returnRectPTR + 6, i16);
     };
 
     // bool grect_contains_point(GRect *rect, GPoint *point):
@@ -458,10 +450,10 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_crop = function(rect, crop_size_px) {
         rect = obj.GRect(rect);
         var returnRectPTR = emx_grect_crop(rect.x, rect.y, rect.w, rect.h, crop_size_px);
-        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
-                                   getValue(returnRectPTR + 2, i16),
-                                   getValue(returnRectPTR + 4, i16),
-                                   getValue(returnRectPTR + 6, i16));
+        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, i16),
+                                   obj.module.getValue(returnRectPTR + 2, i16),
+                                   obj.module.getValue(returnRectPTR + 4, i16),
+                                   obj.module.getValue(returnRectPTR + 6, i16));
         return returnRect;
     };
 
@@ -488,14 +480,10 @@ Rocky.addGeneratedSymbols = function (obj) {
         rect = obj.GRect(rect);
         inside_rect = obj.GRect(inside_rect);
         var returnRectPTR = emx_grect_align(rect, inside_rect, alignment, clip);
-        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
-                                   getValue(returnRectPTR + 2, i16),
-                                   getValue(returnRectPTR + 4, i16),
-                                   getValue(returnRectPTR + 6, i16));
-        rect.x = returnRect.x;
-        rect.y = returnRect.y;
-        rect.w = returnRect.w;
-        rect.h = returnRect.h;
+        rect.x = obj.module.getValue(returnRectPTR, i16);
+        rect.y = obj.module.getValue(returnRectPTR + 2, i16);
+        rect.w = obj.module.getValue(returnRectPTR + 4, i16);
+        rect.h = obj.module.getValue(returnRectPTR + 6, i16);
     };
 
     // void graphics_draw_circle(GContext *ctx, GPoint center, uin16_t radius);
@@ -504,9 +492,9 @@ Rocky.addGeneratedSymbols = function (obj) {
     //                               uint16_t radius) {
     var emx_graphics_draw_circle = obj.module.cwrap("emx_graphics_draw_circle", "void",
                                                    ["number", "number", "number"]);
-    obj.graphics_draw_circle = function(center, radius) {
+    obj.graphics_draw_circle = function(ctx, center, radius) {
         center = obj.GPoint(center);
-        return emx_graphics_draw_circle(center.x, center.y, radius);
+        return emx_graphics_draw_circle(ctx, center.x, center.y, radius);
     };
 
 
@@ -514,9 +502,9 @@ Rocky.addGeneratedSymbols = function (obj) {
     // void emx_graphics_fill_circle(GContext *ctx, int16_t center_x, int16_t center_y, uint16_t radius) {
     var emx_graphics_fill_circle = obj.module.cwrap("emx_graphics_fill_circle", "void",
                                                    ["number", "number", "number"]);
-    obj.graphics_fill_circle = function(center, radius) {
+    obj.graphics_fill_circle = function(ctx, center, radius) {
         center = obj.GPoint(center);
-        return emx_graphics_fill_circle(center.x, center.y, radius);
+        return emx_graphics_fill_circle(ctx, center.x, center.y, radius);
     };
 
     // void graphics_draw_round_rect(GContext *ctx, GRect rect, uint16_t radius)
@@ -544,7 +532,8 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.gpoint_from_polar =  function(rect, scale_mode, angle) {
         rect = obj.GRect(rect);
         var returnPointPTR = emx_gpoint_from_polar(rect.x, rect.y, rect.w, rect.y, scale_mode, angle);
-        var returnPoint = obj.GPoint(getValue(returnPointPTR, i16), getValue(returnPointPTR + 2, i16));
+        var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, i16),
+                                     obj.module.getValue(returnPointPTR + 2, i16));
         return returnPoint;
     };
 
@@ -561,10 +550,10 @@ Rocky.addGeneratedSymbols = function (obj) {
         size = obj.GSize(size);
         var returnRectPTR = emx_grect_centered_from_polar(rect.x, rect.y, rect.w, rect.h,
                                                           scale_mode, angle, size.x, size.y);
-        var returnRect = obj.GRect(getValue(returnRectPTR, i16),
-                                   getValue(returnRectPTR + 2, i16),
-                                   getValue(returnRectPTR + 4, i16),
-                                   getValue(returnRectPTR + 6, i16));
+        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, i16),
+                                   obj.module.getValue(returnRectPTR + 2, i16),
+                                   obj.module.getValue(returnRectPTR + 4, i16),
+                                   obj.module.getValue(returnRectPTR + 6, i16));
         return returnRect;
     };
 };

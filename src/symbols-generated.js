@@ -238,10 +238,10 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_standardize = function(rect) {
         rect = obj.GRect(rect);
         var returnRectPTR = emx_grect_standardize(rect.x, rect.y, rect.w, rect.h);
-        rect.x = obj.module.getValue(returnRectPTR, i16),
-        rect.y = obj.module.getValue(returnRectPTR + 2, i16),
-        rect.w = obj.module.getValue(returnRectPTR + 4, i16),
-        rect.h = obj.module.getValue(returnRectPTR + 6, i16));
+        rect.x = obj.module.getValue(returnRectPTR, i16);
+        rect.y = obj.module.getValue(returnRectPTR + 2, i16);
+        rect.w = obj.module.getValue(returnRectPTR + 4, i16);
+        rect.h = obj.module.getValue(returnRectPTR + 6, i16);
     };
 
     // void grect_clip(GRect *rect_to_clip, GRect *rect_clipper);
@@ -255,10 +255,10 @@ Rocky.addGeneratedSymbols = function (obj) {
         rect_clipper = obj.GRect(rect_clipper);
         var returnRectPTR =  emx_grect_clip(rect_to_clip.x, rect_to_clip.y, rect_to_clip.w, rect_to_clip.h,
                                             rect_clipper.x, rect_clipper.y, rect_clipper.w, rect_clipper.h);
-        rect_to_clip.x = obj.module.getValue(returnRectPTR, i16),
-        rect_to_clip.y = obj.module.getValue(returnRectPTR + 2, i16),
-        rect_to_clip.w = obj.module.getValue(returnRectPTR + 4, i16),
-        rect_to_clip.h = obj.module.getValue(returnRectPTR + 6, i16));
+        rect_to_clip.x = obj.module.getValue(returnRectPTR, i16);
+        rect_to_clip.y = obj.module.getValue(returnRectPTR + 2, i16);
+        rect_to_clip.w = obj.module.getValue(returnRectPTR + 4, i16);
+        rect_to_clip.h = obj.module.getValue(returnRectPTR + 6, i16);
     };
 
     // bool grect_contains_point(GRect *rect, GPoint *point):
@@ -322,10 +322,10 @@ Rocky.addGeneratedSymbols = function (obj) {
         rect = obj.GRect(rect);
         inside_rect = obj.GRect(inside_rect);
         var returnRectPTR = emx_grect_align(rect, inside_rect, alignment, clip);
-        rect.x = obj.module.getValue(returnRectPTR, i16),
-        rect.y = obj.module.getValue(returnRectPTR + 2, i16),
-        rect.w = obj.module.getValue(returnRectPTR + 4, i16),
-        rect.h = obj.module.getValue(returnRectPTR + 6, i16));
+        rect.x = obj.module.getValue(returnRectPTR, i16);
+        rect.y = obj.module.getValue(returnRectPTR + 2, i16);
+        rect.w = obj.module.getValue(returnRectPTR + 4, i16);
+        rect.h = obj.module.getValue(returnRectPTR + 6, i16);
     };
 
     // void graphics_draw_circle(GContext *ctx, GPoint center, uin16_t radius);
