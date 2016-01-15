@@ -1,7 +1,7 @@
 canvas.rocky {
-    border: 1px solid darkgray;
-    image-rendering: pixelated;
-    margin: 20px;
+  border: 1px solid darkgray;
+  image-rendering: pixelated;
+  margin: 20px;
 }
 
 pre.interactive-code {
