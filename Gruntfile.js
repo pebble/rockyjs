@@ -187,6 +187,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
-    grunt.registerTask('test', ['jshint:test', 'mochaTest']);
+    grunt.registerTask('test', ['build', 'jshint:test', 'mochaTest']);
     grunt.registerTask('publish', ['build', 'gh-pages:publish']);
 };
