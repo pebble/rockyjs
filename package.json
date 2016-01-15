@@ -5,7 +5,13 @@
     "test": "grunt test"
   },
   "homepage": "http://pebble.github.io/rockyjs/",
+  "bugs": {"url" : "https://github.com/pebble/rockyjs/issues"},
   "license" : "http://pebble.github.io/rockyjs/LICENSE",
+  "keywords": [
+    "pebble",
+    "browser",
+    "emscripten"
+  ],
   "devDependencies": {
     "chai": "^3.4.1",
     "glob": "^6.0.1",
