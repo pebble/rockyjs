@@ -22,7 +22,7 @@ Pebble.js allows you to write your *application logic* in JavaScript (which is e
 
 The goal of RockyJS is include a JS runtime in Pebble's firmware, which would allow us to run JavaScript applications *directly on the watch*.
 
-## Contributing
+# Contributing
 
 JavaScript is somewhat new territory for Pebble, and we're excited to hear what you have to say about this project. We are planning to release early versions of RockyJS so we can easily explore what native JavaScript APIs for Pebble could look like, as well as gather feedback from the JavaScript community and incorporate it into our work.
 
@@ -60,7 +60,6 @@ The [examples](examples/) are designed to be run directly from the file system w
 
 More information about each example can be found on the example's webpage.
 
-
 # Transpiling the Pebble Firmware
 
 **NOTE:** If you are *not* a Pebble employee, you should ignore this section of the README.
@@ -70,3 +69,7 @@ make sure you build applib with `-target emscripten`.
 The default Grunt task of this repository will replace the file `src/transpiled.js` with 
 `${tintin_root}/build/applib/applib-targets/emscripten/applib.js` if it exists. 
 Run `grunt newer:uglify:applib --verbose` to debug this step if necessary (be aware that the minification task might take a while).
+
+# LICENSE
+
+RockyJS is licensed under the [PEBBLE JAVASCRIPT LICENSE AGREEMENT](https://github.com/pebble/rockyjs/blob/master/LICENSE).
