@@ -163,8 +163,6 @@ module.exports = function(grunt) {
         return ret;
     }
 
-    grunt.loadNpmTasks("grunt-contrib-eslint");
-
     grunt.registerTask('publish-ci', function() {
         // need this
         this.requires(['build']);
