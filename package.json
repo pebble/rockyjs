@@ -7,15 +7,19 @@
   "homepage": "http://pebble.github.io/rockyjs/",
   "license" : "Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. http://pebble.github.io/rockyjs/LICENSE",
   "devDependencies": {
+    "chai": "^3.4.1",
     "glob": "^6.0.1",
     "grunt": "~0.4.5",
     "grunt-contrib-concat": "^0.5.1",
     "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-jshint": "^0.11.3",
     "grunt-contrib-uglify": "^0.11.0",
     "grunt-gh-pages": "^1.0.0",
     "grunt-md2html": "^0.3.0",
+    "grunt-mocha-test": "^0.12.7",
     "grunt-newer": "^1.1.1",
     "grunt-processhtml": "^0.3.8",
-    "load-grunt-tasks": "^3.4.0"
+    "load-grunt-tasks": "^3.4.0",
+    "mocha": "^2.3.4"
   }
 }
