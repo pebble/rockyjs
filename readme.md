@@ -6,9 +6,7 @@ RockyJS is a version Pebble's firmware that has been [transpiled](https://en.wik
 
 ### That's a weird first step!
 
-You're right! Kind of..
-
-Typically when people want to include a JavaScript runtime on some hardware they begin by evaluating various JavaScript runtimes (or writing their own), and getting one of those running on their hardware.
+You're right! Typically when people want to include a JavaScript runtime on some hardware they begin by evaluating various JavaScript runtimes (or writing their own), and getting one of those running on their hardware.
 
 We're doing this in parallel - but by first creating (and publishing) a transpiled version of our hardware that can be run in the browser, we're enabling ourselves, and the wonderful JavaScript community, to rapidly experiment with on what it looks like when JavaScript is a first-class language on our platform.
 
@@ -24,11 +22,9 @@ The goal of RockyJS is include a JS runtime in Pebble's firmware, which would al
 
 # Contributing
 
-JavaScript is somewhat new territory for Pebble, and we're excited to hear what you have to say about this project. We are planning to release early versions of RockyJS so we can easily explore what native JavaScript APIs for Pebble could look like, as well as gather feedback from the JavaScript community and incorporate it into our work.
-
 We're interested in seeing what kinds of tools developers create when they have access to a browser-based and pixel-perfect Pebble, as well as how developers wrap our C-style APIs to make them more JavaScript friendly!
 
-If you create something interesting with RockyJS, submit a PR with the example (or a link to your example) and we'll take a look. This is a great opportunity to *directly* influence how Pebble approaches JavaScript documentation and API design.
+If you create something interesting with RockyJS, add it to the examples folder, submit a PR, and we'll take a look. This is a great opportunity to *directly* influence how Pebble approaches JavaScript documentation and API design.
 
 ## Learn More
 
