@@ -23,7 +23,7 @@ module.exports = function(grunt) {
                 banner: '/* <%=pkg.license%> */\n\n'
             },
             rockyjs: {
-                src: ['src/html-binding.js', 'src/functions-manual.js', 'src/symbols-generated.js',
+                src: ['src/html-binding.js', 'src/symbols-manual.js', 'src/symbols-generated.js',
                       'src/transpiled.js'],
                 dest: '<%= rockyjs_path %>'
             }

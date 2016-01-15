@@ -1,4 +1,4 @@
-var symbols = require("../../src/functions-manual.js").symbols;
+var symbols = require("../../src/symbols-manual.js").symbols;
 var expect = require('chai').expect;
 
 describe('Graphic Types', function() {

@@ -89,7 +89,7 @@ Rocky.bindCanvas= function(canvas, options) {
     }
 
     Rocky.addGeneratedSymbols(binding);
-    Rocky.addManualFunctions(binding);
+    Rocky.addManualSymbols(binding);
 
     // needed for Espruino compatibility (where functions are global and need a reference)
     Rocky.activeBinding = binding;
@@ -101,11 +101,13 @@ if (typeof(Rocky) == "undefined") {
     Rocky = {};
 }
 
-Rocky.addManualFunctions = function (obj) {
+Rocky.addManualSymbols = function (obj) {
+    // #define DEG_TO_TRIGANGLE(angle) (((angle) * TRIG_MAX_ANGLE) / 360)
     obj.DEG_TO_TRIGANGLE = function (deg) {
         return deg * 2 * Math.PI / 360;
     };
 
+    // #define GPoint(x, y) ((GPoint){(x), (y)})
     obj.GPoint = function (x, y) {
         if (arguments.length == 1 && typeof(arguments[0]) === "object") {
             y = typeof(x[1]) != "undefined" ? x[1] : x.y;
@@ -114,6 +116,7 @@ Rocky.addManualFunctions = function (obj) {
         return {x: x, y: y};
     };
 
+    // #define GRect(x, y, w, h) ((GRect){{(x), (y)}, {(w), (h)}})
     obj.GRect = function (x, y, w, h) {
         if (arguments.length == 1 && typeof(arguments[0]) === "object") {
             y = typeof(x[1]) != "undefined" ? x[1] : x.y;
@@ -125,42 +128,12 @@ Rocky.addManualFunctions = function (obj) {
     };
 };
 
+// export to enable unit tests
 if (typeof module !== 'undefined' && module.exports !== null) {
-    exports.addManualFunctions = Rocky.addManualFunctions;
+    exports.addManualSymbols = Rocky.addManualSymbols;
     exports.symbols = {};
-    Rocky.addManualFunctions(exports.symbols);
+    Rocky.addManualSymbols(exports.symbols);
 }
-
-/*
-    This files contains various symbols that are automatically derived (or will be, eventually) from the
-    Pebble firmware code base.
-
-    It contains constants such as GOvalScaleModeFitCircle or GColorRed.
-
-    The seconds set of symbols are functions that overcome Emscripten's lack of support of structs.
-    During the transpilation process we generated additional C code that take multiple values instead
-    of a single struct. As an example:
-
-        original C:
-
-          void graphics_draw_pixel(GContext *ctx, GPoint pt);
-
-        generated C to be transpiled by Emscripten:
-
-          void emx_graphics_draw_pixel(GContext *ctx, int16_t pt_x, int16_t pt_y);
-
-     In order to expose the original signature to JS clients, this file contains yet another wrapper
-     that calls the emx_ variant
-
-        generated JS wrapper in this file:
-
-          var graphics_draw_pixel = function(ctx, point) {
-            var pt = obj.GPoint(point);
-            emx_graphics_draw_pixel(ctx, pt.x, pt.y);
-          };
-
-*/
-
 
 if (typeof(Rocky) == "undefined") {
     Rocky = {};
