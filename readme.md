@@ -28,7 +28,7 @@ If you create something interesting with RockyJS, add it to the examples folder,
 
 ## Learn More
 
-If you're interested in staying up to date with our RockyJS development efforts, you can subscribe to our [JSApps newsletter](pbl.io/jsapps), and follow [@pebbledev](https://twitter.com/pebbledev) (or simply star this repo).
+If you're interested in staying up to date with our RockyJS development efforts, you can subscribe to our [JSApps newsletter](http://pbl.io/jsapps), and follow [@pebbledev](https://twitter.com/pebbledev) (or simply star this repo).
 
 # Development
 
