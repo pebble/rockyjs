@@ -12,3 +12,24 @@
     white-space: nowrap;
     overflow: hidden;
 }
+
+table.table-compatibility>tbody>tr.standard {
+  background-color: #d9edf7;
+}
+
+table.table-compatibility>tbody>tr.implemented {
+  background-color: #dff0db;
+}
+
+table.table-compatibility>tbody>tr.partial {
+  background-color: #ffffff;
+}
+
+table.table-compatibility>tbody>tr.planned {
+  background-color: #fcf8e3;
+}
+
+table.table-compatibility>tbody>tr.not-planned {
+  background-color: #f2dede
+}
+
