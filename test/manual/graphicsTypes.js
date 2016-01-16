@@ -22,7 +22,9 @@ describe('Graphic Types', function() {
             });
             it('treats too short arrays as undefined values', function() {
                 expect(GSize([1])).to.eql({w:1, h:undefined});
-                expect(GSize([])).to.eql({w:undefined, h:undefined});
+                var size = GSize([]);
+                expect(size.w).to.equal(undefined);
+                expect(size.h).to.equal(undefined);
             });
         });
         describe('object', function() {
@@ -30,13 +32,18 @@ describe('Graphic Types', function() {
                 expect(GSize({w:1, h:2})).to.eql({w:1, h:2});
             });
             it('ignores everything beyond w,h', function() {
-                expect(GSize({w:1, h:2, z:3})).to.eql({w:1, h:2});
+                var obj = {w:1, h:2, z:3};
+                var size = GSize(obj);
+                expect(size).to.eql({w:1, h:2, z:3});
+                expect(size).to.equal(obj);
             });
             it('treats missing properties as undefined', function() {
                 expect(GSize({w:1})).to.eql({w:1, h:undefined});
                 expect(GSize({h:2})).to.eql({w:undefined, h:2});
-                expect(GSize({z:3})).to.eql({w:undefined, h:undefined});
-                expect(GSize([])).to.eql({w:undefined, h:undefined});
+                expect(GSize({z:3})).to.eql({w:undefined, h:undefined, z:3});
+                var size = GSize([]);
+                expect(size.w).to.equal(undefined);
+                expect(size.h).to.equal(undefined);
             });
         });
         describe('values', function() {
@@ -63,7 +70,9 @@ describe('Graphic Types', function() {
             });
             it('treats too short arrays as undefined values', function() {
                 expect(GPoint([1])).to.eql({x:1, y:undefined});
-                expect(GPoint([])).to.eql({x:undefined, y:undefined});
+                var empty = GPoint([]);
+                expect(empty.x).to.equal(undefined);
+                expect(empty.y).to.equal(undefined);
             });
         });
         describe('object', function() {
@@ -71,13 +80,15 @@ describe('Graphic Types', function() {
                 expect(GPoint({x:1, y:2})).to.eql({x:1, y:2});
             });
             it('ignores everything beyond x,y', function() {
-                expect(GPoint({x:1, y:2, z:3})).to.eql({x:1, y:2});
+                expect(GPoint({x:1, y:2, z:3})).to.eql({x:1, y:2, z:3});
             });
             it('treats missing properties as undefined', function() {
                 expect(GPoint({x:1})).to.eql({x:1, y:undefined});
                 expect(GPoint({y:2})).to.eql({x:undefined, y:2});
-                expect(GPoint({z:3})).to.eql({x:undefined, y:undefined});
-                expect(GPoint([])).to.eql({x:undefined, y:undefined});
+                expect(GPoint({z:3})).to.eql({x:undefined, y:undefined, z:3});
+                var point = GPoint([]);
+                expect(point.x).to.equal(undefined);
+                expect(point.y).to.equal(undefined);
             });
         });
         describe('values', function() {
