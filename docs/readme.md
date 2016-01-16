@@ -2,19 +2,19 @@
 
 This document is split into two major sections:
 
-- [RockyJS Web API](#rockyjs-web-api) - The APIs used to create and update an instance of RockyJS on a webpage.
+- [Rocky.js Web API](#rockyjs-web-api) - The APIs used to create and update an instance of Rocky.js on a webpage.
 - [Pebble API Compatibility](#pebble-api-compatibility) - A subset of Pebble's [C-style API](https://developer.pebble.com/docs/c) that can invoked through JavaScript.
 
-## RockyJS Web API
+## Rocky.js Web API
 
-RockyJS exposes a number of helper functions outside Pebble's C-Style API to help you work with RockyJS in a browser based environment. 
+Rocky.js exposes a number of helper functions outside Pebble's C-Style API to help you work with Rocky.js in a browser based environment. 
 
 ### Rocky.bindCanvas(el)
 
-The `bindCanvas` method creates an instance of RockyJS, binds that instance to the supplied canvas element, then returns the instance to be used later in code. 
+The `bindCanvas` method creates an instance of Rocky.js, binds that instance to the supplied canvas element, then returns the instance to be used later in code. 
 
 ```js
-// Create an instance of RockyJS and bind it to a canvas with id="pebble"
+// Create an instance of Rocky.js and bind it to a canvas with id="pebble"
 var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
 ```
 
@@ -76,7 +76,7 @@ setInterval(function() {
 
 ### rocky.update_proc
 
-Instances of RockyJS include a property, `update_proc`, that will be invoked each time the instance is marked dirty with `rocky.mark_dirty`. The update_proc method should be set to a callback function with parameters: 
+Instances of Rocky.js include a property, `update_proc`, that will be invoked each time the instance is marked dirty with `rocky.mark_dirty`. The update_proc method should be set to a callback function with parameters: 
 
 - `ctx`: A JavaScript version of the [GContext](https://developer.pebble.com/docs/c/Graphics/Graphics_Context/) object.
 - `bounds`: A JavaScript version of the [GRect](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#GRect) object indicating the bounds of the virtual display.
@@ -85,7 +85,7 @@ See [rocky.mark_dirty](#rocky-mark_dirty) for sample usage.
 
 ## Pebble API Compatibility
 
-RockyJS currently implements a subset of Pebble's C-Style API. This section of the document outlines what methods have been implemented, as well as recommendations for how to manage some of the sections of the API that are not implemented.
+Rocky.js currently implements a subset of Pebble's C-Style API. This section of the document outlines what methods have been implemented, as well as recommendations for how to manage some of the sections of the API that are not implemented.
 
 <table class="table table-bordered table-compatibility">
     <thead><tr>
