@@ -209,7 +209,7 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.gpoint_equal = function(a, b) {
         a = obj.GPoint(a);
         b = obj.GPoint(b);
-        return emx_gpoint_equal(a.x, pt_a. y, b.x, b.y);
+        return emx_gpoint_equal(a.x, a.y, b.x, b.y) !== 0;
     };
 
     // bool grect_equal(GRect *r0, GRect *r1);
@@ -221,7 +221,7 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_equal = function(r0, r1) {
         r0 = obj.GRect(r0);
         r1 = obj.GRect(r1);
-        return emx_grect_equal(r0,x, r0.y, r0.w, r0.h, r1.x, r1.y, r1.w, r1.h);
+        return emx_grect_equal(r0.x, r0.y, r0.w, r0.h, r1.x, r1.y, r1.w, r1.h) !== 0;
     };
 
     // bool grect_is_empty(GRect *rect);
@@ -231,7 +231,7 @@ Rocky.addGeneratedSymbols = function (obj) {
                                              ["number", "number", "number", "number"]);
     obj.grect_is_emtpy = function(rect) {
         rect = obj.GRect(rect);
-        return emx_grect_is_empty(rect.x, rect.y, rect.w, rect.h);
+        return emx_grect_is_empty(rect.x, rect.y, rect.w, rect.h) !== 0;
     };
 
     // void grect_standardize(GRect *rect);
@@ -241,10 +241,10 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_standardize = function(rect) {
         rect = obj.GRect(rect);
         var returnRectPTR = emx_grect_standardize(rect.x, rect.y, rect.w, rect.h);
-        rect.x = obj.module.getValue(returnRectPTR, i16);
-        rect.y = obj.module.getValue(returnRectPTR + 2, i16);
-        rect.w = obj.module.getValue(returnRectPTR + 4, i16);
-        rect.h = obj.module.getValue(returnRectPTR + 6, i16);
+        rect.x = obj.module.getValue(returnRectPTR, 'i16');
+        rect.y = obj.module.getValue(returnRectPTR + 2, 'i16');
+        rect.w = obj.module.getValue(returnRectPTR + 4, 'i16');
+        rect.h = obj.module.getValue(returnRectPTR + 6, 'i16');
     };
 
     // void grect_clip(GRect *rect_to_clip, GRect *rect_clipper);
@@ -254,14 +254,14 @@ Rocky.addGeneratedSymbols = function (obj) {
                                          ["number", "number", "number", "number",
                                           "number", "number", "number", "number"]);
     obj.grect_clip = function(rect_to_clip, rect_clipper) {
-        rect_to_clip = obj.GRrect(rect_to_clip);
+        rect_to_clip = obj.GRect(rect_to_clip);
         rect_clipper = obj.GRect(rect_clipper);
         var returnRectPTR =  emx_grect_clip(rect_to_clip.x, rect_to_clip.y, rect_to_clip.w, rect_to_clip.h,
                                             rect_clipper.x, rect_clipper.y, rect_clipper.w, rect_clipper.h);
-        rect_to_clip.x = obj.module.getValue(returnRectPTR, i16);
-        rect_to_clip.y = obj.module.getValue(returnRectPTR + 2, i16);
-        rect_to_clip.w = obj.module.getValue(returnRectPTR + 4, i16);
-        rect_to_clip.h = obj.module.getValue(returnRectPTR + 6, i16);
+        rect_to_clip.x = obj.module.getValue(returnRectPTR, 'i16');
+        rect_to_clip.y = obj.module.getValue(returnRectPTR + 2, 'i16');
+        rect_to_clip.w = obj.module.getValue(returnRectPTR + 4, 'i16');
+        rect_to_clip.h = obj.module.getValue(returnRectPTR + 6, 'i16');
     };
 
     // bool grect_contains_point(GRect *rect, GPoint *point):
@@ -273,7 +273,7 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_contains_point = function(rect, point) {
         rect = obj.GRect(rect);
         point = obj.GPoint(point);
-        return emx_grect_contains_point(rect.x, rect.y, rect.w, rect.h, point.x, point.y);
+        return emx_grect_contains_point(rect.x, rect.y, rect.w, rect.h, point.x, point.y) !== 0;
     };
 
     // GPoint grect_center_point(GRect *rect);
@@ -282,8 +282,9 @@ Rocky.addGeneratedSymbols = function (obj) {
                                                  ["number", "number", "number", "number"]);
     obj.grect_center_point = function(rect) {
         rect = obj.GRect(rect);
-        var returnPointPTR = emx_grect_center_point(rect.x, rect.y, rect.h, rect.w);
-        var returnPoint = obj.GPoint(getValue(returnPointPTR, i16), getValue(returnPointPTR + 2, i16));
+        var returnPointPTR = emx_grect_center_point(rect.x, rect.y, rect.w, rect.h);
+        var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, 'i16'),
+                                     obj.module.getValue(returnPointPTR + 2, 'i16'));
         return returnPoint;
     };
 
@@ -295,10 +296,10 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_crop = function(rect, crop_size_px) {
         rect = obj.GRect(rect);
         var returnRectPTR = emx_grect_crop(rect.x, rect.y, rect.w, rect.h, crop_size_px);
-        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, i16),
-                                   obj.module.getValue(returnRectPTR + 2, i16),
-                                   obj.module.getValue(returnRectPTR + 4, i16),
-                                   obj.module.getValue(returnRectPTR + 6, i16));
+        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
+                                   obj.module.getValue(returnRectPTR + 2, 'i16'),
+                                   obj.module.getValue(returnRectPTR + 4, 'i16'),
+                                   obj.module.getValue(returnRectPTR + 6, 'i16'));
         return returnRect;
     };
 
@@ -324,11 +325,13 @@ Rocky.addGeneratedSymbols = function (obj) {
     obj.grect_align = function(rect, inside_rect, alignment, clip) {
         rect = obj.GRect(rect);
         inside_rect = obj.GRect(inside_rect);
-        var returnRectPTR = emx_grect_align(rect, inside_rect, alignment, clip);
-        rect.x = obj.module.getValue(returnRectPTR, i16);
-        rect.y = obj.module.getValue(returnRectPTR + 2, i16);
-        rect.w = obj.module.getValue(returnRectPTR + 4, i16);
-        rect.h = obj.module.getValue(returnRectPTR + 6, i16);
+        var returnRectPTR = emx_grect_align(rect.x, rect.y, rect.w, rect.h,
+                                            inside_rect.x, inside_rect.y, inside_rect.w, inside_rect.h,
+                                            alignment, clip);
+        rect.x = obj.module.getValue(returnRectPTR, 'i16');
+        rect.y = obj.module.getValue(returnRectPTR + 2, 'i16');
+        rect.w = obj.module.getValue(returnRectPTR + 4, 'i16');
+        rect.h = obj.module.getValue(returnRectPTR + 6, 'i16');
     };
 
     // void graphics_draw_circle(GContext *ctx, GPoint center, uin16_t radius);
@@ -376,9 +379,11 @@ Rocky.addGeneratedSymbols = function (obj) {
                                                   "number", "number"]);
     obj.gpoint_from_polar =  function(rect, scale_mode, angle) {
         rect = obj.GRect(rect);
+        var TRIG_MAX_ANGLE = 0x10000;
+        angle = (angle * TRIG_MAX_ANGLE) / (Math.PI * 2);
         var returnPointPTR = emx_gpoint_from_polar(rect.x, rect.y, rect.w, rect.y, scale_mode, angle);
-        var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, i16),
-                                     obj.module.getValue(returnPointPTR + 2, i16));
+        var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, 'i16'),
+                                     obj.module.getValue(returnPointPTR + 2, 'i16'));
         return returnPoint;
     };
 
@@ -392,13 +397,21 @@ Rocky.addGeneratedSymbols = function (obj) {
                                                          "number", "number"]);
     obj.grect_centered_from_polar = function(rect, scale_mode, angle, size) {
         rect = obj.GRect(rect);
+        var TRIG_MAX_ANGLE = 0x10000;
+        angle = (angle * TRIG_MAX_ANGLE) / (Math.PI * 2);
         size = obj.GSize(size);
+
         var returnRectPTR = emx_grect_centered_from_polar(rect.x, rect.y, rect.w, rect.h,
-                                                          scale_mode, angle, size.x, size.y);
-        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, i16),
-                                   obj.module.getValue(returnRectPTR + 2, i16),
-                                   obj.module.getValue(returnRectPTR + 4, i16),
-                                   obj.module.getValue(returnRectPTR + 6, i16));
+                                                          scale_mode, angle, size.w, size.h);
+        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
+                                   obj.module.getValue(returnRectPTR + 2, 'i16'),
+                                   obj.module.getValue(returnRectPTR + 4, 'i16'),
+                                   obj.module.getValue(returnRectPTR + 6, 'i16'));
         return returnRect;
     };
 };
+
+// export to enable unit tests
+if (typeof module !== 'undefined' && module.exports !== null) {
+    exports.addGeneratedSymbols = Rocky.addGeneratedSymbols;
+}
