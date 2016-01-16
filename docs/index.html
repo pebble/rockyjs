@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>RockyJS</title>
+    <title>Rocky.js</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet">
@@ -22,14 +22,14 @@
     <h1 id="api-documentation">API Documentation</h1>
 <p>This document is split into two major sections:</p>
 <ul>
-<li><a href="#rockyjs-web-api">RockyJS Web API</a> - The APIs used to create and update an instance of RockyJS on a webpage.</li>
+<li><a href="#rockyjs-web-api">Rocky.js Web API</a> - The APIs used to create and update an instance of Rocky.js on a webpage.</li>
 <li><a href="#pebble-api-compatibility">Pebble API Compatibility</a> - A subset of Pebble&#39;s <a href="https://developer.pebble.com/docs/c">C-style API</a> that can invoked through JavaScript.</li>
 </ul>
-<h2 id="rockyjs-web-api">RockyJS Web API</h2>
-<p>RockyJS exposes a number of helper functions outside Pebble&#39;s C-Style API to help you work with RockyJS in a browser based environment. </p>
+<h2 id="rocky-js-web-api">Rocky.js Web API</h2>
+<p>Rocky.js exposes a number of helper functions outside Pebble&#39;s C-Style API to help you work with Rocky.js in a browser based environment. </p>
 <h3 id="rocky-bindcanvas-el-">Rocky.bindCanvas(el)</h3>
-<p>The <code>bindCanvas</code> method creates an instance of RockyJS, binds that instance to the supplied canvas element, then returns the instance to be used later in code. </p>
-<pre><code class="lang-js">// Create an instance of RockyJS and bind it to a canvas with id=&quot;pebble&quot;
+<p>The <code>bindCanvas</code> method creates an instance of Rocky.js, binds that instance to the supplied canvas element, then returns the instance to be used later in code. </p>
+<pre><code class="lang-js">// Create an instance of Rocky.js and bind it to a canvas with id=&quot;pebble&quot;
 var rocky = Rocky.bindCanvas(document.getElementById(&quot;pebble&quot;));
 </code></pre>
 <h3 id="rocky-export_global_c_symbols-">rocky.export_global_c_symbols()</h3>
@@ -72,14 +72,14 @@ setInterval(function() {
     rocky.mark_dirty();
 }, 1000 / 20);
 </code></pre><h3 id="rocky-update_proc">rocky.update_proc</h3>
-<p>Instances of RockyJS include a property, <code>update_proc</code>, that will be invoked each time the instance is marked dirty with <code>rocky.mark_dirty</code>. The update_proc method should be set to a callback function with parameters: </p>
+<p>Instances of Rocky.js include a property, <code>update_proc</code>, that will be invoked each time the instance is marked dirty with <code>rocky.mark_dirty</code>. The update_proc method should be set to a callback function with parameters: </p>
 <ul>
 <li><code>ctx</code>: A JavaScript version of the <a href="https://developer.pebble.com/docs/c/Graphics/Graphics_Context/">GContext</a> object.</li>
 <li><code>bounds</code>: A JavaScript version of the <a href="https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#GRect">GRect</a> object indicating the bounds of the virtual display.</li>
 </ul>
 <p>See <a href="#rocky-mark_dirty">rocky.mark_dirty</a> for sample usage.</p>
 <h2 id="pebble-api-compatibility">Pebble API Compatibility</h2>
-<p>RockyJS currently implements a subset of Pebble&#39;s C-Style API. This section of the document outlines what methods have been implemented, as well as recommendations for how to manage some of the sections of the API that are not implemented.</p>
+<p>Rocky.js currently implements a subset of Pebble&#39;s C-Style API. This section of the document outlines what methods have been implemented, as well as recommendations for how to manage some of the sections of the API that are not implemented.</p>
 <table class="table table-bordered table-compatibility">
     <thead><tr>
         <th>C API</th> 
