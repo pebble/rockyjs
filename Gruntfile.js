@@ -64,7 +64,7 @@ module.exports = function(grunt) {
                 files: [
                     {
                         expand: true,
-                        src: ['*.md'],
+                        src: ['examples/*.md', 'docs/*.md', '*.md'],
                         dest: 'build',
                         ext: '.html',
                         rename: function(dir, file) {
