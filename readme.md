@@ -1,10 +1,10 @@
 [![Build Status](https://travis-ci.com/pebble/rockyjs.svg?token=u4rPSjFthB3eVsUfx8As&branch=master)](https://travis-ci.com/pebble/rockyjs)
 
-# RockyJS
+# Rocky.js
 
-RockyJS is a version of Pebble's firmware that has been [transpiled](https://en.wikipedia.org/wiki/Source-to-source_compiler) to JavaScript, and that can be attached to an HTML canvas. This is our first step towards exploring the possibility of including a JavaScript runtime in our operating system.
+Rocky.js is a version of Pebble's firmware that has been [transpiled](https://en.wikipedia.org/wiki/Source-to-source_compiler) to JavaScript, and that can be attached to an HTML canvas. This is our first step towards exploring the possibility of including a JavaScript runtime in our operating system.
 
-<a class="jsbin-embed" href="///jsbin.com/jucetom/embed?js,output&height=300px">Interactive RockyJS example on jsbin.com</a>
+<a class="jsbin-embed" href="///jsbin.com/jucetom/embed?js,output&height=300px">Interactive Rocky.js example on jsbin.com</a>
 <script src="https://static.jsbin.com/js/embed.min.js?3.35.9"></script>
 
 [More examples in this repository](examples/)
@@ -23,27 +23,27 @@ If you're familiar with Pebble and JavaScript, there's a good chance you may als
 
 Pebble.js allows you to write your *application logic* in JavaScript (which is executed on the phone with [PebbleKit JS](https://developer.pebble.com/docs/js/)). Pebble.js also includes a significant amount of C and JavaScript code that interacts with your application logic and passes messages between the phone (where the application logic takes place), and the watchapp (where the UI is displayed, and events occur).
 
-The goal of RockyJS is to include a JS runtime in Pebble's firmware, which would allow us to run JavaScript applications *directly on the watch*.
+The goal of Rocky.js is to include a JS runtime in Pebble's firmware, which would allow us to run JavaScript applications *directly on the watch*.
 
 # Contributing
 
 We're interested in seeing what kinds of tools developers create when they have access to a browser-based and pixel-perfect Pebble, as well as how developers wrap our C-style APIs to make them more JavaScript friendly!
 
-If you create something interesting with RockyJS, add it to the examples folder, submit a PR, and we'll take a look. This is a great opportunity to *directly* influence how Pebble approaches JavaScript documentation and API design.
+If you create something interesting with Rocky.js, add it to the examples folder, submit a PR, and we'll take a look. This is a great opportunity to *directly* influence how Pebble approaches JavaScript documentation and API design.
 
 ## Learn More
 
-If you're interested in staying up to date with our RockyJS development efforts, you can subscribe to our [JSApps newsletter](http://pbl.io/jsapps), and follow [@pebbledev](https://twitter.com/pebbledev) (or simply star this repo).
+If you're interested in staying up to date with our Rocky.js development efforts, you can subscribe to our [JSApps newsletter](http://pbl.io/jsapps), and follow [@pebbledev](https://twitter.com/pebbledev) (or simply star this repo).
 
 # Development
 
 ## Dependencies
 
-RockyJS uses [Grunt](http://gruntjs.com) as a build system and [npm](https://www.npmjs.com) for dependency management. If you are unfamiliar with these technologies, we recommend you read their respective guides.
+Rocky.js uses [Grunt](http://gruntjs.com) as a build system and [npm](https://www.npmjs.com) for dependency management. If you are unfamiliar with these technologies, we recommend you read their respective guides.
 
 ## Getting Started 
 
-To begin working with the RockyJS repository, run the following commands:
+To begin working with the Rocky.js repository, run the following commands:
 
 ```bash
 > git clone git@github.com:pebble/rockyjs.git
@@ -55,11 +55,11 @@ To begin working with the RockyJS repository, run the following commands:
 
 The default build task (`grunt`) will combine all JavaScript, render markdown, and replace file references. 
 
-## RockyJS API / Functionality
+## Rocky.js API / Functionality
 
-One of the main goals of RockyJS is to better understand how JavaScript developers approach the Pebble API, and Pebble development in general. 
+One of the main goals of Rocky.js is to better understand how JavaScript developers approach the Pebble API, and Pebble development in general. 
 
-The initial version of RockyJS uses Pebble's existing C-style API and JavaScript syntax, though at the moment not *all* APIs are implemented.
+The initial version of Rocky.js uses Pebble's existing C-style API and JavaScript syntax, though at the moment not *all* APIs are implemented.
 
 See [Rocky Documentation](docs/) for more details.
 
@@ -81,4 +81,4 @@ Run `grunt newer:uglify:applib --verbose` to debug this step if necessary (be aw
 
 # LICENSE
 
-RockyJS is licensed under the [PEBBLE JAVASCRIPT LICENSE AGREEMENT](https://github.com/pebble/rockyjs/blob/master/LICENSE).
+Rocky.js is licensed under the [PEBBLE JAVASCRIPT LICENSE AGREEMENT](https://github.com/pebble/rockyjs/blob/master/LICENSE).
