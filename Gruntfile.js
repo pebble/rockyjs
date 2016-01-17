@@ -189,4 +189,6 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['build']);
     grunt.registerTask('test', ['build', 'jshint:test', 'mochaTest']);
     grunt.registerTask('publish', ['build', 'gh-pages:publish']);
+    
+    console.log("test to check travis", process.env);    
 };
