@@ -164,13 +164,20 @@ module.exports = function(grunt) {
         this.requires(['build']);
 
         // only deploy under these conditions
-        if (process.env.TRAVIS === 'true' && process.env.TRAVIS_SECURE_ENV_VARS === 'true' && process.env.TRAVIS_PULL_REQUEST === 'false') {
+        if (process.env.TRAVIS === 'true' &&
+            process.env.TRAVIS_BRANCH === 'master' &&
+            process.env.TRAVIS_SECURE_ENV_VARS === 'true'
+            && process.env.TRAVIS_PULL_REQUEST === 'false') {
             grunt.log.writeln('executing deployment');
             // queue deploy
             grunt.task.run('gh-pages:publish-ci');
         }
         else {
             grunt.log.writeln('skipped deployment');
+            grunt.log.writeln('TRAVIS', process.env.TRAVIS_SECURE_ENV_VARS);
+            grunt.log.writeln('TRAVIS_BRANCH', process.env.TRAVIS_BRANCH);
+            grunt.log.writeln('TRAVIS_SECURE_ENV_VARS', process.env.TRAVIS_SECURE_ENV_VARS);
+            grunt.log.writeln('TRAVIS_PULL_REQUEST', process.env.TRAVIS_PULL_REQUEST);
         }
     });
 
