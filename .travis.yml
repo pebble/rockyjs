@@ -4,8 +4,4 @@ node_js:
 before_script:
   - npm install grunt-cli -g
 after_success:
- - '[ "${TRAVIS_BRANCH}" != "master" ] && grunt build'
- - '[ "${TRAVIS_BRANCH}" == "master" ] && grunt build publish-ci'
-env:
-  global:
-    secure: NBsZz1dA0HcAqQrTvCpNQW4/0yUdN4jgTtTa+A02goFmWq6F5aoYKjiiGZxJWXjR2nvYm0r9MgGHDuuTR+WwVj3YxTgypnDAATQqS4q2V6RmHmiWL1KXWsPwZw2UdgtqUHfD+aq8TWLTUCZwTs6pjDS8pz3bUHbus5+ULii64Le5vXKwHFXZB2nvqYqntBnfYVCNpFH+/NeyGOzVTvgukckhtKNnfoC3T30yDz9tSa8LZPkIJFS2yjADARZ1x+uugUb8CA+FVBU76KyMdbktM/R0lv+u0WF2Z20KvjEy/0t83+Z24/kRNBG4p1uKt4VrvywhmjypKXIILs2+HPve0BorpEGv2W1Kb8ThOZOwLrSSF1xqjWIyPpwQbpd8MbnHQdX8ZHrqW5oCF60auhIcPsnVOQefD9bUREUw68yX14L690yHktJQcyBtFBcJnkxZ6boz4rS0wTN8ZHZ8+zpRqdkaj2yI/4PpMYMEqa1JbVSqfXfwr7tnh3o3MuV1k3WQGeU+uVTj7qb9IvQDQmI5kFuZZtaVhJ5LA278RFWm29R8h2KlVwt7Mz0guiCvXTGOX4NbSYyc3Mt4hQtUmG7WjcqnU2Ern1NFZta3geNmHiwJFRtt7yDu3tjC4OhUVLYaX5lXx2v6PFU2Vo5Iq96Dt9Ak9oafyUFoUtw2vyZzS68=
+ - grunt build publish-ci
