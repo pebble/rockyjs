@@ -128,7 +128,8 @@ module.exports = function(grunt) {
                     },
                     repo: 'https://' + process.env.GH_TOKEN + '@github.com/pebble/rockyjs.git',
                     message: 'publish gh-pages (auto)' + getDeployMessage(),
-                    silent: true // don't leak the token
+                    // silent: true // don't leak the token
+                    silent: false // SWITCH BACK AFTER CHANGING THE TOKEN
                 },
                 src: ['**/*']
             }
