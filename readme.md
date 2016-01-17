@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/pebble/rockyjs.svg?token=u4rPSjFthB3eVsUfx8As&branch=master)](https://travis-ci.com/pebble/rockyjs)
+[![Build Status](https://travis-ci.org/pebble/rockyjs.svg?branch=master)](https://travis-ci.com/pebble/rockyjs)
 
 # Rocky.js
 
