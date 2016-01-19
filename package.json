@@ -35,6 +35,8 @@
         "grunt-newer": "^1.1.1",
         "grunt-processhtml": "^0.3.8",
         "load-grunt-tasks": "^3.4.0",
-        "mocha": "^2.3.4"
+        "mocha": "^2.3.4",
+        "q": "^1.4.1",
+        "simple-git": "^1.21.0"
     }
 }

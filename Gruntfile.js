@@ -181,6 +181,8 @@ module.exports = function(grunt) {
         }
     });
 
+    require('./tasks/dist')(grunt);
+
     var build_tasks = ['jshint:src'];
 
     // only run uglify per default if transpiled applib exists at TINTIN_ROOT
