@@ -4,4 +4,4 @@ node_js:
 before_script:
   - npm install grunt-cli -g
 after_success:
- - grunt build publish-ci
+ - grunt pre-publish publish-ci
