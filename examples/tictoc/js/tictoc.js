@@ -69,7 +69,7 @@ win.setWindowHandlers({
                 hours: tick_time.hour % 12,
                 minutes: tick_time.min
             };
-            canvasLayer.mark_dirty();
+            canvasLayer.markDirty();
 
             function romanize (num) {
                 if (!+num) // jshint ignore:line
@@ -156,19 +156,19 @@ win.setWindowHandlers({
                 f("clockRadius", CLOCK_RADIUS + 1);
                 f("dotY", DOT_Y);
                 f("dotY2", DOT_Y);
-                canvasLayer.mark_dirty();
+                canvasLayer.markDirty();
             },
             stop: function () {
                 data.dotY = DOT_Y;
                 data.dotY2 = DOT_Y;
-                canvasLayer.mark_dirty();
+                canvasLayer.markDirty();
 
                 scheduleAnimation({
                     delay: 1000,
                     duration: 3000,
                     update: function (progress) {
                         angle_funny = progress * 2 * Math.PI;
-                        canvasLayer.mark_dirty();
+                        canvasLayer.markDirty();
                     }
                 });
 
