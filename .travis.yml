@@ -1,7 +1,7 @@
 language: node_js
 node_js:
-  - "0.10"
+  - "4.2"
 before_script:
   - npm install grunt-cli -g
 after_success:
- - grunt build publish-ci
+ - grunt pre-publish publish-ci

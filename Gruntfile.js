@@ -6,10 +6,12 @@ module.exports = function(grunt) {
 
     var pkg = grunt.file.readJSON('package.json');
     var githubBanner = grunt.template.process(grunt.file.read('html/misc/githubBanner.html'), {data: {pkg: pkg}});
+    var isMasterBuildOnTravis = process.env.TRAVIS_BRANCH === 'master';
+
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
         pkg: pkg,
-        rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
+        rockyjs_path: isMasterBuildOnTravis ? "dist/rocky-dev.js" : "dist/rocky.js",
         license_banner: "/* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. <%=pkg.license%> */\n\n",
         uglify: {
             options: {
@@ -28,7 +30,7 @@ module.exports = function(grunt) {
             rockyjs: {
                 src: ['src/html-binding.js', 'src/symbols-manual.js', 'src/symbols-generated.js',
                       'src/transpiled.js'],
-                dest: '<%= rockyjs_path %>'
+                dest: 'build/<%= rockyjs_path %>'
             }
         },
         newer: {
@@ -84,15 +86,6 @@ module.exports = function(grunt) {
             }
         },
         copy: {
-            dist: {
-                files: [
-                    {
-                        expand: true,
-                        src: ['dist/**/*'],
-                        dest: 'build'
-                    }
-                ]
-            },
             build: {
                 files: [
                     {
@@ -164,7 +157,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('publish-ci', function() {
         // need this
-        this.requires(['build']);
+        this.requires(['pre-publish']);
 
         // only deploy under these conditions
         if (process.env.TRAVIS === 'true' &&
@@ -184,6 +177,8 @@ module.exports = function(grunt) {
         }
     });
 
+    require('./tasks/dist')(grunt);
+
     var build_tasks = ['eslint:src'];
 
     // only run uglify per default if transpiled applib exists at TINTIN_ROOT
@@ -195,8 +190,10 @@ module.exports = function(grunt) {
 
     build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy', 'modify_json');
 
+    grunt.registerTask('pre-publish', 'should not be called directly', ['build', 'build-missing-dists']);
+
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
     grunt.registerTask('test', ['build', 'eslint:test', 'mochaTest']);
-    grunt.registerTask('publish', ['build', 'gh-pages:publish']);
+    grunt.registerTask('publish', ['pre-publish', 'gh-pages:publish']);
 };
