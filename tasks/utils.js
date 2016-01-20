@@ -19,7 +19,8 @@ module.exports = function(grunt) {
 
     // add support for promises to simpleGit
     // use it by calling git.promising('checkout', '0.1.0')
-    require('simple-git/src/git').prototype.promising = function(fnName) {
+    var git = require('simple-git/src/git');
+    git.prototype.promising = function(fnName) {
         var logMessage = ("git " + fnName + " " + Array.prototype.slice.call(arguments, 1).join()).trim() + "...";
         grunt.log.write(logMessage);
         var deferred = Q.defer();
@@ -33,6 +34,11 @@ module.exports = function(grunt) {
         });
         this[fnName].apply(this, args);
         return deferred.promise.thenLogOk();
+    };
+    git.prototype.fetchTags = function (then) {
+        return this._run(['fetch', '--tags'], function (err, data) {
+            then && then(err, !err && this._parseFetch(data));
+        });
     };
 
     // promise wrapper around exec + logging
