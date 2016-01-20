@@ -22,7 +22,7 @@ function Window() {
     var that = this;
     this.rootLayer = {
         "bounds": {"origin":{"x":0, "y":0}, "size":{"w": 144, "h": 168}},
-        "markDirty": function(){
+        "mark_dirty": function(){
             var rocky = Rocky.activeBinding;
             rocky.mark_dirty();
         },
