@@ -21,9 +21,9 @@ module.exports = function(grunt) {
     // use it by calling git.promising('checkout', '0.1.0')
     var git = require('simple-git/src/git');
     git.prototype.promising = function(fnName) {
-        var logMessage = ("git " + fnName + " " + Array.prototype.slice.call(arguments, 1).join()).trim() + "...";
-        grunt.log.write(logMessage);
-        return Q.nfapply(this[fnName].bind(this), Array.prototype.slice.call(arguments, 1)).thenLogOk();
+        var arguments = Array.prototype.slice.call(arguments, 1);
+        grunt.log.write("git", fnName, arguments.join(), "...");
+        return Q.nfapply(this[fnName].bind(this), arguments).thenLogOk();
     };
     git.prototype.fetchTags = function (then) {
         return this._run(['fetch', '--tags'], function (err, data) {
