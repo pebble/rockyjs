@@ -1,583 +1,647 @@
 /* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. http://pebble.github.io/rockyjs/LICENSE */
 
-if (typeof(Rocky) == "undefined") {
-    Rocky = {};
+/*global Rocky:true*/
+
+if (typeof (Rocky) === 'undefined') {
+  Rocky = {};
 }
 
-Rocky.bindCanvas= function(canvas, options) {
-    options = options || {};
+Rocky.bindCanvas = function(canvas, options) {
+  options = options || {};
 
-    // instance of the Emscripten module
-    var module = this.Module();
+  // instance of the Emscripten module
+  var module = this.Module();
 
-    // in a future version, these values should adapt automatically
-    // also, we want the ability to create framebuffers of larger sizes
-    var canvasW = canvas.width;
-    var canvasH = canvas.height;
-    var framebufferW = 144;
-    var framebufferH = 168;
+  // in a future version, these values should adapt automatically
+  // also, we want the ability to create framebuffers of larger sizes
+  var canvasW = canvas.width;
+  var canvasH = canvas.height;
+  var framebufferW = 144;
+  var framebufferH = 168;
 
-    // scale gives us the ability to do a nearest-neighbor scaling
-    var scale = options.scale || Math.min(canvasW/framebufferW, canvasH/framebufferH);
+  // scale gives us the ability to do a nearest-neighbor scaling
+  var scale = options.scale ||
+              Math.min(canvasW / framebufferW, canvasH / framebufferH);
 
-    // pixel access to read (framebuffer) and write to (canvas)
-    var canvasCtx = canvas.getContext("2d");
-    var canvasPixelData = canvasCtx.createImageData(canvasW, canvasH);
-    var canvasPixels = canvasPixelData.data;
-    var framebufferPixelPTR = module.ccall("emx_graphics_get_pixels", "number", []);
-    var framebufferPixels = new Uint8Array(module.HEAPU8.buffer, framebufferPixelPTR, canvasW*canvasH);
-    var graphicsContext = module.ccall("app_state_get_graphics_context", "number", []);
+  // pixel access to read (framebuffer) and write to (canvas)
+  var canvasCtx = canvas.getContext('2d');
+  var canvasPixelData = canvasCtx.createImageData(canvasW, canvasH);
+  var canvasPixels = canvasPixelData.data;
+  var framebufferPixelPTR = module.ccall('emx_graphics_get_pixels', 'number', []);
+  var framebufferPixels = new Uint8Array(module.HEAPU8.buffer,
+                                         framebufferPixelPTR,
+                                         canvasW * canvasH);
+  var graphicsContext = module.ccall('app_state_get_graphics_context', 'number', []);
 
-    // result of this function
-    var binding = {
-        module: module,
-        update_proc: function(ctx, bounds) {
-            // meant to be override by clients
-            // will be called whenever a clients calls #mark_dirty()
-        },
-        mark_dirty: function() {
-            // initializes the graphics context and framebuffer with default values
-            // before rendering
-            var bounds = binding.GRect(0, 0, framebufferW, framebufferH);
-            binding.graphics_context_set_fill_color(graphicsContext, binding.GColorWhite);
-            binding.graphics_fill_rect(graphicsContext, bounds);
+  // result of this function
+  var binding = {
+    module: module,
+    update_proc: function(ctx, bounds) {
+      // meant to be override by clients
+      // will be called whenever a clients calls #mark_dirty()
+    },
+    mark_dirty: function() {
+      // initializes the graphics context and framebuffer with default values
+      // before rendering
+      var bounds = binding.GRect(0, 0, framebufferW, framebufferH);
+      binding.graphics_context_set_fill_color(graphicsContext, binding.GColorWhite);
+      binding.graphics_fill_rect(graphicsContext, bounds);
 
-            binding.graphics_context_set_fill_color(graphicsContext, binding.GColorBlack);
-            binding.graphics_context_set_stroke_color(graphicsContext, binding.GColorBlack);
-            binding.graphics_context_set_stroke_width(graphicsContext, 1);
-            binding.graphics_context_set_antialiased(graphicsContext, true);
+      binding.graphics_context_set_fill_color(graphicsContext, binding.GColorBlack);
+      binding.graphics_context_set_stroke_color(graphicsContext,
+                                                binding.GColorBlack);
+      binding.graphics_context_set_stroke_width(graphicsContext, 1);
+      binding.graphics_context_set_antialiased(graphicsContext, true);
 
-            binding.update_proc(graphicsContext, bounds);
-            binding.render_framebuffer(canvasCtx);
-        },
-        render_framebuffer: function() {
-            // renders current state of the framebuffer to the bound canvas respecting the passed scale
-            for (var y = 0; y < canvasH; y++) {
-                var pebbleY = (y / scale) >> 0;
-                if (pebbleY >= framebufferH) {
-                    break;
-                }
-                for(var x = 0; x < canvasW; x++) {
-                    var pebbleX = (x / scale) >> 0;
-                    if (pebbleX >= framebufferW) {
-                        break;
-                    }
-                    var pebbleOffset = pebbleY * framebufferW + pebbleX;
-                    var in_values = framebufferPixels[pebbleOffset];
-                    var r = ((in_values >> 4) & 0x3) * 85;
-                    var g = ((in_values >> 2) & 0x3) * 85;
-                    var b = ((in_values >> 0) & 0x3) * 85;
-                    var canvasOffset = (y * canvasW + x) * 4;
-                    canvasPixels[canvasOffset  ] = r;
-                    canvasPixels[canvasOffset+1] = g;
-                    canvasPixels[canvasOffset+2] = b;
-                    canvasPixels[canvasOffset+3] = 255;
-                }
-            }
-            canvasCtx.putImageData(canvasPixelData, 0, 0);
-        },
-        export_global_c_symbols: function(global) {
-            // meant for simple scenarios where all C-like functions can live outside of this binding object
-            if (typeof(global) == "undefined") {
-                global = window;
-            }
-
-            for (var key in binding) {
-                if (non_c_binding_keys.indexOf(key) < 0 && binding.hasOwnProperty(key)) {
-                    var value = binding[key];
-                    global[key] = (typeof(value) == "function") ? value.bind(binding) : value;
-                }
-            }
+      binding.update_proc(graphicsContext, bounds);
+      binding.render_framebuffer(canvasCtx);
+    },
+    render_framebuffer: function() {
+      // renders current state of the framebuffer to the bound canvas
+      // respecting the passed scale
+      for (var y = 0; y < canvasH; y++) {
+        var pebbleY = (y / scale) >> 0;
+        if (pebbleY >= framebufferH) {
+          break;
         }
-    };
-
-    // collect all functions of `binding` here so we can filter them out in export_global_c_symbols()
-    var non_c_binding_keys = [];
-    for (var key in binding) {
-        if (binding.hasOwnProperty(key)) {
-            non_c_binding_keys.push(key);
+        for (var x = 0; x < canvasW; x++) {
+          var pebbleX = (x / scale) >> 0;
+          if (pebbleX >= framebufferW) {
+            break;
+          }
+          var pebbleOffset = pebbleY * framebufferW + pebbleX;
+          var in_values = framebufferPixels[pebbleOffset];
+          var r = ((in_values >> 4) & 0x3) * 85;
+          var g = ((in_values >> 2) & 0x3) * 85;
+          var b = ((in_values >> 0) & 0x3) * 85;
+          var canvasOffset = (y * canvasW + x) * 4;
+          canvasPixels[canvasOffset + 0] = r;
+          canvasPixels[canvasOffset + 1] = g;
+          canvasPixels[canvasOffset + 2] = b;
+          canvasPixels[canvasOffset + 3] = 255;
         }
+      }
+      canvasCtx.putImageData(canvasPixelData, 0, 0);
+    },
+    export_global_c_symbols: function(global) {
+      // meant for simple scenarios where all C-like
+      // functions can live outside of this binding object
+      if (typeof (global) === 'undefined') {
+        global = window;
+      }
+
+      for (var key in binding) {
+        if (non_c_binding_keys.indexOf(key) < 0 && binding.hasOwnProperty(key)) {
+          var value = binding[key];
+          global[key] = (typeof (value) === 'function') ?
+                        value.bind(binding) : value;
+        }
+      }
     }
+  };
 
-    // will enhance the binding object by various function from ./symbols-*.js of this folder
-    Rocky.addGeneratedSymbols(binding);
-    Rocky.addManualSymbols(binding);
+  // collect all functions of `binding` here
+  // so we can filter them out in export_global_c_symbols()
+  var non_c_binding_keys = [];
+  for (var key in binding) {
+    if (binding.hasOwnProperty(key)) {
+      non_c_binding_keys.push(key);
+    }
+  }
 
-    // useful if clients only have a single Rocky instance
-    Rocky.activeBinding = binding;
+  // will enhance the binding object by various function
+  // from ./symbols-*.js of this folder
+  Rocky.addGeneratedSymbols(binding);
+  Rocky.addManualSymbols(binding);
 
-    // schedule one render pass for the next run iteration of the run loop
-    setTimeout(function(){binding.mark_dirty();}, 0);
+  // useful if clients only have a single Rocky instance
+  Rocky.activeBinding = binding;
 
-    return binding;
+  // schedule one render pass for the next run iteration of the run loop
+  setTimeout(function() { binding.mark_dirty(); }, 0);
+
+  return binding;
 };
 
-if (typeof(Rocky) == "undefined") {
-    Rocky = {};
+/*global Rocky:true*/
+
+if (typeof (Rocky) === 'undefined') {
+  Rocky = {};
 }
 
-Rocky.addManualSymbols = function (obj) {
-    // #define DEG_TO_TRIGANGLE(angle) (((angle) * TRIG_MAX_ANGLE) / 360)
-    obj.DEG_TO_TRIGANGLE = function (deg) {
-        return deg * 2 * Math.PI / 360;
-    };
+Rocky.addManualSymbols = function(obj) {
+  // #define DEG_TO_TRIGANGLE(angle) (((angle) * TRIG_MAX_ANGLE) / 360)
+  obj.DEG_TO_TRIGANGLE = function(deg) {
+    return deg * 2 * Math.PI / 360;
+  };
 
-    // #define GPoint(x, y) ((GPoint){(x), (y)})
-    obj.GPoint = function (x, y) {
-        if (arguments.length == 1 && typeof(arguments[0]) === "object") {
-            var obj = (typeof(x[0]) === "undefined") ? x : {};
-            obj.y = typeof(x[1]) != "undefined" ? x[1] : x.y;
-            obj.x = typeof(x[0]) != "undefined" ? x[0] : x.x;
-            return obj;
-        }
-        return {x: x, y: y};
-    };
+  // #define GPoint(x, y) ((GPoint){(x), (y)})
+  obj.GPoint = function(x, y) {
+    if (arguments.length === 1 && typeof (arguments[0]) === 'object') {
+      var obj = (typeof (x[0]) === 'undefined') ? x : {};
+      obj.y = typeof (x[1]) !== 'undefined' ? x[1] : x.y;
+      obj.x = typeof (x[0]) !== 'undefined' ? x[0] : x.x;
+      return obj;
+    }
+    return {x: x, y: y};
+  };
 
-    // #define GSize(w, h) ((GSize){(w), (h)})
-    obj.GSize = function (w, h) {
-        if (arguments.length == 1 && typeof(arguments[0]) === "object") {
-            var obj = (typeof(w[0]) === "undefined") ? w : {};
-            obj.h = typeof(w[1]) != "undefined" ? w[1] : w.h;
-            obj.w = typeof(w[0]) != "undefined" ? w[0] : w.w;
-            return obj;
-        }
-        return {w: w, h: h};
-    };
+  // #define GSize(w, h) ((GSize){(w), (h)})
+  obj.GSize = function(w, h) {
+    if (arguments.length === 1 && typeof (arguments[0]) === 'object') {
+      var obj = (typeof (w[0]) === 'undefined') ? w : {};
+      obj.h = typeof (w[1]) !== 'undefined' ? w[1] : w.h;
+      obj.w = typeof (w[0]) !== 'undefined' ? w[0] : w.w;
+      return obj;
+    }
+    return {w: w, h: h};
+  };
 
-    // #define GRect(x, y, w, h) ((GRect){{(x), (y)}, {(w), (h)}})
-    obj.GRect = function (x, y, w, h) {
-        if (arguments.length == 1 && typeof(arguments[0]) === "object") {
-            var obj = (typeof(x[0]) === "undefined") ? x : {};
-            obj.y = typeof(x[1]) != "undefined" ? x[1] : x.y;
-            obj.w = typeof(x[2]) != "undefined" ? x[2] : x.w;
-            obj.h = typeof(x[3]) != "undefined" ? x[3] : x.h;
-            obj.x = typeof(x[0]) != "undefined" ? x[0] : x.x;
-            return obj;
-        }
-        return {x: x, y: y, w: w, h: h};
-    };
+  // #define GRect(x, y, w, h) ((GRect){{(x), (y)}, {(w), (h)}})
+  obj.GRect = function(x, y, w, h) {
+    if (arguments.length === 1 && typeof (arguments[0]) === 'object') {
+      var obj = (typeof (x[0]) === 'undefined') ? x : {};
+      obj.y = typeof (x[1]) !== 'undefined' ? x[1] : x.y;
+      obj.w = typeof (x[2]) !== 'undefined' ? x[2] : x.w;
+      obj.h = typeof (x[3]) !== 'undefined' ? x[3] : x.h;
+      obj.x = typeof (x[0]) !== 'undefined' ? x[0] : x.x;
+      return obj;
+    }
+    return {x: x, y: y, w: w, h: h};
+  };
 
-    obj.GRectZero = obj.GRect(0, 0, 0, 0);
+  obj.GRectZero = obj.GRect(0, 0, 0, 0);
 
-    obj.GEdgeInsets = function(top, right, bottom, left) {
-        if (arguments.length == 1 && typeof top === "object") {
-            var obj = top;
-            return {
-                top: typeof(obj[0]) != "undefined" ? obj[0] : obj.top,
-                right: typeof(obj[1]) != "undefined" ? obj[1] : obj.right,
-                bottom: typeof(obj[2]) != "undefined" ? obj[2] : obj.bottom,
-                left: typeof(obj[3]) != "undefined" ? obj[3] : obj.left
-            };
-        }
-        right = arguments.length <= 1 ? top : right;
-        bottom = arguments.length <= 2 ? top : bottom;
-        left = arguments.length <= 3 ? right : left;
-        return {top:top, right:right, bottom:bottom, left:left};
-    };
+  obj.GEdgeInsets = function(top, right, bottom, left) {
+    if (arguments.length === 1 && typeof (top) === 'object') {
+      var obj = top;
+      return {
+        top: typeof (obj[0]) !== 'undefined' ? obj[0] : obj.top,
+        right: typeof (obj[1]) !== 'undefined' ? obj[1] : obj.right,
+        bottom: typeof (obj[2]) !== 'undefined' ? obj[2] : obj.bottom,
+        left: typeof (obj[3]) !== 'undefined' ? obj[3] : obj.left
+      };
+    }
+    right = arguments.length <= 1 ? top : right;
+    bottom = arguments.length <= 2 ? top : bottom;
+    left = arguments.length <= 3 ? right : left;
+    return {top: top, right: right, bottom: bottom, left: left};
+  };
 
-    obj.grect_inset = function(rect, insets) {
-        rect = obj.GRect(rect);
-        insets = obj.GEdgeInsets(insets);
-        var w = rect.w - insets.left - insets.right;
-        var h = rect.h - insets.top - insets.bottom;
-        if (w < 0 || h < 0) {
-            return obj.GRectZero;
-        }
-        return obj.GRect(rect.x + insets.left, rect.y + insets.top, w, h);
-    };
+  obj.grect_inset = function(rect, insets) {
+    rect = obj.GRect(rect);
+    insets = obj.GEdgeInsets(insets);
+    var w = rect.w - insets.left - insets.right;
+    var h = rect.h - insets.top - insets.bottom;
+    if (w < 0 || h < 0) {
+      return obj.GRectZero;
+    }
+    return obj.GRect(rect.x + insets.left, rect.y + insets.top, w, h);
+  };
 
-};
-
-// export to enable unit tests
-if (typeof module !== 'undefined' && module.exports !== null) {
-    exports.addManualSymbols = Rocky.addManualSymbols;
-    exports.symbols = {};
-    Rocky.addManualSymbols(exports.symbols);
-}
-
-if (typeof(Rocky) == "undefined") {
-    Rocky = {};
-}
-
-Rocky.addGeneratedSymbols = function (obj) {
-
-    // GOvalScaleMode
-    obj.GOvalScaleModeFitCircle = 0;
-    obj.GOvalScaleModeFillCircle = 1;
-
-    // void graphics_draw_pixel(GContext* ctx, GPoint point);
-    // void emx_graphics_draw_pixel(GContext *ctx, int16_t point_x, int16_t point_y);
-    var emx_graphics_draw_pixel = obj.module.cwrap("emx_graphics_draw_pixel", "void", ["number", "number", "number"]);
-    obj.graphics_draw_pixel = function(ctx, point) {
-        point = obj.GPoint(point);
-        return emx_graphics_draw_pixel(ctx, point.x, point.y);
-    };
-
-    // void graphics_draw_line(GContext* ctx, GPoint p0, GPoint p1);
-    // void emx_graphics_draw_line(GContext* ctx, int16_t p0_x, int16_t p0_y, int16_t p1_x, int16_t p1_y,);
-    var emx_graphics_draw_line = obj.module.cwrap("emx_graphics_draw_line", "void", ["number", "number", "number", "number", "number"]);
-    obj.graphics_draw_line = function(ctx, p0, p1) {
-        p0 = obj.GPoint(p0);
-        p1 = obj.GPoint(p1);
-        return emx_graphics_draw_line(ctx, p0.x, p0.y, p1.x, p1.y);
-    };
-
-    // void graphics_context_set_stroke_width(GContext* ctx, uint8_t stroke_width);
-    obj.graphics_context_set_stroke_width = obj.module.cwrap("graphics_context_set_stroke_width", "void", ["number", "number"]);
-
-    // void graphics_context_set_stroke_color(GContext* ctx, GColor color);
-    // void emx_graphics_context_set_stroke_color(GContext* ctx, uint8_t color);
-    obj.graphics_context_set_stroke_color = obj.module.cwrap("emx_graphics_context_set_stroke_color", "void", ["number", "number"]);
-
-    // void graphics_context_set_fill_color(GContext* ctx, GColor color);
-    // void emx_graphics_context_set_fill_color(GContext* ctx, uint8_t color);
-    obj.graphics_context_set_fill_color = obj.module.cwrap("emx_graphics_context_set_fill_color", "void", ["number", "number"]);
-
-    // void graphics_context_set_antialiased(GContext* ctx, bool enable);
-    obj.graphics_context_set_antialiased = obj.module.cwrap("graphics_context_set_antialiased", "void", ["number", "number"]);
-
-    // GColor definitions
-    obj.GColorBlack =                 0xC0;
-    obj.GColorOxfordBlue =            0xC1;
-    obj.GColorDukeBlue =              0xC2;
-    obj.GColorBlue =                  0xC3;
-    obj.GColorDarkGreen =             0xC4;
-    obj.GColorMidnightGreen =         0xC5;
-    obj.GColorCobaltBlue =            0xC6;
-    obj.GColorBlueMoon =              0xC7;
-    obj.GColorIslamicGreen =          0xC8;
-    obj.GColorJaegerGreen =           0xC9;
-    obj.GColorTiffanyBlue =           0xCA;
-    obj.GColorVividCerulean =         0xCB;
-    obj.GColorGreen =                 0xCC;
-    obj.GColorMalachite =             0xCD;
-    obj.GColorMediumSpringGreen =     0xCE;
-    obj.GColorCyan =                  0xCF;
-    obj.GColorBulgarianRose =         0xD0;
-    obj.GColorImperialPurple =        0xD1;
-    obj.GColorIndigo =                0xD2;
-    obj.GColorElectricUltramarine =   0xD3;
-    obj.GColorArmyGreen =             0xD4;
-    obj.GColorDarkGray =              0xD5;
-    obj.GColorLiberty =               0xD6;
-    obj.GColorVeryLightBlue =         0xD7;
-    obj.GColorKellyGreen =            0xD8;
-    obj.GColorMayGreen =              0xD9;
-    obj.GColorCadetBlue =             0xDA;
-    obj.GColorPictonBlue =            0xDB;
-    obj.GColorBrightGreen =           0xDC;
-    obj.GColorScreaminGreen =         0xDD;
-    obj.GColorMediumAquamarine =      0xDE;
-    obj.GColorElectricBlue =          0xDF;
-    obj.GColorDarkCandyAppleRed =     0xE0;
-    obj.GColorJazzberryJam =          0xE1;
-    obj.GColorPurple =                0xE2;
-    obj.GColorVividViolet =           0xE3;
-    obj.GColorWindsorTan =            0xE4;
-    obj.GColorRoseVale =              0xE5;
-    obj.GColorPurpureus =             0xE6;
-    obj.GColorLavenderIndigo =        0xE7;
-    obj.GColorLimerick =              0xE8;
-    obj.GColorBrass =                 0xE9;
-    obj.GColorLightGray =             0xEA;
-    obj.GColorBabyBlueEyes =          0xEB;
-    obj.GColorSpringBud =             0xEC;
-    obj.GColorInchworm =              0xED;
-    obj.GColorMintGreen =             0xEE;
-    obj.GColorCeleste =               0xEF;
-    obj.GColorRed =                   0xF0;
-    obj.GColorFolly =                 0xF1;
-    obj.GColorFashionMagenta =        0xF2;
-    obj.GColorMagenta =               0xF3;
-    obj.GColorOrange =                0xF4;
-    obj.GColorSunsetOrange =          0xF5;
-    obj.GColorBrilliantRose =         0xF6;
-    obj.GColorShockingPink =          0xF7;
-    obj.GColorChromeYellow =          0xF8;
-    obj.GColorRajah =                 0xF9;
-    obj.GColorMelon =                 0xFA;
-    obj.GColorRichBrilliantLavender = 0xFB;
-    obj.GColorYellow =                0xFC;
-    obj.GColorIcterine =              0xFD;
-    obj.GColorPastelYellow =          0xFE;
-    obj.GColorWhite =                 0xFF;
-
-    // void graphics_fill_radial(GContext *ctx, GRect rect, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);
-    // void emx_graphics_fill_radial(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h, GOvalScaleMode scale_mode, uint16_t inset_thickness, int32_t angle_start, int32_t angle_end);
-    var emx_graphics_fill_radial = obj.module.cwrap("emx_graphics_fill_radial", "void",
-                                                   ["number", "number", "number", "number", "number",
-                                                    "number", "number", "number", "number"]);
-    obj.graphics_fill_radial = function(ctx, rect, scale_mode, inset_thickness, angle_start, angle_end) {
-        rect = obj.GRect(rect);
-        var TRIG_MAX_ANGLE = 0x10000;
-        angle_start = (angle_start * TRIG_MAX_ANGLE) / (Math.PI * 2);
-        angle_end = (angle_end * TRIG_MAX_ANGLE) / (Math.PI * 2);
-        return emx_graphics_fill_radial(ctx, rect.x, rect.y, rect.w, rect.h, scale_mode, inset_thickness, angle_start, angle_end);
-    };
-
-    // void graphics_draw_arc(GContext *ctx, GRect rect, GOvalScaleMode scale_mode,int32_t angle_start, int32_t angle_end);
-    // void emx_graphics_draw_arc(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h, GOvalScaleMode scale_mode,int32_t angle_start, int32_t angle_end);
-    var emx_graphics_draw_arc = obj.module.cwrap("emx_graphics_draw_arc", "void",
-                                                ["number", "number", "number", "number", "number",
-                                                 "number", "number", "number"]);
-    obj.graphics_draw_arc = function(ctx, rect, scale_mode, angle_start, angle_end) {
-        rect = obj.GRect(rect);
-        var TRIG_MAX_ANGLE = 0x10000;
-        angle_start = (angle_start * TRIG_MAX_ANGLE) / (Math.PI * 2);
-        angle_end = (angle_end * TRIG_MAX_ANGLE) / (Math.PI * 2);
-        return emx_graphics_draw_arc(ctx, rect.x, rect.y, rect.w, rect.h, scale_mode, angle_start, angle_end);
-    };
-
-    // GCornerMask
-    obj.GCornerNone = 0;
-    obj.GCornerTopLeft = 1 << 0;
-    obj.GCornerTopRight = 1 << 1;
-    obj.GCornerBottomLeft = 1 << 2;
-    obj.GCornerBottomRight = 1 << 3;
-    obj.GCornersAll = obj.GCornerTopLeft | obj.GCornerTopRight | obj.GCornerBottomLeft | obj.GCornerBottomRight;
-    obj.GCornersTop = obj.GCornerTopLeft | obj.GCornerTopRight;
-    obj.GCornersBottom = obj.GCornerBottomLeft | obj.GCornerBottomRight;
-    obj.GCornersLeft = obj.GCornerTopLeft | obj.GCornerBottomLeft;
-    obj.GCornersRight = obj.GCornerTopRight | obj.GCornerBottomRight;
-
-    // void graphics_fill_rect(GContext *ctx, const GRect rect, uin16_t radius, GCornerMask corner_mask);
-    // void emx_fill_rect(GContext* ctx, int16_t rect_origin_x, int16_t rect_origin_y,
-    //                    int16_t rect_size_w, int16_t rect_size_h,
-    //                    uint16_t radius, GCornerMask corner_mask) {
-    var emx_graphics_fill_rect = obj.module.cwrap("emx_graphics_fill_rect", "void",
-                                                 ["number", "number", "number", "number", "number",
-                                                  "number", "number"]);
-    obj.graphics_fill_rect = function(ctx, rect, radius, corner_mask) {
-        rect = obj.GRect(rect);
-        return emx_graphics_fill_rect(ctx, rect.x, rect.y, rect.w, rect.h, radius, corner_mask);
-    };
-
-    // void graphics_draw_rect(GContext *ctx, const GRect rect);
-    // void emx_graphics_draw_rect(GContext *ctx, int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h);
-    var emx_draw_rect = obj.module.cwrap("emx_graphics_draw_rect", "void",
-                                        ["number", "number", "number", "number", "number"]);
-    obj.graphics_draw_rect = function(ctx, rect) {
-        rect = obj.GRect(rect);
-        return emx_draw_rect(ctx, rect.x, rect.y, rect.w, rect.h);
-    };
-
-    // bool gcolor_legible_over(GColor8 background_color);
-    var emx_gcolor_legible_over = obj.module.cwrap("emx_gcolor_legible_over", "number", ["number"]);
-    obj.gcolor_legible_over = function(color) {
-        return emx_gcolor_legible_over(color);
-    };
-
-    // bool gpoint_equal(GPoint *a, GPoint *b);
-    // bool emx_gpoint_equal(int16_t a_x, int16_t a_y, int16_t b_x, int16_t b_y);
-    var emx_gpoint_equal = obj.module.cwrap("emx_gpoint_equal", "number", ["number", "number", "number", "number"]);
-    obj.gpoint_equal = function(a, b) {
-        a = obj.GPoint(a);
-        b = obj.GPoint(b);
-        return emx_gpoint_equal(a.x, a.y, b.x, b.y) !== 0;
-    };
-
-    // bool grect_equal(GRect *r0, GRect *r1);
-    // bool emx_grect_equal(int16_t r0_x, int16_t r0_y, int16_t r0_w, int16_t r0_h
-    //                      int16_t r1_x, int16_t r1_y, int16_t r1_w, int16_t r1_h);
-    var emx_grect_equal = obj.module.cwrap("emx_grect_equal", "number",
-                                          ["number", "number", "number", "number",
-                                           "number", "number", "number", "number"]);
-    obj.grect_equal = function(r0, r1) {
-        r0 = obj.GRect(r0);
-        r1 = obj.GRect(r1);
-        return emx_grect_equal(r0.x, r0.y, r0.w, r0.h, r1.x, r1.y, r1.w, r1.h) !== 0;
-    };
-
-    // bool grect_is_empty(GRect *rect);
-    // bool emx_grect_is_empty(int16_t rect_origin_x, int16_t rect_origin_y,
-    //                         int16_t rect_size_w, int16_t rect_size_h) {
-    var emx_grect_is_empty = obj.module.cwrap("emx_grect_is_empty", "number",
-                                             ["number", "number", "number", "number"]);
-    obj.grect_is_emtpy = function(rect) {
-        rect = obj.GRect(rect);
-        return emx_grect_is_empty(rect.x, rect.y, rect.w, rect.h) !== 0;
-    };
-
-    // void grect_standardize(GRect *rect);
-    // void emx_grect_standardize(int16_t rect_origin_x, int16_t rect_origin_y,
-    //                            int16_t rect_size_w, int16_t rect_size_h) {
-    var emx_grect_standardize = obj.module.cwrap("emx_grect_standardize", "number", []);
-    obj.grect_standardize = function(rect) {
-        rect = obj.GRect(rect);
-        var returnRectPTR = emx_grect_standardize(rect.x, rect.y, rect.w, rect.h);
-        rect.x = obj.module.getValue(returnRectPTR, 'i16');
-        rect.y = obj.module.getValue(returnRectPTR + 2, 'i16');
-        rect.w = obj.module.getValue(returnRectPTR + 4, 'i16');
-        rect.h = obj.module.getValue(returnRectPTR + 6, 'i16');
-    };
-
-    // void grect_clip(GRect *rect_to_clip, GRect *rect_clipper);
-    // void emx_grect_clip(int16_t to_clip_x, int16_t to_clip_y, int16_t to_clip_w, int16_t to_clip_h,
-    //                     int16_t clipper_x, int16_t clipper_y, int16_t clipper_w, int16_t clipper_h) {
-    var emx_grect_clip = obj.module.cwrap("emx_grect_clip", "number",
-                                         ["number", "number", "number", "number",
-                                          "number", "number", "number", "number"]);
-    obj.grect_clip = function(rect_to_clip, rect_clipper) {
-        rect_to_clip = obj.GRect(rect_to_clip);
-        rect_clipper = obj.GRect(rect_clipper);
-        var returnRectPTR =  emx_grect_clip(rect_to_clip.x, rect_to_clip.y, rect_to_clip.w, rect_to_clip.h,
-                                            rect_clipper.x, rect_clipper.y, rect_clipper.w, rect_clipper.h);
-        rect_to_clip.x = obj.module.getValue(returnRectPTR, 'i16');
-        rect_to_clip.y = obj.module.getValue(returnRectPTR + 2, 'i16');
-        rect_to_clip.w = obj.module.getValue(returnRectPTR + 4, 'i16');
-        rect_to_clip.h = obj.module.getValue(returnRectPTR + 6, 'i16');
-    };
-
-    // bool grect_contains_point(GRect *rect, GPoint *point):
-    // bool emx_grect_contains_point(int16_t r_x, int16_t r_y, int16_t r_w, int16_t r_h,
-    //                               int16_t p_x, int16_t p_y) {
-    var emx_grect_contains_point = obj.module.cwrap("emx_grect_contains_point", "number",
-                                                   ["number", "number", "number", "number",
-                                                    "number", "number"]);
-    obj.grect_contains_point = function(rect, point) {
-        rect = obj.GRect(rect);
-        point = obj.GPoint(point);
-        return emx_grect_contains_point(rect.x, rect.y, rect.w, rect.h, point.x, point.y) !== 0;
-    };
-
-    // GPoint grect_center_point(GRect *rect);
-    // GPoint *emx_grect_center_point(int16_t r_x, int16_t r_y, int16_t r_w, int16_t r_h) {
-    var emx_grect_center_point = obj.module.cwrap("emx_grect_center_point", "number",
-                                                 ["number", "number", "number", "number"]);
-    obj.grect_center_point = function(rect) {
-        rect = obj.GRect(rect);
-        var returnPointPTR = emx_grect_center_point(rect.x, rect.y, rect.w, rect.h);
-        var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, 'i16'),
-                                     obj.module.getValue(returnPointPTR + 2, 'i16'));
-        return returnPoint;
-    };
-
-    // GRect grect_crop(GRect rect, const int32_t crop_size_px)
-    // GRect *emx_grect_crop(int16_t r_x, int16_t r_y, int16_t r_w, int16_t r_h, int32_t crop_size_px) {
-    var emx_grect_crop = obj.module.cwrap("emx_grect_crop", "number",
-                                         ["number", "number", "number", "number",
-                                          "number"]);
-    obj.grect_crop = function(rect, crop_size_px) {
-        rect = obj.GRect(rect);
-        var returnRectPTR = emx_grect_crop(rect.x, rect.y, rect.w, rect.h, crop_size_px);
-        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
-                                   obj.module.getValue(returnRectPTR + 2, 'i16'),
-                                   obj.module.getValue(returnRectPTR + 4, 'i16'),
-                                   obj.module.getValue(returnRectPTR + 6, 'i16'));
-        return returnRect;
-    };
-
-    // GAlign
-    obj.GAlignCenter = 0x0;
-    obj.GAlignTopLeft = 0x1;
-    obj.GAlignTopRight = 0x2;
-    obj.GAlignTop = 0x3;
-    obj.GAlignLeft = 0x4;
-    obj.GAlignBottom = 0x5;
-    obj.GAlignRight = 0x6;
-    obj.GAlignBottomRight = 0x7;
-    obj.GAlignBottomLeft = 0x8;
-
-    // void grect_align(GRect *rect, GRect *inside_rect, GAlign alignment, bool clip);)
-    // void emx_grect_align(int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h,
-    //                     int16_t inside_x, int16_t inside_y, int16_t inside_w, int16_t inside_h,
-    //                     const GAlign alignment, const bool clip) {
-    var emx_grect_align = obj.module.cwrap("emx_grect_align", "number",
-                                          ["number", "number", "number", "number",
-                                           "number", "number", "number", "number",
-                                           "number", "number"]);
-    obj.grect_align = function(rect, inside_rect, alignment, clip) {
-        rect = obj.GRect(rect);
-        inside_rect = obj.GRect(inside_rect);
-        var returnRectPTR = emx_grect_align(rect.x, rect.y, rect.w, rect.h,
-                                            inside_rect.x, inside_rect.y, inside_rect.w, inside_rect.h,
-                                            alignment, clip);
-        rect.x = obj.module.getValue(returnRectPTR, 'i16');
-        rect.y = obj.module.getValue(returnRectPTR + 2, 'i16');
-        rect.w = obj.module.getValue(returnRectPTR + 4, 'i16');
-        rect.h = obj.module.getValue(returnRectPTR + 6, 'i16');
-    };
-
-    // void graphics_draw_circle(GContext *ctx, GPoint center, uin16_t radius);
-    // void emx_graphics_draw_circle(GContext *ctx,
-    //                               int16_t point_x, int16_t point_y,
-    //                               uint16_t radius) {
-    var emx_graphics_draw_circle = obj.module.cwrap("emx_graphics_draw_circle", "void",
-                                                   ["number", "number", "number"]);
-    obj.graphics_draw_circle = function(ctx, center, radius) {
-        center = obj.GPoint(center);
-        return emx_graphics_draw_circle(ctx, center.x, center.y, radius);
-    };
-
-
-    // void graphics_fill_circle(GCOntext *ctx, GPoint center, uin16_t radius);
-    // void emx_graphics_fill_circle(GContext *ctx, int16_t center_x, int16_t center_y, uint16_t radius) {
-    var emx_graphics_fill_circle = obj.module.cwrap("emx_graphics_fill_circle", "void",
-                                                   ["number", "number", "number"]);
-    obj.graphics_fill_circle = function(ctx, center, radius) {
-        center = obj.GPoint(center);
-        return emx_graphics_fill_circle(ctx, center.x, center.y, radius);
-    };
-
-    // void graphics_draw_round_rect(GContext *ctx, GRect rect, uint16_t radius)
-    // void emx_graphics_draw_round_rect(GContext* ctx,
-    //                                   int16_t rect_origin_x, int16_t rect_origin_y,
-    //                                   int16_t rect_size_w, int16_t rect_size_h,
-    //                                   uint16_t radius) {
-    var emx_graphics_draw_round_rect = obj.module.cwrap("emx_graphics_draw_round_rect", "void",
-                                                       ["number", "number", "number", "number", "number"]);
-    obj.graphics_draw_round_rect = function(ctx, rect, radius) {
-        rect = obj.GRect(rect);
-        return emx_graphics_draw_round_rect(ctx, rect.x, rect.y, rect.w, rect.h, radius);
-    };
-
-    // GOvalScaleMode
-    obj.GOvalScaleModeFitCircle = 0;
-    obj.GOvalScaleModeFillCircle = 1;
-
-    // GPoint gpoint_from_polar(GRect rect, GOvalScaleMode scale_mode, int32_t angle);
-    // GPoint *emx_gpoint_from_polar(int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h,
-    //                               GOvalScaleMode scale_mode, int32_t angle) {
-    var emx_gpoint_from_polar = obj.module.cwrap("emx_gpoint_from_polar", "number",
-                                                 ["number", "number", "number", "number",
-                                                  "number", "number"]);
-    obj.gpoint_from_polar =  function(rect, scale_mode, angle) {
-        rect = obj.GRect(rect);
-        var TRIG_MAX_ANGLE = 0x10000;
-        angle = (angle * TRIG_MAX_ANGLE) / (Math.PI * 2);
-        var returnPointPTR = emx_gpoint_from_polar(rect.x, rect.y, rect.w, rect.y, scale_mode, angle);
-        var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, 'i16'),
-                                     obj.module.getValue(returnPointPTR + 2, 'i16'));
-        return returnPoint;
-    };
-
-    // GRect grect_centered_from_polar(GRect rect, GOvalScaleMode scale_mode, int32_t angle, GSize size);
-    // GRect *emx_grect_centered_from_polar(int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h,
-    //                                       GOvalScaleMode scale_mode, int32_t angle,
-    //                                       int16_t size_w, int16_t size_h) {
-    var emx_grect_centered_from_polar = obj.module.cwrap("emx_grect_centered_from_polar", "number",
-                                                        ["number", "number", "number", "number",
-                                                         "number", "number",
-                                                         "number", "number"]);
-    obj.grect_centered_from_polar = function(rect, scale_mode, angle, size) {
-        rect = obj.GRect(rect);
-        var TRIG_MAX_ANGLE = 0x10000;
-        angle = (angle * TRIG_MAX_ANGLE) / (Math.PI * 2);
-        size = obj.GSize(size);
-
-        var returnRectPTR = emx_grect_centered_from_polar(rect.x, rect.y, rect.w, rect.h,
-                                                          scale_mode, angle, size.w, size.h);
-        var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
-                                   obj.module.getValue(returnRectPTR + 2, 'i16'),
-                                   obj.module.getValue(returnRectPTR + 4, 'i16'),
-                                   obj.module.getValue(returnRectPTR + 6, 'i16'));
-        return returnRect;
-    };
 };
 
 // export to enable unit tests
-if (typeof module !== 'undefined' && module.exports !== null) {
-    exports.addGeneratedSymbols = Rocky.addGeneratedSymbols;
+if (typeof (module) !== 'undefined' && module.exports !== null) {
+  exports.addManualSymbols = Rocky.addManualSymbols;
+  exports.symbols = {};
+  Rocky.addManualSymbols(exports.symbols);
+}
+
+/*global Rocky:true*/
+
+if (typeof (Rocky) === 'undefined') {
+  Rocky = {};
+}
+
+Rocky.addGeneratedSymbols = function(obj) {
+
+  // GOvalScaleMode
+  obj.GOvalScaleModeFitCircle = 0;
+  obj.GOvalScaleModeFillCircle = 1;
+
+  // void graphics_draw_pixel(GContext* ctx, GPoint point);
+  // void emx_graphics_draw_pixel(GContext *ctx, int16_t point_x, int16_t point_y);
+  var emx_graphics_draw_pixel = obj.module.cwrap('emx_graphics_draw_pixel', 'void',
+                                                ['number', 'number', 'number']);
+  obj.graphics_draw_pixel = function(ctx, point) {
+    point = obj.GPoint(point);
+    return emx_graphics_draw_pixel(ctx, point.x, point.y);
+  };
+
+  // void graphics_draw_line(GContext* ctx, GPoint p0, GPoint p1);
+  // void emx_graphics_draw_line(GContext* ctx, int16_t p0_x, int16_t p0_y,
+  //                             int16_t p1_x, int16_t p1_y,);
+  var emx_graphics_draw_line = obj.module.cwrap('emx_graphics_draw_line', 'void',
+                                               ['number', 'number', 'number',
+                                                'number', 'number']);
+  obj.graphics_draw_line = function(ctx, p0, p1) {
+    p0 = obj.GPoint(p0);
+    p1 = obj.GPoint(p1);
+    return emx_graphics_draw_line(ctx, p0.x, p0.y, p1.x, p1.y);
+  };
+
+  // void graphics_context_set_stroke_width(GContext* ctx, uint8_t stroke_width);
+  obj.graphics_context_set_stroke_width =
+      obj.module.cwrap('graphics_context_set_stroke_width', 'void',
+                      ['number', 'number']);
+
+  // void graphics_context_set_stroke_color(GContext* ctx, GColor color);
+  // void emx_graphics_context_set_stroke_color(GContext* ctx, uint8_t color);
+  obj.graphics_context_set_stroke_color =
+      obj.module.cwrap('emx_graphics_context_set_stroke_color', 'void',
+                      ['number', 'number']);
+
+  // void graphics_context_set_fill_color(GContext* ctx, GColor color);
+  // void emx_graphics_context_set_fill_color(GContext* ctx, uint8_t color);
+  obj.graphics_context_set_fill_color =
+      obj.module.cwrap('emx_graphics_context_set_fill_color', 'void',
+                      ['number', 'number']);
+
+  // void graphics_context_set_antialiased(GContext* ctx, bool enable);
+  obj.graphics_context_set_antialiased =
+      obj.module.cwrap('graphics_context_set_antialiased', 'void',
+                      ['number', 'number']);
+
+  // GColor definitions
+  obj.GColorBlack = 0xC0;
+  obj.GColorOxfordBlue = 0xC1;
+  obj.GColorDukeBlue = 0xC2;
+  obj.GColorBlue = 0xC3;
+  obj.GColorDarkGreen = 0xC4;
+  obj.GColorMidnightGreen = 0xC5;
+  obj.GColorCobaltBlue = 0xC6;
+  obj.GColorBlueMoon = 0xC7;
+  obj.GColorIslamicGreen = 0xC8;
+  obj.GColorJaegerGreen = 0xC9;
+  obj.GColorTiffanyBlue = 0xCA;
+  obj.GColorVividCerulean = 0xCB;
+  obj.GColorGreen = 0xCC;
+  obj.GColorMalachite = 0xCD;
+  obj.GColorMediumSpringGreen = 0xCE;
+  obj.GColorCyan = 0xCF;
+  obj.GColorBulgarianRose = 0xD0;
+  obj.GColorImperialPurple = 0xD1;
+  obj.GColorIndigo = 0xD2;
+  obj.GColorElectricUltramarine = 0xD3;
+  obj.GColorArmyGreen = 0xD4;
+  obj.GColorDarkGray = 0xD5;
+  obj.GColorLiberty = 0xD6;
+  obj.GColorVeryLightBlue = 0xD7;
+  obj.GColorKellyGreen = 0xD8;
+  obj.GColorMayGreen = 0xD9;
+  obj.GColorCadetBlue = 0xDA;
+  obj.GColorPictonBlue = 0xDB;
+  obj.GColorBrightGreen = 0xDC;
+  obj.GColorScreaminGreen = 0xDD;
+  obj.GColorMediumAquamarine = 0xDE;
+  obj.GColorElectricBlue = 0xDF;
+  obj.GColorDarkCandyAppleRed = 0xE0;
+  obj.GColorJazzberryJam = 0xE1;
+  obj.GColorPurple = 0xE2;
+  obj.GColorVividViolet = 0xE3;
+  obj.GColorWindsorTan = 0xE4;
+  obj.GColorRoseVale = 0xE5;
+  obj.GColorPurpureus = 0xE6;
+  obj.GColorLavenderIndigo = 0xE7;
+  obj.GColorLimerick = 0xE8;
+  obj.GColorBrass = 0xE9;
+  obj.GColorLightGray = 0xEA;
+  obj.GColorBabyBlueEyes = 0xEB;
+  obj.GColorSpringBud = 0xEC;
+  obj.GColorInchworm = 0xED;
+  obj.GColorMintGreen = 0xEE;
+  obj.GColorCeleste = 0xEF;
+  obj.GColorRed = 0xF0;
+  obj.GColorFolly = 0xF1;
+  obj.GColorFashionMagenta = 0xF2;
+  obj.GColorMagenta = 0xF3;
+  obj.GColorOrange = 0xF4;
+  obj.GColorSunsetOrange = 0xF5;
+  obj.GColorBrilliantRose = 0xF6;
+  obj.GColorShockingPink = 0xF7;
+  obj.GColorChromeYellow = 0xF8;
+  obj.GColorRajah = 0xF9;
+  obj.GColorMelon = 0xFA;
+  obj.GColorRichBrilliantLavender = 0xFB;
+  obj.GColorYellow = 0xFC;
+  obj.GColorIcterine = 0xFD;
+  obj.GColorPastelYellow = 0xFE;
+  obj.GColorWhite = 0xFF;
+
+  // void graphics_fill_radial(GContext *ctx, GRect rect,
+  //                           GOvalScaleMode scale_mode, uint16_t inset_thickness,
+  //                           int32_t angle_start, int32_t angle_end);
+  // void emx_graphics_fill_radial(GContext *ctx,
+  //     int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h,
+  //     GOvalScaleMode scale_mode, uint16_t inset_thickness,
+  //     int32_t angle_start, int32_t angle_end);
+  var emx_graphics_fill_radial = obj.module.cwrap('emx_graphics_fill_radial', 'void',
+                           ['number', 'number', 'number', 'number', 'number',
+                          'number', 'number', 'number', 'number']);
+  obj.graphics_fill_radial = function(ctx, rect, scale_mode,
+                                      inset_thickness, angle_start, angle_end) {
+    rect = obj.GRect(rect);
+    var TRIG_MAX_ANGLE = 0x10000;
+    angle_start = (angle_start * TRIG_MAX_ANGLE) / (Math.PI * 2);
+    angle_end = (angle_end * TRIG_MAX_ANGLE) / (Math.PI * 2);
+    return emx_graphics_fill_radial(ctx, rect.x, rect.y, rect.w, rect.h,
+                                    scale_mode, inset_thickness,
+                                    angle_start, angle_end);
+  };
+
+  // void graphics_draw_arc(GContext *ctx, GRect rect, GOvalScaleMode scale_mode,
+  //                        int32_t angle_start, int32_t angle_end);
+  // void emx_graphics_draw_arc(GContext *ctx,
+  //     int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h,
+  //     GOvalScaleMode scale_mode,int32_t angle_start, int32_t angle_end);
+  var emx_graphics_draw_arc = obj.module.cwrap('emx_graphics_draw_arc', 'void',
+                        ['number', 'number', 'number', 'number', 'number',
+                         'number', 'number', 'number']);
+  obj.graphics_draw_arc = function(ctx, rect, scale_mode, angle_start, angle_end) {
+    rect = obj.GRect(rect);
+    var TRIG_MAX_ANGLE = 0x10000;
+    angle_start = (angle_start * TRIG_MAX_ANGLE) / (Math.PI * 2);
+    angle_end = (angle_end * TRIG_MAX_ANGLE) / (Math.PI * 2);
+    return emx_graphics_draw_arc(ctx, rect.x, rect.y, rect.w, rect.h,
+                                 scale_mode, angle_start, angle_end);
+  };
+
+  // GCornerMask
+  obj.GCornerNone = 0;
+  obj.GCornerTopLeft = 1 << 0;
+  obj.GCornerTopRight = 1 << 1;
+  obj.GCornerBottomLeft = 1 << 2;
+  obj.GCornerBottomRight = 1 << 3;
+  obj.GCornersAll = obj.GCornerTopLeft |
+                    obj.GCornerTopRight |
+                    obj.GCornerBottomLeft |
+                    obj.GCornerBottomRight;
+  obj.GCornersTop = obj.GCornerTopLeft | obj.GCornerTopRight;
+  obj.GCornersBottom = obj.GCornerBottomLeft | obj.GCornerBottomRight;
+  obj.GCornersLeft = obj.GCornerTopLeft | obj.GCornerBottomLeft;
+  obj.GCornersRight = obj.GCornerTopRight | obj.GCornerBottomRight;
+
+  // void graphics_fill_rect(GContext *ctx, const GRect rect,
+  //                         uin16_t radius, GCornerMask corner_mask);
+  // void emx_fill_rect(GContext* ctx, int16_t rect_origin_x, int16_t rect_origin_y,
+  //                    int16_t rect_size_w, int16_t rect_size_h,
+  //                    uint16_t radius, GCornerMask corner_mask) {
+  var emx_graphics_fill_rect = obj.module.cwrap('emx_graphics_fill_rect', 'void',
+                         ['number', 'number', 'number', 'number', 'number',
+                          'number', 'number']);
+  obj.graphics_fill_rect = function(ctx, rect, radius, corner_mask) {
+    rect = obj.GRect(rect);
+    return emx_graphics_fill_rect(ctx, rect.x, rect.y, rect.w, rect.h,
+                                  radius, corner_mask);
+  };
+
+  // void graphics_draw_rect(GContext *ctx, const GRect rect);
+  // void emx_graphics_draw_rect(GContext *ctx,
+  //     int16_t rect_x, int16_t rect_y, int16_t rect_w, int16_t rect_h);
+  var emx_draw_rect = obj.module.cwrap('emx_graphics_draw_rect', 'void',
+                    ['number', 'number', 'number', 'number', 'number']);
+  obj.graphics_draw_rect = function(ctx, rect) {
+    rect = obj.GRect(rect);
+    return emx_draw_rect(ctx, rect.x, rect.y, rect.w, rect.h);
+  };
+
+  // bool gcolor_legible_over(GColor8 background_color);
+  var emx_gcolor_legible_over = obj.module.cwrap('emx_gcolor_legible_over', 'number',
+                                                ['number']);
+  obj.gcolor_legible_over = function(color) {
+    return emx_gcolor_legible_over(color);
+  };
+
+  // bool gpoint_equal(GPoint *a, GPoint *b);
+  // bool emx_gpoint_equal(int16_t a_x, int16_t a_y, int16_t b_x, int16_t b_y);
+  var emx_gpoint_equal = obj.module.cwrap('emx_gpoint_equal', 'number',
+                                         ['number', 'number', 'number', 'number']);
+  obj.gpoint_equal = function(a, b) {
+    a = obj.GPoint(a);
+    b = obj.GPoint(b);
+    return emx_gpoint_equal(a.x, a.y, b.x, b.y) !== 0;
+  };
+
+  // bool grect_equal(GRect *r0, GRect *r1);
+  // bool emx_grect_equal(int16_t r0_x, int16_t r0_y, int16_t r0_w, int16_t r0_h
+  //            int16_t r1_x, int16_t r1_y, int16_t r1_w, int16_t r1_h);
+  var emx_grect_equal = obj.module.cwrap('emx_grect_equal', 'number',
+                      ['number', 'number', 'number', 'number',
+                       'number', 'number', 'number', 'number']);
+  obj.grect_equal = function(r0, r1) {
+    r0 = obj.GRect(r0);
+    r1 = obj.GRect(r1);
+    return emx_grect_equal(r0.x, r0.y, r0.w, r0.h, r1.x, r1.y, r1.w, r1.h) !== 0;
+  };
+
+  // bool grect_is_empty(GRect *rect);
+  // bool emx_grect_is_empty(int16_t rect_origin_x, int16_t rect_origin_y,
+  //               int16_t rect_size_w, int16_t rect_size_h);
+  var emx_grect_is_empty = obj.module.cwrap('emx_grect_is_empty', 'number',
+                       ['number', 'number', 'number', 'number']);
+  obj.grect_is_emtpy = function(rect) {
+    rect = obj.GRect(rect);
+    return emx_grect_is_empty(rect.x, rect.y, rect.w, rect.h) !== 0;
+  };
+
+  // void grect_standardize(GRect *rect);
+  // void emx_grect_standardize(int16_t rect_origin_x, int16_t rect_origin_y,
+  //                int16_t rect_size_w, int16_t rect_size_h);
+  var emx_grect_standardize = obj.module.cwrap('emx_grect_standardize', 'number',
+                                               []);
+  obj.grect_standardize = function(rect) {
+    rect = obj.GRect(rect);
+    var returnRectPTR = emx_grect_standardize(rect.x, rect.y, rect.w, rect.h);
+    rect.x = obj.module.getValue(returnRectPTR, 'i16');
+    rect.y = obj.module.getValue(returnRectPTR + 2, 'i16');
+    rect.w = obj.module.getValue(returnRectPTR + 4, 'i16');
+    rect.h = obj.module.getValue(returnRectPTR + 6, 'i16');
+  };
+
+  // void grect_clip(GRect *rect_to_clip, GRect *rect_clipper);
+  // void emx_grect_clip(int16_t to_clip_x, int16_t to_clip_y,
+  //                     int16_t to_clip_w, int16_t to_clip_h,
+  //                     int16_t clipper_x, int16_t clipper_y,
+  //                     int16_t clipper_w, int16_t clipper_h);
+  var emx_grect_clip = obj.module.cwrap('emx_grect_clip', 'number',
+                     ['number', 'number', 'number', 'number',
+                      'number', 'number', 'number', 'number']);
+  obj.grect_clip = function(rect_to_clip, rect_clipper) {
+    rect_to_clip = obj.GRect(rect_to_clip);
+    rect_clipper = obj.GRect(rect_clipper);
+    var returnRectPTR = emx_grect_clip(rect_to_clip.x, rect_to_clip.y,
+                                       rect_to_clip.w, rect_to_clip.h,
+                                       rect_clipper.x, rect_clipper.y,
+                                       rect_clipper.w, rect_clipper.h);
+    rect_to_clip.x = obj.module.getValue(returnRectPTR, 'i16');
+    rect_to_clip.y = obj.module.getValue(returnRectPTR + 2, 'i16');
+    rect_to_clip.w = obj.module.getValue(returnRectPTR + 4, 'i16');
+    rect_to_clip.h = obj.module.getValue(returnRectPTR + 6, 'i16');
+  };
+
+  // bool grect_contains_point(GRect *rect, GPoint *point):
+  // bool emx_grect_contains_point(int16_t r_x, int16_t r_y,
+  //                               int16_t r_w, int16_t r_h,
+  //                               int16_t p_x, int16_t p_y);
+  var emx_grect_contains_point =
+      obj.module.cwrap('emx_grect_contains_point', 'number',
+                      ['number', 'number', 'number', 'number', 'number', 'number']);
+  obj.grect_contains_point = function(rect, point) {
+    rect = obj.GRect(rect);
+    point = obj.GPoint(point);
+    return emx_grect_contains_point(rect.x, rect.y, rect.w, rect.h,
+                                    point.x, point.y) !== 0;
+  };
+
+  // GPoint grect_center_point(GRect *rect);
+  // GPoint *emx_grect_center_point(int16_t r_x, int16_t r_y,
+  //                                int16_t r_w, int16_t r_h);
+  var emx_grect_center_point = obj.module.cwrap('emx_grect_center_point', 'number',
+                         ['number', 'number', 'number', 'number']);
+  obj.grect_center_point = function(rect) {
+    rect = obj.GRect(rect);
+    var returnPointPTR = emx_grect_center_point(rect.x, rect.y, rect.w, rect.h);
+    var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, 'i16'),
+                   obj.module.getValue(returnPointPTR + 2, 'i16'));
+    return returnPoint;
+  };
+
+  // GRect grect_crop(GRect rect, const int32_t crop_size_px)
+  // GRect *emx_grect_crop(int16_t r_x, int16_t r_y, int16_t r_w, int16_t r_h,
+  //                       int32_t crop_size_px) {
+  var emx_grect_crop = obj.module.cwrap('emx_grect_crop', 'number',
+                     ['number', 'number', 'number', 'number',
+                      'number']);
+  obj.grect_crop = function(rect, crop_size_px) {
+    rect = obj.GRect(rect);
+    var returnRectPTR = emx_grect_crop(rect.x, rect.y, rect.w, rect.h, crop_size_px);
+    var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
+                   obj.module.getValue(returnRectPTR + 2, 'i16'),
+                   obj.module.getValue(returnRectPTR + 4, 'i16'),
+                   obj.module.getValue(returnRectPTR + 6, 'i16'));
+    return returnRect;
+  };
+
+  // GAlign
+  obj.GAlignCenter = 0x0;
+  obj.GAlignTopLeft = 0x1;
+  obj.GAlignTopRight = 0x2;
+  obj.GAlignTop = 0x3;
+  obj.GAlignLeft = 0x4;
+  obj.GAlignBottom = 0x5;
+  obj.GAlignRight = 0x6;
+  obj.GAlignBottomRight = 0x7;
+  obj.GAlignBottomLeft = 0x8;
+
+  // void grect_align(GRect *rect, GRect *inside_rect, GAlign alignment, bool clip);)
+  // void emx_grect_align(int16_t rect_x, int16_t rect_y,
+  //                      int16_t rect_w, int16_t rect_h,
+  //                      int16_t inside_x, int16_t inside_y,
+  //                      int16_t inside_w, int16_t inside_h,
+  //                      const GAlign alignment, const bool clip);
+  var emx_grect_align = obj.module.cwrap('emx_grect_align', 'number',
+                                        ['number', 'number', 'number', 'number',
+                                         'number', 'number', 'number', 'number',
+                                         'number', 'number']);
+  obj.grect_align = function(rect, inside_rect, alignment, clip) {
+    rect = obj.GRect(rect);
+    inside_rect = obj.GRect(inside_rect);
+    var returnRectPTR = emx_grect_align(rect.x, rect.y, rect.w, rect.h,
+                      inside_rect.x, inside_rect.y, inside_rect.w, inside_rect.h,
+                      alignment, clip);
+    rect.x = obj.module.getValue(returnRectPTR, 'i16');
+    rect.y = obj.module.getValue(returnRectPTR + 2, 'i16');
+    rect.w = obj.module.getValue(returnRectPTR + 4, 'i16');
+    rect.h = obj.module.getValue(returnRectPTR + 6, 'i16');
+  };
+
+  // void graphics_draw_circle(GContext *ctx, GPoint center, uin16_t radius);
+  // void emx_graphics_draw_circle(GContext *ctx,
+  //                 int16_t point_x, int16_t point_y,
+  //                 uint16_t radius) {
+  var emx_graphics_draw_circle = obj.module.cwrap('emx_graphics_draw_circle', 'void',
+                                                 ['number', 'number', 'number']);
+  obj.graphics_draw_circle = function(ctx, center, radius) {
+    center = obj.GPoint(center);
+    return emx_graphics_draw_circle(ctx, center.x, center.y, radius);
+  };
+
+  // void graphics_fill_circle(GCOntext *ctx, GPoint center, uin16_t radius);
+  // void emx_graphics_fill_circle(GContext *ctx,
+  //                               int16_t center_x, int16_t center_y,
+  //                               uint16_t radius);
+  var emx_graphics_fill_circle = obj.module.cwrap('emx_graphics_fill_circle', 'void',
+                                                 ['number', 'number', 'number']);
+  obj.graphics_fill_circle = function(ctx, center, radius) {
+    center = obj.GPoint(center);
+    return emx_graphics_fill_circle(ctx, center.x, center.y, radius);
+  };
+
+  // void graphics_draw_round_rect(GContext *ctx, GRect rect, uint16_t radius)
+  // void emx_graphics_draw_round_rect(GContext* ctx,
+  //                   int16_t rect_origin_x, int16_t rect_origin_y,
+  //                   int16_t rect_size_w, int16_t rect_size_h,
+  //                   uint16_t radius) {
+  var emx_graphics_draw_round_rect =
+      obj.module.cwrap('emx_graphics_draw_round_rect', 'void',
+                      ['number', 'number', 'number', 'number', 'number']);
+  obj.graphics_draw_round_rect = function(ctx, rect, radius) {
+    rect = obj.GRect(rect);
+    return emx_graphics_draw_round_rect(ctx, rect.x, rect.y, rect.w, rect.h, radius);
+  };
+
+  // GOvalScaleMode
+  obj.GOvalScaleModeFitCircle = 0;
+  obj.GOvalScaleModeFillCircle = 1;
+
+  // GPoint gpoint_from_polar(GRect rect, GOvalScaleMode scale_mode, int32_t angle);
+  // GPoint *emx_gpoint_from_polar(int16_t rect_x, int16_t rect_y,
+  //                               int16_t rect_w, int16_t rect_h,
+  //                               GOvalScaleMode scale_mode, int32_t angle);
+  var emx_gpoint_from_polar = obj.module.cwrap('emx_gpoint_from_polar', 'number',
+                         ['number', 'number', 'number', 'number',
+                          'number', 'number']);
+  obj.gpoint_from_polar = function(rect, scale_mode, angle) {
+    rect = obj.GRect(rect);
+    var TRIG_MAX_ANGLE = 0x10000;
+    angle = (angle * TRIG_MAX_ANGLE) / (Math.PI * 2);
+    var returnPointPTR = emx_gpoint_from_polar(rect.x, rect.y, rect.w, rect.y,
+                                               scale_mode, angle);
+    var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, 'i16'),
+                                 obj.module.getValue(returnPointPTR + 2, 'i16'));
+    return returnPoint;
+  };
+
+  // GRect grect_centered_from_polar(GRect rect, GOvalScaleMode scale_mode,
+  //                                 int32_t angle, GSize size);
+  // GRect *emx_grect_centered_from_polar(int16_t rect_x, int16_t rect_y,
+  //                                      int16_t rect_w, int16_t rect_h,
+  //                                      GOvalScaleMode scale_mode, int32_t angle,
+  //                                      int16_t size_w, int16_t size_h);
+  var emx_grect_centered_from_polar =
+      obj.module.cwrap('emx_grect_centered_from_polar', 'number',
+                      ['number', 'number', 'number', 'number', 'number', 'number',
+                       'number', 'number']);
+  obj.grect_centered_from_polar = function(rect, scale_mode, angle, size) {
+    rect = obj.GRect(rect);
+    var TRIG_MAX_ANGLE = 0x10000;
+    angle = (angle * TRIG_MAX_ANGLE) / (Math.PI * 2);
+    size = obj.GSize(size);
+
+    var returnRectPTR = emx_grect_centered_from_polar(rect.x, rect.y, rect.w, rect.h,
+                              scale_mode, angle, size.w, size.h);
+    var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
+                   obj.module.getValue(returnRectPTR + 2, 'i16'),
+                   obj.module.getValue(returnRectPTR + 4, 'i16'),
+                   obj.module.getValue(returnRectPTR + 6, 'i16'));
+    return returnRect;
+  };
+};
+
+// export to enable unit tests
+if (typeof (module) !== 'undefined' && module.exports !== null) {
+  exports.addGeneratedSymbols = Rocky.addGeneratedSymbols;
 }
 
 "undefined"==typeof Rocky&&(Rocky={}),Rocky.Module=function(){function globalEval(a){eval.call(null,a)}function getSafeHeapType(a,b){switch(a){case 1:return"i8";case 2:return"i16";case 4:return b?"float":"i32";case 8:return"double";default:assert(0)}}function SAFE_FT_MASK(a,b){var c=a&b;return c!==a&&abort("Function table mask error: function pointer is "+a+" which is masked by "+b+", the likely cause of this is that the function pointer is being called by the wrong type."),c}function segfault(){abort("segmentation fault")}function alignfault(){abort("alignment fault")}function ftfault(){abort("Function table mask error")}function assert(a,b){a||abort("Assertion failed: "+b)}function getCFunc(ident){var func=Module["_"+ident];if(!func)try{func=eval("_"+ident)}catch(e){}return assert(func,"Cannot call unknown function "+ident+" (perhaps LLVM optimizations or closure removed it?)"),func}function setValue(a,b,c,d){if(c=c||"i8","*"===c.charAt(c.length-1)&&(c="i32"),d)switch(c){case"i1":HEAP8[a>>0]=b;break;case"i8":HEAP8[a>>0]=b;break;case"i16":HEAP16[a>>1]=b;break;case"i32":HEAP32[a>>2]=b;break;case"i64":tempI64=[b>>>0,(tempDouble=b,+Math_abs(tempDouble)>=1?tempDouble>0?(0|Math_min(+Math_floor(tempDouble/4294967296),4294967295))>>>0:~~+Math_ceil((tempDouble-+(~~tempDouble>>>0))/4294967296)>>>0:0)],HEAP32[a>>2]=tempI64[0],HEAP32[a+4>>2]=tempI64[1];break;case"float":HEAPF32[a>>2]=b;break;case"double":HEAPF64[a>>3]=b;break;default:abort("invalid type for setValue: "+c)}else switch(c){case"i1":SAFE_HEAP_STORE(0|a,0|b,1);break;case"i8":SAFE_HEAP_STORE(0|a,0|b,1);break;case"i16":SAFE_HEAP_STORE(0|a,0|b,2);break;case"i32":SAFE_HEAP_STORE(0|a,0|b,4);break;case"i64":tempI64=[b>>>0,(tempDouble=b,+Math_abs(tempDouble)>=1?tempDouble>0?(0|Math_min(+Math_floor(tempDouble/4294967296),4294967295))>>>0:~~+Math_ceil((tempDouble-+(~~tempDouble>>>0))/4294967296)>>>0:0)],SAFE_HEAP_STORE(0|a,0|tempI64[0],4),SAFE_HEAP_STORE(a+4|0,0|tempI64[1],4);break;case"float":SAFE_HEAP_STORE_D(0|a,+b,4);break;case"double":SAFE_HEAP_STORE_D(0|a,+b,8);break;default:abort("invalid type for setValue: "+c)}}function getValue(a,b,c){if(b=b||"i8","*"===b.charAt(b.length-1)&&(b="i32"),c)switch(b){case"i1":return HEAP8[a>>0];case"i8":return HEAP8[a>>0];case"i16":return HEAP16[a>>1];case"i32":return HEAP32[a>>2];case"i64":return HEAP32[a>>2];case"float":return HEAPF32[a>>2];case"double":return HEAPF64[a>>3];default:abort("invalid type for setValue: "+b)}else switch(b){case"i1":return 0|SAFE_HEAP_LOAD(0|a,1,0);case"i8":return 0|SAFE_HEAP_LOAD(0|a,1,0);case"i16":return 0|SAFE_HEAP_LOAD(0|a,2,0);case"i32":return 0|SAFE_HEAP_LOAD(0|a,4,0);case"i64":return 0|SAFE_HEAP_LOAD(0|a,8,0);case"float":return+SAFE_HEAP_LOAD_D(0|a,4,0);case"double":return+SAFE_HEAP_LOAD_D(0|a,8,0);default:abort("invalid type for setValue: "+b)}return null}function allocate(a,b,c,d){var e,f;"number"==typeof a?(e=!0,f=a):(e=!1,f=a.length);var g,h="string"==typeof b?b:null;if(g=c==ALLOC_NONE?d:[_malloc,Runtime.stackAlloc,Runtime.staticAlloc,Runtime.dynamicAlloc][void 0===c?ALLOC_STATIC:c](Math.max(f,h?1:b.length)),e){var i,d=g;for(assert(0==(3&g)),i=g+(-4&f);i>d;d+=4)HEAP32[d>>2]=0;for(i=g+f;i>d;)HEAP8[d++>>0]=0;return g}if("i8"===h)return a.subarray||a.slice?HEAPU8.set(a,g):HEAPU8.set(new Uint8Array(a),g),g;for(var j,k,l,m=0;f>m;){var n=a[m];"function"==typeof n&&(n=Runtime.getFunctionIndex(n)),j=h||b[m],0!==j?(assert(j,"Must know what type to store in allocate!"),"i64"==j&&(j="i32"),setValue(g+m,n,j),l!==j&&(k=Runtime.getNativeTypeSize(j),l=j),m+=k):m++}return g}function getMemory(a){return staticSealed?"undefined"!=typeof _sbrk&&!_sbrk.called||!runtimeInitialized?Runtime.dynamicAlloc(a):_malloc(a):Runtime.staticAlloc(a)}function Pointer_stringify(a,b){if(0===b||!a)return"";for(var c,d=0,e=0;;){if(assert(TOTAL_MEMORY>a+e),c=0|SAFE_HEAP_LOAD(a+e|0,1,1),d|=c,0==c&&!b)break;if(e++,b&&e==b)break}b||(b=e);var f="";if(128>d){for(var g,h=1024;b>0;)g=String.fromCharCode.apply(String,HEAPU8.subarray(a,a+Math.min(b,h))),f=f?f+g:g,a+=h,b-=h;return f}return Module.UTF8ToString(a)}function AsciiToString(a){for(var b="";;){var c=0|SAFE_HEAP_LOAD(0|a++,1,0);if(!c)return b;b+=String.fromCharCode(c)}}function stringToAscii(a,b){return writeAsciiToMemory(a,b,!1)}function UTF8ArrayToString(a,b){for(var c,d,e,f,g,h,i="";;){if(c=a[b++],!c)return i;if(128&c)if(d=63&a[b++],192!=(224&c))if(e=63&a[b++],224==(240&c)?c=(15&c)<<12|d<<6|e:(f=63&a[b++],240==(248&c)?c=(7&c)<<18|d<<12|e<<6|f:(g=63&a[b++],248==(252&c)?c=(3&c)<<24|d<<18|e<<12|f<<6|g:(h=63&a[b++],c=(1&c)<<30|d<<24|e<<18|f<<12|g<<6|h))),65536>c)i+=String.fromCharCode(c);else{var j=c-65536;i+=String.fromCharCode(55296|j>>10,56320|1023&j)}else i+=String.fromCharCode((31&c)<<6|d);else i+=String.fromCharCode(c)}}function UTF8ToString(a){return UTF8ArrayToString(HEAPU8,a)}function stringToUTF8Array(a,b,c,d){if(!(d>0))return 0;for(var e=c,f=c+d-1,g=0;g<a.length;++g){var h=a.charCodeAt(g);if(h>=55296&&57343>=h&&(h=65536+((1023&h)<<10)|1023&a.charCodeAt(++g)),127>=h){if(c>=f)break;b[c++]=h}else if(2047>=h){if(c+1>=f)break;b[c++]=192|h>>6,b[c++]=128|63&h}else if(65535>=h){if(c+2>=f)break;b[c++]=224|h>>12,b[c++]=128|h>>6&63,b[c++]=128|63&h}else if(2097151>=h){if(c+3>=f)break;b[c++]=240|h>>18,b[c++]=128|h>>12&63,b[c++]=128|h>>6&63,b[c++]=128|63&h}else if(67108863>=h){if(c+4>=f)break;b[c++]=248|h>>24,b[c++]=128|h>>18&63,b[c++]=128|h>>12&63,b[c++]=128|h>>6&63,b[c++]=128|63&h}else{if(c+5>=f)break;b[c++]=252|h>>30,b[c++]=128|h>>24&63,b[c++]=128|h>>18&63,b[c++]=128|h>>12&63,b[c++]=128|h>>6&63,b[c++]=128|63&h}}return b[c]=0,c-e}function stringToUTF8(a,b,c){return assert("number"==typeof c,"stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!"),stringToUTF8Array(a,HEAPU8,b,c)}function lengthBytesUTF8(a){for(var b=0,c=0;c<a.length;++c){var d=a.charCodeAt(c);d>=55296&&57343>=d&&(d=65536+((1023&d)<<10)|1023&a.charCodeAt(++c)),127>=d?++b:b+=2047>=d?2:65535>=d?3:2097151>=d?4:67108863>=d?5:6}return b}function UTF16ToString(a){for(var b=0,c="";;){var d=0|SAFE_HEAP_LOAD(a+2*b|0,2,0);if(0==d)return c;++b,c+=String.fromCharCode(d)}}function stringToUTF16(a,b,c){if(assert("number"==typeof c,"stringToUTF16(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!"),void 0===c&&(c=2147483647),2>c)return 0;c-=2;for(var d=b,e=c<2*a.length?c/2:a.length,f=0;e>f;++f){var g=a.charCodeAt(f);SAFE_HEAP_STORE(0|b,0|g,2),b+=2}return SAFE_HEAP_STORE(0|b,0,2),b-d}function lengthBytesUTF16(a){return 2*a.length}function UTF32ToString(a){for(var b=0,c="";;){var d=0|SAFE_HEAP_LOAD(a+4*b|0,4,0);if(0==d)return c;if(++b,d>=65536){var e=d-65536;c+=String.fromCharCode(55296|e>>10,56320|1023&e)}else c+=String.fromCharCode(d)}}function stringToUTF32(a,b,c){if(assert("number"==typeof c,"stringToUTF32(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!"),void 0===c&&(c=2147483647),4>c)return 0;for(var d=b,e=d+c-4,f=0;f<a.length;++f){var g=a.charCodeAt(f);if(g>=55296&&57343>=g){var h=a.charCodeAt(++f);g=65536+((1023&g)<<10)|1023&h}if(SAFE_HEAP_STORE(0|b,0|g,4),b+=4,b+4>e)break}return SAFE_HEAP_STORE(0|b,0,4),b-d}function lengthBytesUTF32(a){for(var b=0,c=0;c<a.length;++c){var d=a.charCodeAt(c);d>=55296&&57343>=d&&++c,b+=4}return b}function demangle(a){function b(){i++,"K"===a[i]&&i++;for(var b=[];"E"!==a[i];)if("S"!==a[i])if("C"!==a[i]){var c=parseInt(a.substr(i)),d=c.toString().length;if(!c||!d){i--;break}var e=a.substr(i+d,c);b.push(e),k.push(e),i+=d+c}else b.push(b[b.length-1]),i+=2;else{i++;var f=a.indexOf("_",i),g=a.substring(i,f)||0;b.push(k[g]||"?"),i=f+1}return i++,b}function c(d,e,f){function g(){return"("+m.join(", ")+")"}e=e||1/0;var h,k="",m=[];if("N"===a[i]){if(h=b().join("::"),e--,0===e)return d?[h]:h}else{("K"===a[i]||l&&"L"===a[i])&&i++;var n=parseInt(a.substr(i));if(n){var o=n.toString().length;h=a.substr(i+o,n),i+=o+n}}if(l=!1,"I"===a[i]){i++;var p=c(!0),q=c(!0,1,!0);k+=q[0]+" "+h+"<"+p.join(", ")+">"}else k=h;a:for(;i<a.length&&e-- >0;){var r=a[i++];if(r in j)m.push(j[r]);else switch(r){case"P":m.push(c(!0,1,!0)[0]+"*");break;case"R":m.push(c(!0,1,!0)[0]+"&");break;case"L":i++;var s=a.indexOf("E",i),n=s-i;m.push(a.substr(i,n)),i+=n+2;break;case"A":var n=parseInt(a.substr(i));if(i+=n.toString().length,"_"!==a[i])throw"?";i++,m.push(c(!0,1,!0)[0]+" ["+n+"]");break;case"E":break a;default:k+="?"+r;break a}}return f||1!==m.length||"void"!==m[0]||(m=[]),d?(k&&m.push(k+"?"),m):k+g()}var d=!!Module.___cxa_demangle;if(d)try{var e=_malloc(a.length);writeStringToMemory(a.substr(1),e);var f=_malloc(4),g=Module.___cxa_demangle(e,0,0,f);if(0===getValue(f,"i32")&&g)return Pointer_stringify(g)}catch(h){}finally{e&&_free(e),f&&_free(f),g&&_free(g)}var i=3,j={v:"void",b:"bool",c:"char",s:"short",i:"int",l:"long",f:"float",d:"double",w:"wchar_t",a:"signed char",h:"unsigned char",t:"unsigned short",j:"unsigned int",m:"unsigned long",x:"long long",y:"unsigned long long",z:"..."},k=[],l=!0,m=a;try{if("Object._main"==a||"_main"==a)return"main()";if("number"==typeof a&&(a=Pointer_stringify(a)),"_"!==a[0])return a;if("_"!==a[1])return a;if("Z"!==a[2])return a;switch(a[3]){case"n":return"operator new()";case"d":return"operator delete()"}m=c()}catch(h){m+="?"}return m.indexOf("?")>=0&&!d&&Runtime.warnOnce("warning: a problem occurred in builtin C++ name demangling; build with  -s DEMANGLE_SUPPORT=1  to link in libcxxabi demangling"),m}function demangleAll(a){return a.replace(/__Z[\w\d_]+/g,function(a){var b=demangle(a);return a===b?a:a+" ["+b+"]"})}function jsStackTrace(){var a=new Error;if(!a.stack){try{throw new Error(0)}catch(b){a=b}if(!a.stack)return"(no stack trace available)"}return a.stack.toString()}function stackTrace(){return demangleAll(jsStackTrace())}function alignMemoryPage(a){return a%4096>0&&(a+=4096-a%4096),a}function abortOnCannotGrowMemory(){abort("Cannot enlarge memory arrays. Either (1) compile with  -s TOTAL_MEMORY=X  with X higher than the current value "+TOTAL_MEMORY+", (2) compile with  -s ALLOW_MEMORY_GROWTH=1  which adjusts the size at runtime but prevents some optimizations, (3) set Module.TOTAL_MEMORY to a higher value before the program runs, or if you want malloc to return NULL (0) instead of this abort, compile with  -s ABORTING_MALLOC=0 ")}function enlargeMemory(){abortOnCannotGrowMemory()}function callRuntimeCallbacks(a){for(;a.length>0;){var b=a.shift();if("function"!=typeof b){var c=b.func;"number"==typeof c?void 0===b.arg?Runtime.dynCall("v",c):Runtime.dynCall("vi",c,[b.arg]):c(void 0===b.arg?null:b.arg)}else b()}}function preRun(){if(Module.preRun)for("function"==typeof Module.preRun&&(Module.preRun=[Module.preRun]);Module.preRun.length;)addOnPreRun(Module.preRun.shift());callRuntimeCallbacks(__ATPRERUN__)}function ensureInitRuntime(){runtimeInitialized||(runtimeInitialized=!0,callRuntimeCallbacks(__ATINIT__))}function preMain(){callRuntimeCallbacks(__ATMAIN__)}function exitRuntime(){callRuntimeCallbacks(__ATEXIT__),runtimeExited=!0}function postRun(){if(Module.postRun)for("function"==typeof Module.postRun&&(Module.postRun=[Module.postRun]);Module.postRun.length;)addOnPostRun(Module.postRun.shift());callRuntimeCallbacks(__ATPOSTRUN__)}function addOnPreRun(a){__ATPRERUN__.unshift(a)}function addOnInit(a){__ATINIT__.unshift(a)}function addOnPreMain(a){__ATMAIN__.unshift(a)}function addOnExit(a){__ATEXIT__.unshift(a)}function addOnPostRun(a){__ATPOSTRUN__.unshift(a)}function intArrayFromString(a,b,c){var d=c>0?c:lengthBytesUTF8(a)+1,e=new Array(d),f=stringToUTF8Array(a,e,0,e.length);return b&&(e.length=f),e}function intArrayToString(a){for(var b=[],c=0;c<a.length;c++){var d=a[c];d>255&&(assert(!1,"Character code "+d+" ("+String.fromCharCode(d)+")  at offset "+c+" not in 0x00-0xFF."),d&=255),b.push(String.fromCharCode(d))}return b.join("")}function writeStringToMemory(a,b,c){for(var d=intArrayFromString(a,c),e=0;e<d.length;){var f=d[e];SAFE_HEAP_STORE(b+e|0,0|f,1),e+=1}}function writeArrayToMemory(a,b){for(var c=0;c<a.length;c++)SAFE_HEAP_STORE(0|b++,0|a[c],1)}function writeAsciiToMemory(a,b,c){for(var d=0;d<a.length;++d)assert(a.charCodeAt(d)===a.charCodeAt(d)&255),SAFE_HEAP_STORE(0|b++,0|a.charCodeAt(d),1);c||SAFE_HEAP_STORE(0|b,0,1)}function unSign(a,b,c){return a>=0?a:32>=b?2*Math.abs(1<<b-1)+a:Math.pow(2,b)+a}function reSign(a,b,c){if(0>=a)return a;var d=32>=b?Math.abs(1<<b-1):Math.pow(2,b-1);return a>=d&&(32>=b||a>d)&&(a=-2*d+a),a}function getUniqueRunDependency(a){for(var b=a;;){if(!runDependencyTracking[a])return a;a=b+Math.random()}return a}function addRunDependency(a){runDependencies++,Module.monitorRunDependencies&&Module.monitorRunDependencies(runDependencies),a?(assert(!runDependencyTracking[a]),runDependencyTracking[a]=1,null===runDependencyWatcher&&"undefined"!=typeof setInterval&&(runDependencyWatcher=setInterval(function(){if(ABORT)return clearInterval(runDependencyWatcher),void(runDependencyWatcher=null);var a=!1;for(var b in runDependencyTracking)a||(a=!0,Module.printErr("still waiting on run dependencies:")),Module.printErr("dependency: "+b);a&&Module.printErr("(end of list)")},1e4))):Module.printErr("warning: run dependency added without ID")}function removeRunDependency(a){if(runDependencies--,Module.monitorRunDependencies&&Module.monitorRunDependencies(runDependencies),a?(assert(runDependencyTracking[a]),delete runDependencyTracking[a]):Module.printErr("warning: run dependency removed without ID"),0==runDependencies&&(null!==runDependencyWatcher&&(clearInterval(runDependencyWatcher),runDependencyWatcher=null),dependenciesFulfilled)){var b=dependenciesFulfilled;dependenciesFulfilled=null,b()}}function copyTempFloat(a){HEAP8[tempDoublePtr]=HEAP8[a],HEAP8[tempDoublePtr+1]=HEAP8[a+1],HEAP8[tempDoublePtr+2]=HEAP8[a+2],HEAP8[tempDoublePtr+3]=HEAP8[a+3]}function copyTempDouble(a){HEAP8[tempDoublePtr]=HEAP8[a],HEAP8[tempDoublePtr+1]=HEAP8[a+1],HEAP8[tempDoublePtr+2]=HEAP8[a+2],HEAP8[tempDoublePtr+3]=HEAP8[a+3],HEAP8[tempDoublePtr+4]=HEAP8[a+4],HEAP8[tempDoublePtr+5]=HEAP8[a+5],HEAP8[tempDoublePtr+6]=HEAP8[a+6],HEAP8[tempDoublePtr+7]=HEAP8[a+7]}function ___setErrNo(a){return Module.___errno_location?SAFE_HEAP_STORE(0|Module.___errno_location(),0|a,4):Module.printErr("failed to set errno from JS"),a}function _sysconf(a){switch(a){case 30:return PAGE_SIZE;case 85:return totalMemory/PAGE_SIZE;case 132:case 133:case 12:case 137:case 138:case 15:case 235:case 16:case 17:case 18:case 19:case 20:case 149:case 13:case 10:case 236:case 153:case 9:case 21:case 22:case 159:case 154:case 14:case 77:case 78:case 139:case 80:case 81:case 82:case 68:case 67:case 164:case 11:case 29:case 47:case 48:case 95:case 52:case 51:case 46:return 200809;case 79:return 0;case 27:case 246:case 127:case 128:case 23:case 24:case 160:case 161:case 181:case 182:case 242:case 183:case 184:case 243:case 244:case 245:case 165:case 178:case 179:case 49:case 50:case 168:case 169:case 175:case 170:case 171:case 172:case 97:case 76:case 32:case 173:case 35:return-1;case 176:case 177:case 7:case 155:case 8:case 157:case 125:case 126:case 92:case 93:case 129:case 130:case 131:case 94:case 91:return 1;case 74:case 60:case 69:case 70:case 4:return 1024;case 31:case 42:case 72:return 32;case 87:case 26:case 33:return 2147483647;case 34:case 1:return 47839;case 38:case 36:return 99;case 43:case 37:return 2048;case 0:return 2097152;case 3:return 65536;case 28:return 32768;case 44:return 32767;case 75:return 16384;case 39:return 1e3;case 89:return 700;case 71:return 256;case 40:return 255;case 2:return 100;case 180:return 64;case 25:return 20;case 5:return 16;case 6:return 6;case 73:return 4;case 84:return"object"==typeof navigator?navigator.hardwareConcurrency||1:1}return ___setErrNo(ERRNO_CODES.EINVAL),-1}function _abort(){Module.abort()}function ___lock(){}function ___unlock(){}function _emscripten_set_main_loop_timing(a,b){function c(a){a.source===window&&a.data===e&&(a.stopPropagation(),d.shift()())}if(Browser.mainLoop.timingMode=a,Browser.mainLoop.timingValue=b,!Browser.mainLoop.func)return console.error("emscripten_set_main_loop_timing: Cannot set timing mode for main loop since a main loop does not exist! Call emscripten_set_main_loop first to set one up."),1;if(0==a)Browser.mainLoop.scheduler=function(){setTimeout(Browser.mainLoop.runner,b)},Browser.mainLoop.method="timeout";else if(1==a)Browser.mainLoop.scheduler=function(){Browser.requestAnimationFrame(Browser.mainLoop.runner)},Browser.mainLoop.method="rAF";else if(2==a){if(!window.setImmediate){var d=[],e="__emcc";window.addEventListener("message",c,!0),window.setImmediate=function(a){d.push(a),window.postMessage(e,"*")}}Browser.mainLoop.scheduler=function(){window.setImmediate(Browser.mainLoop.runner)},Browser.mainLoop.method="immediate"}return 0}function _emscripten_set_main_loop(a,b,c,d,e){Module.noExitRuntime=!0,assert(!Browser.mainLoop.func,"emscripten_set_main_loop: there can only be one main loop function at once: call emscripten_cancel_main_loop to cancel the previous one before setting a new one with different parameters."),Browser.mainLoop.func=a,Browser.mainLoop.arg=d;var f=Browser.mainLoop.currentlyRunningMainloop;if(Browser.mainLoop.runner=function(){if(!ABORT){if(Browser.mainLoop.queue.length>0){var b=Date.now(),c=Browser.mainLoop.queue.shift();if(c.func(c.arg),Browser.mainLoop.remainingBlockers){var e=Browser.mainLoop.remainingBlockers,g=e%1==0?e-1:Math.floor(e);c.counted?Browser.mainLoop.remainingBlockers=g:(g+=.5,Browser.mainLoop.remainingBlockers=(8*e+g)/9)}return console.log('main loop blocker "'+c.name+'" took '+(Date.now()-b)+" ms"),Browser.mainLoop.updateStatus(),void setTimeout(Browser.mainLoop.runner,0)}if(!(f<Browser.mainLoop.currentlyRunningMainloop)){if(Browser.mainLoop.currentFrameNumber=Browser.mainLoop.currentFrameNumber+1|0,1==Browser.mainLoop.timingMode&&Browser.mainLoop.timingValue>1&&Browser.mainLoop.currentFrameNumber%Browser.mainLoop.timingValue!=0)return void Browser.mainLoop.scheduler();"timeout"===Browser.mainLoop.method&&Module.ctx&&(Module.printErr("Looks like you are rendering without using requestAnimationFrame for the main loop. You should use 0 for the frame rate in emscripten_set_main_loop in order to use requestAnimationFrame, as that can greatly improve your frame rates!"),Browser.mainLoop.method=""),Browser.mainLoop.runIter(function(){"undefined"!=typeof d?Runtime.dynCall("vi",a,[d]):Runtime.dynCall("v",a)}),f<Browser.mainLoop.currentlyRunningMainloop||("object"==typeof SDL&&SDL.audio&&SDL.audio.queueNewAudioData&&SDL.audio.queueNewAudioData(),Browser.mainLoop.scheduler())}}},e||(b&&b>0?_emscripten_set_main_loop_timing(0,1e3/b):_emscripten_set_main_loop_timing(1,1),Browser.mainLoop.scheduler()),c)throw"SimulateInfiniteLoop"}function ___syscall6(a,b){SYSCALLS.varargs=b;try{var c=SYSCALLS.getStreamFromFD();return FS.close(c),0}catch(d){return"undefined"!=typeof FS&&d instanceof FS.ErrnoError||abort(d),-d.errno}}function ___syscall54(a,b){SYSCALLS.varargs=b;try{var c=SYSCALLS.getStreamFromFD(),d=SYSCALLS.get();switch(d){case 21505:return c.tty?0:-ERRNO_CODES.ENOTTY;case 21506:return c.tty?0:-ERRNO_CODES.ENOTTY;case 21519:if(!c.tty)return-ERRNO_CODES.ENOTTY;var e=SYSCALLS.get();return SAFE_HEAP_STORE(0|e,0,4),0;case 21520:return c.tty?-ERRNO_CODES.EINVAL:-ERRNO_CODES.ENOTTY;case 21531:var e=SYSCALLS.get();return FS.ioctl(c,d,e);default:abort("bad ioctl syscall "+d)}}catch(f){return"undefined"!=typeof FS&&f instanceof FS.ErrnoError||abort(f),-f.errno}}function _pthread_cleanup_push(a,b){__ATEXIT__.push(function(){Runtime.dynCall("vi",a,[b])}),_pthread_cleanup_push.level=__ATEXIT__.length}function _pthread_cleanup_pop(){assert(_pthread_cleanup_push.level==__ATEXIT__.length,"cannot pop if something else added meanwhile!"),__ATEXIT__.pop(),_pthread_cleanup_push.level=__ATEXIT__.length}function ___syscall5(a,b){SYSCALLS.varargs=b;try{var c=SYSCALLS.getStr(),d=SYSCALLS.get(),e=SYSCALLS.get(),f=FS.open(c,d,e);return f.fd}catch(g){return"undefined"!=typeof FS&&g instanceof FS.ErrnoError||abort(g),-g.errno}}function _emscripten_memcpy_big(a,b,c){return HEAPU8.set(HEAPU8.subarray(b,b+c),a),a}function _llvm_stackrestore(a){var b=_llvm_stacksave,c=b.LLVM_SAVEDSTACKS[a];b.LLVM_SAVEDSTACKS.splice(a,1),Runtime.stackRestore(c)}function _sbrk(a){var b=_sbrk;b.called||(DYNAMICTOP=alignMemoryPage(DYNAMICTOP),b.called=!0,assert(Runtime.dynamicAlloc),b.alloc=Runtime.dynamicAlloc,Runtime.dynamicAlloc=function(){abort("cannot dynamically allocate, sbrk now has control")});var c=DYNAMICTOP;if(0!=a){var d=b.alloc(a);if(!d)return-1>>>0}return c}function _llvm_stacksave(){var a=_llvm_stacksave;return a.LLVM_SAVEDSTACKS||(a.LLVM_SAVEDSTACKS=[]),a.LLVM_SAVEDSTACKS.push(Runtime.stackSave()),a.LLVM_SAVEDSTACKS.length-1}function _time(a){var b=Date.now()/1e3|0;return a&&SAFE_HEAP_STORE(0|a,0|b,4),b}function _pthread_self(){return 0}function ___syscall140(a,b){SYSCALLS.varargs=b;try{var c=SYSCALLS.getStreamFromFD(),d=SYSCALLS.get(),e=SYSCALLS.get(),f=SYSCALLS.get(),g=SYSCALLS.get(),h=e;return assert(0===d),FS.llseek(c,h,g),SAFE_HEAP_STORE(0|f,0|c.position,4),c.getdents&&0===h&&0===g&&(c.getdents=null),0}catch(i){return"undefined"!=typeof FS&&i instanceof FS.ErrnoError||abort(i),-i.errno}}function ___syscall146(a,b){SYSCALLS.varargs=b;try{var c=SYSCALLS.getStreamFromFD(),d=SYSCALLS.get(),e=SYSCALLS.get();return SYSCALLS.doWritev(c,d,e)}catch(f){return"undefined"!=typeof FS&&f instanceof FS.ErrnoError||abort(f),-f.errno}}function ___syscall221(a,b){SYSCALLS.varargs=b;try{var c=SYSCALLS.getStreamFromFD(),d=SYSCALLS.get();switch(d){case 0:var e=SYSCALLS.get();if(0>e)return-ERRNO_CODES.EINVAL;var f;return f=FS.open(c.path,c.flags,0,e),f.fd;case 1:case 2:return 0;case 3:return c.flags;case 4:var e=SYSCALLS.get();return c.flags|=e,0;case 12:case 12:var e=SYSCALLS.get(),g=0;return SAFE_HEAP_STORE(e+g|0,2,2),0;case 13:case 14:case 13:case 14:return 0;case 16:case 8:return-ERRNO_CODES.EINVAL;case 9:return ___setErrNo(ERRNO_CODES.EINVAL),-1;default:return-ERRNO_CODES.EINVAL}}catch(h){return"undefined"!=typeof FS&&h instanceof FS.ErrnoError||abort(h),-h.errno}}function ___syscall145(a,b){SYSCALLS.varargs=b;try{var c=SYSCALLS.getStreamFromFD(),d=SYSCALLS.get(),e=SYSCALLS.get();return SYSCALLS.doReadv(c,d,e)}catch(f){return"undefined"!=typeof FS&&f instanceof FS.ErrnoError||abort(f),-f.errno}}function nullFunc_iiii(a){Module.printErr("Invalid function pointer called with signature 'iiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_viiiiiii(a){Module.printErr("Invalid function pointer called with signature 'viiiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_viiiii(a){Module.printErr("Invalid function pointer called with signature 'viiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_vi(a){Module.printErr("Invalid function pointer called with signature 'vi'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_ii(a){Module.printErr("Invalid function pointer called with signature 'ii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_viii(a){Module.printErr("Invalid function pointer called with signature 'viii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_v(a){Module.printErr("Invalid function pointer called with signature 'v'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_viiiiiiiii(a){Module.printErr("Invalid function pointer called with signature 'viiiiiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_iii(a){Module.printErr("Invalid function pointer called with signature 'iii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function nullFunc_viiii(a){Module.printErr("Invalid function pointer called with signature 'viiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)"),Module.printErr("Build with ASSERTIONS=2 for more info."),abort(a)}function invoke_iiii(a,b,c,d){try{return Module.dynCall_iiii(a,b,c,d)}catch(e){if("number"!=typeof e&&"longjmp"!==e)throw e;asm.setThrew(1,0)}}function invoke_viiiiiii(a,b,c,d,e,f,g,h){try{Module.dynCall_viiiiiii(a,b,c,d,e,f,g,h)}catch(i){if("number"!=typeof i&&"longjmp"!==i)throw i;asm.setThrew(1,0)}}function invoke_viiiii(a,b,c,d,e,f){try{Module.dynCall_viiiii(a,b,c,d,e,f)}catch(g){if("number"!=typeof g&&"longjmp"!==g)throw g;asm.setThrew(1,0)}}function invoke_vi(a,b){try{Module.dynCall_vi(a,b)}catch(c){if("number"!=typeof c&&"longjmp"!==c)throw c;asm.setThrew(1,0)}}function invoke_ii(a,b){try{return Module.dynCall_ii(a,b)}catch(c){if("number"!=typeof c&&"longjmp"!==c)throw c;asm.setThrew(1,0)}}function invoke_viii(a,b,c,d){try{Module.dynCall_viii(a,b,c,d)}catch(e){if("number"!=typeof e&&"longjmp"!==e)throw e;asm.setThrew(1,0)}}function invoke_v(a){try{Module.dynCall_v(a)}catch(b){if("number"!=typeof b&&"longjmp"!==b)throw b;asm.setThrew(1,0)}}function invoke_viiiiiiiii(a,b,c,d,e,f,g,h,i,j){try{Module.dynCall_viiiiiiiii(a,b,c,d,e,f,g,h,i,j)}catch(k){if("number"!=typeof k&&"longjmp"!==k)throw k;asm.setThrew(1,0)}}function invoke_iii(a,b,c){try{return Module.dynCall_iii(a,b,c)}catch(d){if("number"!=typeof d&&"longjmp"!==d)throw d;asm.setThrew(1,0)}}function invoke_viiii(a,b,c,d,e){try{Module.dynCall_viiii(a,b,c,d,e)}catch(f){if("number"!=typeof f&&"longjmp"!==f)throw f;asm.setThrew(1,0)}}function ExitStatus(a){this.name="ExitStatus",this.message="Program terminated with exit("+a+")",this.status=a}function run(a){function b(){Module.calledRun||(Module.calledRun=!0,ABORT||(ensureInitRuntime(),preMain(),ENVIRONMENT_IS_WEB&&null!==preloadStartTime&&Module.printErr("pre-main prep time: "+(Date.now()-preloadStartTime)+" ms"),Module.onRuntimeInitialized&&Module.onRuntimeInitialized(),Module._main&&shouldRunNow&&Module.callMain(a),postRun()))}return a=a||Module.arguments,null===preloadStartTime&&(preloadStartTime=Date.now()),runDependencies>0?void Module.printErr("run() called, but dependencies remain, so not running"):(preRun(),void(runDependencies>0||Module.calledRun||(Module.setStatus?(Module.setStatus("Running..."),setTimeout(function(){setTimeout(function(){Module.setStatus("")},1),b()},1)):b())))}function exit(a,b){if(b&&Module.noExitRuntime)return void Module.printErr("exit("+a+") implicitly called by end of main(), but noExitRuntime, so not exiting the runtime (you can use emscripten_force_exit, if you want to force a true shutdown)");throw Module.noExitRuntime?Module.printErr("exit("+a+") called, but noExitRuntime, so halting execution but not exiting the runtime or preventing further async execution (you can use emscripten_force_exit, if you want to force a true shutdown)"):(ABORT=!0,EXITSTATUS=a,STACKTOP=initialStackTop,exitRuntime(),Module.onExit&&Module.onExit(a)),ENVIRONMENT_IS_NODE?(process.stdout.once("drain",function(){process.exit(a)}),console.log(" "),setTimeout(function(){process.exit(a)},500)):ENVIRONMENT_IS_SHELL&&"function"==typeof quit&&quit(a),new ExitStatus(a)}function abort(a){void 0!==a?(Module.print(a),Module.printErr(a),a=JSON.stringify(a)):a="",ABORT=!0,EXITSTATUS=1;var b="",c="abort("+a+") at "+stackTrace()+b;throw abortDecorators&&abortDecorators.forEach(function(b){c=b(c,a)}),c}function SAFE_HEAP_STORE(a,b,c,d){if(0>=a&&abort("segmentation fault storing "+c+" bytes to address "+a),a+c>Math.max(DYNAMICTOP,STATICTOP)&&abort("segmentation fault, exceeded the top of the available heap when storing "+c+" bytes to address "+a+". STATICTOP="+STATICTOP+", DYNAMICTOP="+DYNAMICTOP),assert(TOTAL_MEMORY>=DYNAMICTOP),a%c!==0)for(i=0;i<c;i++)HEAPU8[a+i>>0]=a>>8*i&255;else setValue(a,b,getSafeHeapType(c,d),1)}function SAFE_HEAP_STORE_D(a,b,c){SAFE_HEAP_STORE(a,b,c,!0)}function SAFE_HEAP_LOAD(a,b,c,d){0>=a&&abort("segmentation fault loading "+b+" bytes from address "+a),a+b>Math.max(DYNAMICTOP,STATICTOP)&&abort("segmentation fault, exceeded the top of the available heap when loading "+b+" bytes from address "+a+". STATICTOP="+STATICTOP+", DYNAMICTOP="+DYNAMICTOP),assert(TOTAL_MEMORY>=DYNAMICTOP);var e,f=getSafeHeapType(b,d);if(a%b!==0)for(i=0;i<b;i++)e|=HEAPU8[a+i>>0]<<8*i;else e=getValue(a,f,1);return c&&(e=unSign(e,parseInt(f.substr(1)),1)),e}function SAFE_HEAP_LOAD_D(a,b,c){return SAFE_HEAP_LOAD(a,b,c,!0)}var Module;"undefined"==typeof Module&&(Module={}),Module.expectedDataFileDownloads||(Module.expectedDataFileDownloads=0,Module.finishedDataFileDownloads=0),Module.expectedDataFileDownloads++,function(){var a=function(a){function b(){var a=[];a.push.apply(a,[124,1,0,0,114,29,160,222,0,0,0,0,1,0,0,0,0,0,0,0,86,0,0,0,88,70,229,155,2,0,0,0,86,0,0,0,80,0,0,0,66,99,192,4,3,0,0,0,166,0,0,0,113,1,0,0,82,188,194,204,4,0,0,0,23,2,0,0,122,1,0,0,206,220,204,189,5,0,0,0,145,3,0,0,140,1,0,0,12,173,26,85,6,0,0,0,29,5,0,0,34,1,0,0,118,189,29,235,7,0,0,0,63,6,0,0,241,0,0,0,60,155,15,201,8,0,0,0,48,7,0,0,130,2,0,0,28,184,151,49,9,0,0,0,178,9,0,0,53,5,0,0,50,39,105,143,10,0,0,0,231,14,0,0,9,33,0,0,158,146,126,201,11,0,0,0,240,47,0,0,73,36,0,0,156,129,175,107,12,0,0,0,57,84,0,0,149,0,0,0,65,199,50,124,13,0,0,0,206,84,0,0,149,0,0,0,61,29,156,229,14,0,0,0,99,85,0,0,149,0,0,0,235,147,166,251,15,0,0,0,248,85,0,0,175,0,0,0,114,230,100,206,16,0,0,0,167,86,0,0,201,0,0,0,99,50,238,172,17,0,0,0,112,87,0,0,175,0,0,0,234,163,19,198,18,0,0,0,31,88,0,0,122,0,0,0,212,7,232,40,19,0,0,0,153,88,0,0,113,0,0,0,227,187,189,43,20,0,0,0,10,89,0,0,123,0,0,0,84,15,148,181,21,0,0,0,133,89,0,0,119,0,0,0,41,192,202,21,22,0,0,0,252,89,0,0,89,0,0,0,48,123,204,238,23,0,0,0,85,90,0,0,219,0,0,0,193,116,81,243,24,0,0,0,48,91,0,0,108,1,0,0,65,35,155,239,25,0,0,0,156,92,0,0,132,0,0,0,46,88,245,8,26,0,0,0,32,93,0,0,132,0,0,0,119,168,101,186,27,0,0,0,164,93,0,0,112,0,0,0,76,38,64,152,28,0,0,0,20,94,0,0,72,0,0,0,235,104,38,172,29,0,0,0,92,94,0,0,172,16,0,0,5,145,119,199,30,0,0,0,8,111,0,0,77,27,0,0,159,130,106,37,31,0,0,0,85,138,0,0,40,19,0,0,198,141,146,162,32,0,0,0,125,157,0,0,9,29,0,0,73,124,94,50,33,0,0,0,134,186,0,0,213,30,0,0,60,36,36,253,34,0,0,0,91,217,0,0,122,19,0,0,168,125,250,195,35,0,0,0,213,236,0,0,5,39,0,0,238,91,54,38,36,0,0,0,218,19,1,0,227,24,0,0,64,190,251,159,37,0,0,0,189,44,1,0,85,48,0,0,133,235,203,190,38,0,0,0,18,93,1,0,109,50,0,0,105,26,104,85,39,0,0,0,127,143,1,0,184,24,0,0,131,224,213,19,40,0,0,0,55,168,1,0,159,31,0,0,146,53,209,40,41,0,0,0,214,199,1,0,181,52,0,0,12,233,13,45,42,0,0,0,139,252,1,0,165,47,0,0,76,212,167,83,43,0,0,0,48,44,2,0,164,8,0,0,174,235,99,246,44,0,0,0,212,52,2,0,86,7,0,0,209,12,138,184,45,0,0,0,42,60,2,0,28,5,0,0,21,0,13,80,46,0,0,0,70,65,2,0,219,4,0,0,28,54,60,221,47,0,0,0,33,70,2,0,90,18,0,0,156,167,75,146,48,0,0,0,123,88,2,0,223,8,0,0,18,24,250,170,49,0,0,0,90,97,2,0,70,29,0,0,187,207,110,235,50,0,0,0,160,126,2,0,77,6,0,0,224,102,184,71,51,0,0,0,237,132,2,0,173,7,0,0,50,204,17,35,52,0,0,0,154,140,2,0,29,7,0,0,38,165,225,157,53,0,0,0,183,147,2,0,193,7,0,0,58,135,36,183,54,0,0,0,120,155,2,0,114,8,0,0,253,26,216,245,55,0,0,0,234,163,2,0,1,9,0,0,166,191,59,43,56,0,0,0,235,172,2,0,157,6,0,0,22,5,238,216,57,0,0,0,136,179,2,0,72,0,0,0,22,106,59,159,58,0,0,0,208,179,2,0,72,0,0,0,19,45,101,168,59,0,0,0,24,180,2,0,32,0,0,0,92,181,92,123,60,0,0,0,56,180,2,0,42,0,0,0,15,202,96,179,61,0,0,0,98,180,2,0,58,0,0,0,220,31,231,211,62,0,0,0,156,180,2,0,60,0,0,0,33,94,223,30,63,0,0,0,216,180,2,0,81,0,0,0,37,170,53,61,64,0,0,0,41,181,2,0,81,0,0,0,11,160,200,247,65,0,0,0,122,181,2,0,202,0,0,0,149,33,116,120,66,0,0,0,68,182,2,0,205,0,0,0,213,67,6,180,67,0,0,0,17,183,2,0,203,0,0,0,130,108,128,198,68,0,0,0,220,183,2,0,98,0,0,0,65,9,71,183,69,0,0,0,62,184,2,0,214,2,0,0,118,76,31,193,70,0,0,0,20,187,2,0,112,0,0,0,197,191,55,40,71,0,0,0,132,187,2,0,112,0,0,0,236,62,92,7,72,0,0,0,244,187,2,0,72,0,0,0,191,50,158,245,73,0,0,0,60,188,2,0,72,0,0,0,255,40,46,187,74,0,0,0,132,188,2,0,37,0,0,0,66,115,184,180,75,0,0,0,169,188,2,0,37,0,0,0,80,199,196,199,76,0,0,0,206,188,2,0,36,0,0,0,203,195,36,65,77,0,0,0,242,188,2,0,106,0,0,0,7,159,54,162,78,0,0,0,92,189,2,0,91,0,0,0,31,41,195,14,79,0,0,0,92,189,2,0,91,0,0,0,31,41,195,14,80,0,0,0,183,189,2,0,72,0,0,0,15,11,122,147,81,0,0,0,255,189,2,0,72,0,0,0,225,59,202,148,82,0,0,0,71,190,2,0,56,0,0,0,152,51,59,70,83,0,0,0,127,190,2,0,56,0,0,0,208,40,204,226,84,0,0,0,183,190,2,0,120,0,0,0,220,196,179,108,85,0,0,0,47,191,2,0,120,0,0,0,11,7,98,144,86,0,0,0,167,191,2,0,200,0,0,0,167,169,160,207,87,0,0,0,111,192,2,0,235,0,0,0,2,8,114,184,88,0,0,0,90,193,2,0,235,0,0,0,193,126,188,46,89,0,0,0,69,194,2,0,217,0,0,0,43,59,184,45,90,0,0,0,30,195,2,0,126,0,0,0,146,4,213,126,91,0,0,0,156,195,2,0,126,0,0,0,102,173,17,140,92,0,0,0,26,196,2,0,77,0,0,0,226,183,127,144,93,0,0,0,103,196,2,0,77,0,0,0,54,58,87,90,94,0,0,0,77,33,3,0,74,0,0,0,176,221,21,42,95,0,0,0,180,196,2,0,98,0,0,0,214,176,62,233,96,0,0,0,22,197,2,0,129,0,0,0,93,64,70,66,97,0,0,0,151,197,2,0,49,0,0,0,69,40,197,129,98,0,0,0,200,197,2,0,87,0,0,0,81,58,25,91,99,0,0,0,31,198,2,0,224,0,0,0,231,107,53,170,100,0,0,0,255,198,2,0,162,0,0,0,33,148,40,212,101,0,0,0,161,199,2,0,197,0,0,0,225,246,199,172,102,0,0,0,102,200,2,0,188,0,0,0,188,246,243,190,103,0,0,0,34,201,2,0,100,0,0,0,18,14,106,100,104,0,0,0,134,201,2,0,146,0,0,0,65,160,71,71,105,0,0,0,24,202,2,0,134,0,0,0,180,80,198,143,106,0,0,0,158,202,2,0,179,0,0,0,50,74,200,146,107,0,0,0,81,203,2,0,247,0,0,0,214,30,41,190,108,0,0,0,72,204,2,0,150,0,0,0,60,228,104,22,109,0,0,0,222,204,2,0,108,0,0,0,99,87,143,225,110,0,0,0,74,205,2,0,172,0,0,0,144,246,71,229,111,0,0,0,246,205,2,0,226,0,0,0,233,88,253,77,112,0,0,0,216,206,2,0,107,0,0,0,116,17,124,74,113,0,0,0,67,207,2,0,176,0,0,0,144,135,59,240,114,0,0,0,243,207,2,0,107,0,0,0,198,188,108,135,115,0,0,0,94,208,2,0,107,0,0,0,37,197,187,139,116,0,0,0,201,208,2,0,174,0,0,0,34,203,119,201,117,0,0,0,119,209,2,0,182,0,0,0,253,78,178,80,118,0,0,0,45,210,2,0,227,0,0,0,25,208,92,60,119,0,0,0,16,211,2,0,120,0,0,0,83,77,220,240,120,0,0,0,136,211,2,0,112,0,0,0,6,103,109,224,121,0,0,0,248,211,2,0,71,0,0,0,227,104,74,94,122,0,0,0,63,212,2,0,87,0,0,0,152,8,251,54,123,0,0,0,150,212,2,0,83,0,0,0,116,208,155,115,124,0,0,0,233,212,2,0,166,0,0,0,196,10,85,235,125,0,0,0,143,213,2,0,196,0,0,0,229,131,186,115,126,0,0,0,83,214,2,0,150,0,0,0,114,237,4,18,127,0,0,0,233,214,2,0,150,0,0,0,223,137,219,71,128,0,0,0,127,215,2,0,150,0,0,0,250,110,111,66,129,0,0,0,21,216,2,0,117,0,0,0,147,23,241,88,130,0,0,0,138,216,2,0,116,0,0,0,163,76,4,209,131,0,0,0,254,216,2,0,116,0,0,0,251,89,9,206,132,0,0,0,114,217,2,0,162,0,0,0,79,55,1,132,133,0,0,0,20,218,2,0,162,0,0,0,114,249,254,136,134,0,0,0,182,218,2,0,78,0,0,0,125,210,248,60,135,0,0,0,4,219,2,0,78,0,0,0,68,101,248,99,136,0,0,0,82,219,2,0,143,0,0,0,25,108,252,153,137,0,0,0,225,219,2,0,144,0,0,0,77,206,165,98,138,0,0,0,113,220,2,0,109,0,0,0,103,216,173,41,139,0,0,0,222,220,2,0,207,0,0,0,164,42,122,181,140,0,0,0,173,221,2,0,128,0,0,0,184,186,204,65,141,0,0,0,45,222,2,0,82,0,0,0,163,42,198,138,142,0,0,0,127,222,2,0,116,0,0,0,122,89,144,18,143,0,0,0,243,222,2,0,137,0,0,0,20,48,36,238,144,0,0,0,124,223,2,0,170,0,0,0,70,121,113,74,145,0,0,0,38,224,2,0,195,0,0,0,168,40,219,27,146,0,0,0,233,224,2,0,103,0,0,0,187,89,150,143,147,0,0,0,80,225,2,0,125,0,0,0,22,207,63,62,148,0,0,0,205,225,2,0,172,0,0,0,213,234,29,177,149,0,0,0,121,226,2,0,134,0,0,0,19,253,166,87,150,0,0,0,255,226,2,0,113,0,0,0,189,225,130,15,151,0,0,0,112,227,2,0,159,0,0,0,76,59,11,68,152,0,0,0,15,228,2,0,251,0,0,0,113,102,229,67,153,0,0,0,10,229,2,0,193,0,0,0,84,227,235,193,154,0,0,0,203,229,2,0,199,0,0,0,210,136,113,53,155,0,0,0,146,230,2,0,227,0,0,0,237,55,183,194,156,0,0,0,117,231,2,0,137,0,0,0,37,201,179,35,157,0,0,0,254,231,2,0,137,0,0,0,37,56,12,125,158,0,0,0,135,232,2,0,162,0,0,0,187,185,127,126,159,0,0,0,41,233,2,0,87,0,0,0,106,89,233,71,160,0,0,0,128,233,2,0,49,0,0,0,88,199,204,164,161,0,0,0,177,233,2,0,120,0,0,0,198,209,210,245,162,0,0,0,41,234,2,0,100,0,0,0,250,46,96,87,163,0,0,0,141,234,2,0,112,0,0,0,236,189,148,141,164,0,0,0,253,234,2,0,217,0,0,0,115,189,156,157,165,0,0,0,214,235,2,0,71,0,0,0,228,224,97,75,166,0,0,0,29,236,2,0,245,0,0,0,22,216,22,89,167,0,0,0,18,237,2,0,100,0,0,0,178,0,97,130,168,0,0,0,118,237,2,0,129,0,0,0,32,95,67,158,169,0,0,0,247,237,2,0,98,0,0,0,171,151,21,62,170,0,0,0,89,238,2,0,87,0,0,0,130,107,154,116,171,0,0,0,176,238,2,0,166,0,0,0,204,135,177,155,172,0,0,0,86,239,2,0,46,1,0,0,96,6,247,85,173,0,0,0,132,240,2,0,117,0,0,0,79,196,133,110,174,0,0,0,249,240,2,0,166,0,0,0,56,36,137,231,175,0,0,0,159,241,2,0,200,0,0,0,255,217,201,47,176,0,0,0,103,242,2,0,211,0,0,0,134,44,109,91,177,0,0,0,58,243,2,0,161,0,0,0,136,188,77,222,178,0,0,0,219,243,2,0,126,0,0,0,198,37,168,251,179,0,0,0,89,244,2,0,228,0,0,0,173,6,161,28,180,0,0,0,61,245,2,0,199,0,0,0,108,240,80,234,181,0,0,0,4,246,2,0,124,0,0,0,52,78,78,90,182,0,0,0,128,246,2,0,82,0,0,0,167,184,231,11,183,0,0,0,210,246,2,0,124,0,0,0,230,36,78,22,184,0,0,0,78,247,2,0,231,0,0,0,232,49,45,95,185,0,0,0,53,248,2,0,188,0,0,0,165,123,214,32,186,0,0,0,241,248,2,0,132,0,0,0,171,23,175,51,187,0,0,0,117,249,2,0,193,0,0,0,169,254,194,13,188,0,0,0,54,250,2,0,163,0,0,0,160,2,233,89,189,0,0,0,217,250,2,0,197,0,0,0,151,77,177,216,190,0,0,0,158,251,2,0,142,0,0,0,9,26,107,152,191,0,0,0,44,252,2,0,90,0,0,0,217,226,144,15,192,0,0,0,134,252,2,0,126,0,0,0,178,204,71,149,193,0,0,0,4,253,2,0,191,0,0,0,144,180,161,125,194,0,0,0,195,253,2,0,162,0,0,0,207,91,255,241,195,0,0,0,101,254,2,0,38,1,0,0,34,100,62,159,196,0,0,0,139,255,2,0,36,1,0,0,139,190,172,238,197,0,0,0,175,0,3,0,65,1,0,0,234,224,29,52,198,0,0,0,240,1,3,0,167,0,0,0,57,19,72,160,199,0,0,0,151,2,3,0,251,0,0,0,214,91,118,10,200,0,0,0,146,3,3,0,239,0,0,0,186,247,26,106,201,0,0,0,129,4,3,0,222,0,0,0,230,167,199,240,202,0,0,0,95,5,3,0,180,0,0,0,20,82,120,8,203,0,0,0,19,6,3,0,155,0,0,0,111,75,208,198,204,0,0,0,174,6,3,0,155,0,0,0,234,3,132,134,205,0,0,0,73,7,3,0,234,0,0,0,246,235,243,97,206,0,0,0,51,8,3,0,150,0,0,0,141,57,232,79,207,0,0,0,201,8,3,0,201,0,0,0,203,64,247,109,208,0,0,0,146,9,3,0,199,0,0,0,41,44,79,178,209,0,0,0,89,10,3,0,63,1,0,0,132,143,23,227,210,0,0,0,152,69,3,0,210,0,0,0,18,100,77,128,211,0,0,0,106,70,3,0,244,0,0,0,31,241,197,101,212,0,0,0,152,11,3,0,80,1,0,0,60,242,36,82,213,0,0,0,152,11,3,0,80,1,0,0,60,242,36,82,214,0,0,0,232,12,3,0,53,0,0,0,253,177,5,137,215,0,0,0,29,13,3,0,87,0,0,0,143,70,81,182,216,0,0,0,116,13,3,0,100,0,0,0,34,180,168,195,217,0,0,0,216,13,3,0,175,0,0,0,179,146,33,0,218,0,0,0,135,14,3,0,216,0,0,0,73,43,56,19,219,0,0,0,95,15,3,0,32,1,0,0,73,155,216,118,220,0,0,0,127,16,3,0,6,1,0,0,23,76,143,119,221,0,0,0,133,17,3,0,56,1,0,0,198,106,167,24,222,0,0,0,189,18,3,0,141,0,0,0,122,236,116,64,223,0,0,0,74,19,3,0,87,0,0,0,244,68,8,135,224,0,0,0,161,19,3,0,166,0,0,0,21,192,247,156,225,0,0,0,71,20,3,0,50,1,0,0,215,126,215,163,226,0,0,0,121,21,3,0,168,0,0,0,103,136,241,240,227,0,0,0,33,22,3,0,233,0,0,0,17,35,194,253,228,0,0,0,10,23,3,0,170,0,0,0,94,106,215,37,229,0,0,0,180,23,3,0,204,0,0,0,182,225,143,152,230,0,0,0,128,24,3,0,78,0,0,0,194,185,41,170,231,0,0,0,206,24,3,0,71,1,0,0,139,211,51,17,232,0,0,0,21,26,3,0,236,0,0,0,207,246,199,122,233,0,0,0,1,27,3,0,219,0,0,0,222,249,127,193,234,0,0,0,220,27,3,0,159,0,0,0,89,231,20,226,235,0,0,0,123,28,3,0,10,1,0,0,222,183,211,156,236,0,0,0,133,29,3,0,203,0,0,0,170,196,84,0,237,0,0,0,80,30,3,0,124,0,0,0,254,136,108,8,238,0,0,0,204,30,3,0,218,0,0,0,200,45,219,38,239,0,0,0,166,31,3,0,124,0,0,0,120,188,213,36,240,0,0,0,34,32,3,0,192,0,0,0,85,97,182,181,241,0,0,0,226,32,3,0,107,0,0,0,87,186,103,13,242,0,0,0,77,33,3,0,74,0,0,0,176,221,21,42,243,0,0,0,32,37,3,0,74,0,0,0,135,85,94,81,244,0,0,0,151,33,3,0,250,0,0,0,192,66,192,7,245,0,0,0,145,34,3,0,124,0,0,0,215,35,193,125,246,0,0,0,13,35,3,0,103,0,0,0,208,239,197,208,247,0,0,0,116,35,3,0,43,1,0,0,70,202,193,193,248,0,0,0,159,36,3,0,129,0,0,0,32,11,153,230,249,0,0,0,32,37,3,0,74,0,0,0,135,85,94,81,250,0,0,0,106,37,3,0,152,0,0,0,97,44,172,41,251,0,0,0,2,38,3,0,132,0,0,0,120,100,27,81,252,0,0,0,134,38,3,0,17,1,0,0,183,82,113,103,253,0,0,0,151,39,3,0,197,0,0,0,33,136,73,85,254,0,0,0,92,40,3,0,197,0,0,0,110,3,78,126,255,0,0,0,33,41,3,0,4,1,0,0,76,98,58,242,0,1,0,0,37,42,3,0,114,0,0,0,5,153,250,227,1,1,0,0,151,42,3,0,130,0,0,0,202,137,236,79,2,1,0,0,25,43,3,0,130,0,0,0,2,119,65,130,3,1,0,0,155,43,3,0,87,0,0,0,121,70,177,141,4,1,0,0,242,43,3,0,87,0,0,0,131,114,231,210,5,1,0,0,73,44,3,0,87,0,0,0,255,250,138,240,6,1,0,0,160,44,3,0,162,0,0,0,67,109,114,27,7,1,0,0,66,45,3,0,251,0,0,0,213,200,204,229,8,1,0,0,61,46,3,0,255,0,0,0,205,130,187,93,9,1,0,0,60,47,3,0,166,0,0,0,218,206,98,86,10,1,0,0,226,47,3,0,166,0,0,0,21,97,249,151,11,1,0,0,136,48,3,0,166,0,0,0,188,194,229,207,12,1,0,0,46,49,3,0,146,0,0,0,46,40,116,91,13,1,0,0,192,49,3,0,146,0,0,0,74,168,245,156,14,1,0,0,82,50,3,0,146,0,0,0,143,19,98,160,15,1,0,0,228,50,3,0,139,0,0,0,238,194,245,120,16,1,0,0,111,51,3,0,139,0,0,0,166,131,171,177,17,1,0,0,250,51,3,0,213,0,0,0,92,44,200,63,18,1,0,0,207,52,3,0,136,0,0,0,148,180,28,125,19,1,0,0,87,53,3,0,136,0,0,0,113,112,248,29,20,1,0,0,223,53,3,0,185,0,0,0,220,141,11,165,21,1,0,0,152,54,3,0,182,0,0,0,133,191,64,116,22,1,0,0,78,55,3,0,182,0,0,0,218,208,173,130,23,1,0,0,4,56,3,0,190,0,0,0,140,249,254,96,24,1,0,0,194,56,3,0,218,0,0,0,95,247,70,77,25,1,0,0,156,57,3,0,218,0,0,0,91,175,108,229,26,1,0,0,118,58,3,0,247,0,0,0,167,134,127,139,27,1,0,0,109,59,3,0,117,0,0,0,89,27,2,59,28,1,0,0,226,59,3,0,117,0,0,0,115,55,160,208,29,1,0,0,87,60,3,0,184,0,0,0,219,76,0,169,30,1,0,0,15,61,3,0,213,0,0,0,40,113,73,235,31,1,0,0,228,61,3,0,153,0,0,0,78,218,19,42,32,1,0,0,125,62,3,0,153,0,0,0,152,7,181,37,33,1,0,0,22,63,3,0,200,0,0,0,154,60,157,178,34,1,0,0,222,63,3,0,208,0,0,0,135,119,238,158,35,1,0,0,174,64,3,0,208,0,0,0,83,222,255,245,36,1,0,0,126,65,3,0,115,0,0,0,166,179,212,105,37,1,0,0,241,65,3,0,67,1,0,0,193,57,157,65,38,1,0,0,52,67,3,0,90,0,0,0,222,76,30,150,39,1,0,0,142,67,3,0,90,0,0,0,26,192,145,132,40,1,0,0,232,67,3,0,90,0,0,0,28,61,162,73,41,1,0,0,66,68,3,0,100,0,0,0,213,92,207,128,42,1,0,0,166,68,3,0,100,0,0,0,94,14,58,59,43,1,0,0,10,69,3,0,142,0,0,0,92,81,96,146,44,1,0,0,152,69,3,0,210,0,0,0,18,100,77,128,45,1,0,0,106,70,3,0,244,0,0,0,31,241,197,101,46,1,0,0,94,71,3,0,99,0,0,0,77,30,126,82,47,1,0,0,193,71,3,0,99,0,0,0,236,8,240,109,48,1,0,0,36,72,3,0,209,0,0,0,244,133,1,62,49,1,0,0,245,72,3,0,118,0,0,0,207,243,175,247,50,1,0,0,107,73,3,0,118,0,0,0,95,54,93,149,51,1,0,0,225,73,3,0,236,0,0,0,72,176,112,241,52,1,0,0,205,74,3,0,221,0,0,0,137,45,63,179,53,1,0,0,170,75,3,0,255,0,0,0,57,201,9,247,54,1,0,0,169,76,3,0,108,1,0,0,46,34,55,21,55,1,0,0,21,78,3,0,87,0,0,0,136,76,253,215,56,1,0,0,108,78,3,0,87,0,0,0,48,31,97,146,57,1,0,0,195,78,3,0,178,0,0,0,188,51,74,181,58,1,0,0,117,79,3,0,193,0,0,0,198,214,152,31,59,1,0,0,54,80,3,0,193,0,0,0,240,68,209,71,60,1,0,0,247,80,3,0,197,0,0,0,202,9,93,178,61,1,0,0,188,81,3,0,193,0,0,0,173,78,0,17,62,1,0,0,125,82,3,0,193,0,0,0,143,67,38,136,63,1,0,0,62,83,3,0,189,0,0,0,124,153,31,128,64,1,0,0,251,83,3,0,142,0,0,0,69,199,3,23,65,1,0,0,137,84,3,0,142,0,0,0,202,221,109,51,66,1,0,0,23,85,3,0,142,0,0,0,73,178,55,207,67,1,0,0,165,85,3,0,88,0,0,0,237,81,141,199,68,1,0,0,253,85,3,0,68,0,0,0,203,196,170,56,69,1,0,0,65,86,3,0,210,0,0,0,218,188,26,174,70,1,0,0,19,87,3,0,5,1,0,0,156,239,31,26,71,1,0,0,24,88,3,0,69,1,0,0,158,37,153,239,72,1,0,0,93,89,3,0,198,0,0,0,200,31,87,134,73,1,0,0,35,90,3,0,96,0,0,0,143,81,210,183,74,1,0,0,131,90,3,0,129,0,0,0,178,254,234,184,75,1,0,0,4,91,3,0,34,0,0,0,117,129,103,189,76,1,0,0,38,91,3,0,149,0,0,0,67,153,118,245,77,1,0,0,187,91,3,0,149,0,0,0,226,211,220,46,78,1,0,0,80,92,3,0,53,0,0,0,40,227,179,207,79,1,0,0,133,92,3,0,53,0,0,0,0,222,106,70,80,1,0,0,186,92,3,0,133,0,0,0,63,76,165,188,81,1,0,0,63,93,3,0,233,0,0,0,244,204,192,53,82,1,0,0,40,94,3,0,233,0,0,0,106,97,228,184,83,1,0,0,17,95,3,0,90,0,0,0,154,208,204,80,84,1,0,0,107,95,3,0,90,0,0,0,242,211,221,174,85,1,0,0,197,95,3,0,90,0,0,0,83,19,109,139,86,1,0,0,31,96,3,0,17,1,0,0,65,25,218,67,87,1,0,0,48,97,3,0,112,5,0,0,61,68,143,222,88,1,0,0,160,102,3,0,132,5,0,0,25,162,193,187,89,1,0,0,36,108,3,0,147,8,0,0,189,48,194,254,90,1,0,0,183,116,3,0,187,8,0,0,131,116,85,83,91,1,0,0,114,125,3,0,131,2,0,0,250,163,219,150,92,1,0,0,245,127,3,0,139,2,0,0,228,190,35,27,93,1,0,0,128,130,3,0,5,8,0,0,33,247,3,254,94,1,0,0,133,138,3,0,169,7,0,0,153,245,57,238,95,1,0,0,46,146,3,0,196,1,0,0,93,246,239,63,96,1,0,0,242,147,3,0,177,2,0,0,67,76,103,59,97,1,0,0,163,150,3,0,157,4,0,0,125,55,75,254,98,1,0,0,64,155,3,0,185,159,0,0,253,52,77,99,99,1,0,0,249,58,4,0,192,17,0,0,133,169,0,221,100,1,0,0,185,76,4,0,110,83,0,0,32,53,40,124,101,1,0,0,39,160,4,0,191,20,0,0,178,21,237,138,102,1,0,0,230,180,4,0,82,72,0,0,34,47,24,156,103,1,0,0,56,253,4,0,102,20,0,0,244,211,220,107,104,1,0,0,158,17,5,0,250,33,0,0,154,134,22,197,105,1,0,0,152,51,5,0,57,53,0,0,43,151,134,41,106,1,0,0,209,104,5,0,114,94,0,0,29,249,200,202,107,1,0,0,67,199,5,0,161,18,0,0,249,69,177,15,108,1,0,0,228,217,5,0,118,71,0,0,76,123,194,198,109,1,0,0,90,33,6,0,183,0,0,0,128,178,120,58,110,1,0,0,17,34,6,0,45,1,0,0,212,109,190,214,111,1,0,0,62,35,6,0,220,0,0,0,26,234,157,179,112,1,0,0,26,36,6,0,61,0,0,0,206,231,207,165,113,1,0,0,87,36,6,0,116,0,0,0,228,104,34,190,114,1,0,0,203,36,6,0,101,0,0,0,96,164,143,58,115,1,0,0,48,37,6,0,94,0,0,0,138,132,111,154,116,1,0,0,142,37,6,0,186,0,0,0,47,17,180,234,117,1,0,0,72,38,6,0,205,0,0,0,242,54,8,134,118,1,0,0,21,39,6,0,68,0,0,0,108,88,8,193,119,1,0,0,89,39,6,0,132,0,0,0,50,71,199,217,120,1,0,0,221,39,6,0,252,0,0,0,65,96,81,80,121,1,0,0,217,40,6,0,128,0,0,0,254,242,97,92,122,1,0,0,89,41,6,0,252,0,0,0,180,218,215,197,123,1,0,0,85,42,6,0,252,0,0,0,61,188,112,246,124,1,0,0,81,43,6,0,42,0,0,0,85,157,123,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,6,16,0,0,0,0,17,0,14,0,0,0,0,52,0,0,0,0,233,0,0,0,3,170,64,0,0,14,170,64,12,0,58,169,0,57,0,234,164,0,234,67,170,144,0,106,158,170,64,0,42,170,169,0,0,58,170,164,0,0,14,170,144,0,0,3,170,64,0,0,0,233,0,0,0,0,52,0,0,0,0,191,255,127,4,0,6,16,0,0,0,0,15,0,16,0,13,0,1,192,58,64,6,176,234,144,26,172,234,164,106,172,58,169,170,176,14,170,170,192,3,170,171,0,0,234,172,0,0,234,172,0,3,170,171,0,14,170,170,192,58,169,170,176,234,164,106,172,234,144,26,172,58,64,6,176,13,0,1,192,0,127,255,191,80,68,67,73,105,1,0,0,1,0,82,0,100,0,17,0,3,0,192,4,255,0,0,4,0,204,1,220,0,60,2,220,0,60,2,12,3,204,1,12,3,3,0,192,4,255,0,0,4,0,156,1,140,1,108,2,140,1,108,2,92,2,156,1,92,2,3,0,192,3,0,1,0,2,0,208,1,64,1,64,2,64,1,3,0,192,3,0,0,0,4,0,200,1,184,1,64,2,184,1,64,2,48,2,200,1,48,2,3,0,192,3,0,1,0,2,0,128,2,168,1,128,2,200,1,3,0,192,3,0,1,0,2,0,128,2,40,2,128,2,72,2,3,0,192,3,0,1,0,2,0,128,2,232,1,128,2,8,2,3,0,192,4,255,0,0,4,0,12,0,188,0,92,1,188,0,92,1,12,3,12,0,12,3,3,0,192,3,255,1,0,2,0,16,0,184,2,88,1,184,2,3,0,192,3,255,1,0,2,0,88,1,240,0,16,0,240,0,3,0,192,3,255,1,0,2,0,200,0,224,2,160,0,224,2,3,0,192,4,204,0,0,9,0,92,1,220,1,36,2,12,1,36,2,172,0,188,1,68,0,92,1,164,0,252,0,68,0,148,0,172,0,148,0,12,1,92,1,220,1,3,0,192,4,0,1,0,3,0,36,1,4,1,92,1,60,1,164,1,196,0,3,0,192,3,0,1,0,2,0,124,0,8,0,172,0,56,0,3,0,192,3,0,1,0,2,0,112,0,120,0,48,0,104,0,3,0,192,3,0,1,0,2,0,48,2,4,0,0,2,52,0,3,0,192,3,0,1,0,2,0,68,2,120,0,132,2,104,0,80,68,67,73,114,1,0,0,1,0,82,0,102,0,18,0,3,0,192,4,255,0,0,4,0,12,0,204,0,92,1,204,0,92,1,28,3,12,0,28,3,3,0,192,3,255,1,0,2,0,16,0,200,2,88,1,200,2,3,0,192,3,255,1,0,2,0,88,1,0,1,16,0,0,1,3,0,192,3,255,1,0,2,0,200,0,240,2,160,0,240,2,3,0,192,3,0,1,0,2,0,128,0,8,0,176,0,56,0,3,0,192,3,0,1,0,2,0,128,0,136,0,64,0,120,0,3,0,192,3,0,1,0,2,0,40,2,8,0,248,1,56,0,3,0,192,3,0,1,0,2,0,40,2,136,0,104,2,120,0,3,0,192,4,255,0,0,4,0,204,1,236,0,60,2,236,0,60,2,28,3,204,1,28,3,3,0,192,4,255,0,0,4,0,156,1,156,1,108,2,156,1,108,2,108,2,156,1,108,2,3,0,192,3,0,1,0,2,0,208,1,80,1,64,2,80,1,3,0,192,3,0,0,0,4,0,200,1,200,1,64,2,200,1,64,2,64,2,200,1,64,2,3,0,192,3,0,1,0,2,0,128,2,184,1,128,2,216,1,3,0,192,3,0,1,0,2,0,128,2,56,2,128,2,88,2,3,0,192,3,0,1,0,2,0,128,2,248,1,128,2,24,2,3,0,192,4,240,0,0,8,0,12,1,164,1,172,0,68,1,172,0,172,0,12,1,76,0,164,1,76,0,4,2,172,0,4,2,68,1,164,1,164,1,3,0,255,4,0,1,0,2,0,20,1,180,0,156,1,60,1,3,0,255,4,0,1,0,2,0,20,1,60,1,156,1,180,0,80,68,67,73,132,1,0,0,1,0,112,0,122,0,16,0,3,0,192,4,255,0,0,4,0,12,0,12,0,92,1,12,0,92,1,92,2,12,0,92,2,3,0,192,3,255,1,0,2,0,16,0,8,2,88,1,8,2,3,0,192,3,255,1,0,2,0,88,1,64,0,16,0,64,0,3,0,192,3,255,1,0,2,0,200,0,48,2,160,0,48,2,3,0,192,3,204,0,0,8,0,16,1,88,1,224,0,88,1,200,0,64,1,200,0,16,1,224,0,248,0,16,1,248,0,40,1,16,1,40,1,64,1,3,0,192,3,240,0,0,8,0,136,0,88,1,88,0,88,1,64,0,64,1,64,0,16,1,88,0,248,0,136,0,248,0,160,0,16,1,160,0,64,1,3,0,192,3,0,1,0,2,0,144,1,184,0,184,1,144,0,3,0,192,3,0,1,0,2,0,144,1,0,1,208,1,0,1,3,0,192,4,255,0,0,15,0,196,1,196,1,12,2,124,1,76,2,124,1,196,2,244,1,196,2,44,2,251,3,99,3,151,3,31,4,36,2,172,2,220,1,172,2,140,1,92,2,140,1,252,1,4,1,116,1,4,1,76,1,20,1,60,1,60,1,60,1,3,0,192,3,0,1,0,2,0,248,1,152,1,24,2,184,1,3,0,192,3,0,1,0,2,0,200,1,200,1,232,1,232,1,3,0,192,3,0,1,0,2,0,144,1,0,2,0,2,112,2,3,0,192,3,0,1,0,2,0,152,1,200,1,144,1,208,1,3,0,192,3,0,1,0,2,0,240,1,40,2,0,2,24,2,3,0,192,3,0,1,0,2,0,32,2,248,1,40,2,240,1,3,0,192,3,0,1,0,2,0,72,2,208,1,88,2,192,1,80,68,67,73,26,1,0,0,1,0,99,0,78,0,14,0,3,0,192,4,255,0,0,4,0,12,0,12,0,92,1,12,0,92,1,92,2,12,0,92,2,3,0,192,3,255,1,0,2,0,16,0,8,2,88,1,8,2,3,0,192,3,255,1,0,2,0,88,1,64,0,16,0,64,0,3,0,192,3,255,1,0,2,0,200,0,48,2,160,0,48,2,3,0,192,4,255,0,0,4,0,84,2,12,0,196,2,12,0,196,2,92,2,84,2,92,2,3,0,192,4,255,0,0,4,0,36,2,220,0,244,2,220,0,244,2,172,1,36,2,172,1,3,0,192,3,0,1,0,2,0,88,2,112,0,200,2,112,0,3,0,192,2,0,1,0,2,0,140,2,112,0,140,2,72,0,3,0,192,3,0,0,0,4,0,80,2,8,1,200,2,8,1,200,2,128,1,80,2,128,1,3,0,192,3,0,1,0,2,0,8,3,248,0,8,3,24,1,3,0,192,3,0,1,0,2,0,8,3,120,1,8,3,152,1,3,0,192,3,0,1,0,2,0,8,3,56,1,8,3,88,1,3,0,192,4,0,1,0,3,0,180,1,132,1,228,1,84,1,180,1,36,1,3,0,192,4,0,1,0,2,0,228,1,84,1,196,0,84,1,80,68,67,73,233,0,0,0,1,0,80,0,80,0,13,0,3,0,192,3,255,1,0,2,0,32,1,72,2,32,1,168,1,3,0,192,3,255,1,0,2,0,72,1,176,1,72,1,72,2,3,0,192,4,255,0,0,3,0,84,0,108,1,148,1,36,0,20,2,220,1,3,0,192,4,255,1,0,2,0,92,1,4,1,116,1,164,0,3,0,192,4,0,1,0,2,0,76,1,68,1,68,1,100,1,3,0,192,3,255,1,0,2,0,120,0,72,2,120,0,16,2,3,0,192,3,255,1,0,2,0,64,0,40,2,64,0,72,2,3,0,192,3,255,1,0,2,0,176,0,40,2,176,0,72,2,3,0,192,3,255,1,0,2,0,232,0,32,2,232,0,72,2,3,0,192,3,255,1,0,2,0,184,1,72,2,184,1,40,2,3,0,192,3,255,1,0,2,0,128,1,40,2,128,1,72,2,3,0,192,3,255,1,0,2,0,240,1,40,2,240,1,72,2,3,0,192,3,255,1,0,2,0,40,2,40,2,40,2,72,2,137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,144,0,0,0,168,4,3,0,0,0,253,65,122,75,0,0,0,18,80,76,84,69,170,170,170,85,85,85,85,0,0,0,0,0,170,85,85,255,255,255,2,35,117,244,0,0,2,43,73,68,65,84,120,218,237,153,193,110,195,32,12,134,97,105,238,48,214,123,166,188,0,20,245,94,109,47,144,168,226,253,95,101,100,107,52,109,13,216,166,238,84,105,254,79,61,125,178,127,187,1,108,165,68,34,145,72,36,186,146,253,148,185,149,242,28,47,58,216,83,59,70,187,24,195,87,44,54,179,108,115,56,49,154,62,173,82,110,133,18,181,115,209,126,99,22,229,0,109,83,90,38,253,210,212,64,210,46,244,233,90,154,76,218,230,44,36,195,194,161,146,116,220,167,146,92,160,112]),
