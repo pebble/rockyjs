@@ -11,6 +11,54 @@ describe('Graphic Types', function() {
        });
     });
 
+    describe('GSize', function () {
+        var GSize = symbols.GSize;
+        describe('array', function() {
+            it('works with arrays', function () {
+                expect(GSize([1, 2])).to.eql({w:1, h:2});
+            });
+            it('ignores everything beyond two elements', function() {
+                expect(GSize([1, 2, 3])).to.eql({w:1, h:2});
+            });
+            it('treats too short arrays as undefined values', function() {
+                expect(GSize([1])).to.eql({w:1, h:undefined});
+                var size = GSize([]);
+                expect(size.w).to.equal(undefined);
+                expect(size.h).to.equal(undefined);
+            });
+        });
+        describe('object', function() {
+            it('works with object', function () {
+                expect(GSize({w:1, h:2})).to.eql({w:1, h:2});
+            });
+            it('ignores everything beyond w,h', function() {
+                var obj = {w:1, h:2, z:3};
+                var size = GSize(obj);
+                expect(size).to.eql({w:1, h:2, z:3});
+                expect(size).to.equal(obj);
+            });
+            it('treats missing properties as undefined', function() {
+                expect(GSize({w:1})).to.eql({w:1, h:undefined});
+                expect(GSize({h:2})).to.eql({w:undefined, h:2});
+                expect(GSize({z:3})).to.eql({w:undefined, h:undefined, z:3});
+                var size = GSize([]);
+                expect(size.w).to.equal(undefined);
+                expect(size.h).to.equal(undefined);
+            });
+        });
+        describe('values', function() {
+            it('works with values', function () {
+                expect(GSize(1, 2)).to.eql({w:1, h:2});
+            });
+            it('ignores everything beyond two values', function() {
+                expect(GSize(1, 2, 3)).to.eql({w:1, h:2});
+            });
+            it('treats missing values as undefined', function() {
+                expect(GSize(1)).to.eql({w:1, h:undefined});
+            });
+        });
+    });
+
     describe('GPoint', function () {
         var GPoint = symbols.GPoint;
         describe('array', function() {
@@ -22,7 +70,9 @@ describe('Graphic Types', function() {
             });
             it('treats too short arrays as undefined values', function() {
                 expect(GPoint([1])).to.eql({x:1, y:undefined});
-                expect(GPoint([])).to.eql({x:undefined, y:undefined});
+                var empty = GPoint([]);
+                expect(empty.x).to.equal(undefined);
+                expect(empty.y).to.equal(undefined);
             });
         });
         describe('object', function() {
@@ -30,13 +80,15 @@ describe('Graphic Types', function() {
                 expect(GPoint({x:1, y:2})).to.eql({x:1, y:2});
             });
             it('ignores everything beyond x,y', function() {
-                expect(GPoint({x:1, y:2, z:3})).to.eql({x:1, y:2});
+                expect(GPoint({x:1, y:2, z:3})).to.eql({x:1, y:2, z:3});
             });
             it('treats missing properties as undefined', function() {
                 expect(GPoint({x:1})).to.eql({x:1, y:undefined});
                 expect(GPoint({y:2})).to.eql({x:undefined, y:2});
-                expect(GPoint({z:3})).to.eql({x:undefined, y:undefined});
-                expect(GPoint([])).to.eql({x:undefined, y:undefined});
+                expect(GPoint({z:3})).to.eql({x:undefined, y:undefined, z:3});
+                var point = GPoint([]);
+                expect(point.x).to.equal(undefined);
+                expect(point.y).to.equal(undefined);
             });
         });
         describe('values', function() {
@@ -65,15 +117,21 @@ describe('Graphic Types', function() {
                 expect(GRect([1, 2, 3])).to.eql({x:1, y:2, w:3, h:undefined});
                 expect(GRect([1, 2])).to.eql({x:1, y:2, w:undefined, h:undefined});
                 expect(GRect([1])).to.eql({x:1, y:undefined, w:undefined, h:undefined});
-                expect(GRect([])).to.eql({x:undefined, y:undefined, w:undefined, h:undefined});
+                var empty = GRect([]);
+                expect(empty.x).to.equal(undefined);
+                expect(empty.y).to.equal(undefined);
+                expect(empty.w).to.equal(undefined);
+                expect(empty.h).to.equal(undefined);
             });
         });
         describe('object', function() {
             it('works with object', function () {
                 expect(GRect({x:1, y:2, w:3, h:4})).to.eql({x:1, y:2, w:3, h:4});
             });
-            it('ignores everything beyond x,y,w,h', function() {
-                expect(GRect({x:1, y:2, w:3, h:4, z:5})).to.eql({x:1, y:2, w:3, h:4});
+            it('preserves identity x,y,w,h', function() {
+                var obj = {x:1, y:2, w:3, h:4, z:5};
+                var rect = GRect(obj);
+                expect(rect).to.equal(obj);
             });
             it('treats missing properties as undefined', function() {
                 expect(GRect({x:1, y:2, w:3})).to.eql({x:1, y:2, w:3, h:undefined});
