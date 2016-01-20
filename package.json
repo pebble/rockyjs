@@ -2,7 +2,7 @@
     "name": "rocky.js",
     "title": "Run Pebble code in the browser",
     "version": "0.1.0",
-    "main": "dist/rocky-0.1.0.js",
+    "main": "dist/rocky.js",
     "scripts": {
         "test": "grunt test"
     },
@@ -22,6 +22,7 @@
     ],
     "devDependencies": {
         "chai": "^3.4.1",
+        "fs-extra": "^0.26.4",
         "glob": "^6.0.1",
         "grunt": "~0.4.5",
         "grunt-contrib-concat": "^0.5.1",
@@ -35,6 +36,8 @@
         "grunt-newer": "^1.1.1",
         "grunt-processhtml": "^0.3.8",
         "load-grunt-tasks": "^3.4.0",
-        "mocha": "^2.3.4"
+        "mocha": "^2.3.4",
+        "q": "^1.4.1",
+        "simple-git": "^1.21.0"
     }
 }
