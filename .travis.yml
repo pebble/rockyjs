@@ -5,4 +5,6 @@ before_script:
   - npm install grunt-cli -g
 after_success:
  - git tag
+ - git fetch --tags
+ - git tag
  - grunt pre-publish publish-ci
