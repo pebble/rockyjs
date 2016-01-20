@@ -1,4 +1,8 @@
 {
-  "extends": "pebble"
+    "extends": "pebble",
+    "rules": {
+        "max-params": 0,
+        "strict": [2, "never"]
+    },
 }
 
