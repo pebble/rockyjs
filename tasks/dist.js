@@ -9,7 +9,7 @@ module.exports = function(grunt) {
     var exec = require('./utils')(grunt).exec;
 
     var Q = require("q");
-    var fs = require('fs');
+    var fs = require('fs-extra');
     var simpleGit = require("simple-git");
 
     // rocky.js filename for a given version
@@ -41,6 +41,8 @@ module.exports = function(grunt) {
             return exec('grunt build', {cwd: tempCheckout});
         })
         .then(function() {
+            // copy the resulting file from this version and name it according to its version
+            // but: only do so if our checks on the file name pass
             var taggedPkg = grunt.file.readJSON(tempCheckout + '/package.json');
             var taggedVersion = taggedPkg.version;
             var destName = rockyNameForTag(taggedVersion);
@@ -52,8 +54,9 @@ module.exports = function(grunt) {
                 grunt.log.warn("skipping file", destName, "File already exists.");
                 return false;
             }
-            // this command is trustworthy, we checked the format of destName by checking the version format
-            return exec('cp ' + tempCheckout + '/' + destName + ' ' + destName);
+            var srcName = tempCheckout + '/' + taggedPkg.main;
+            grunt.log.write("copy", srcName, '=>', destName, "...");
+            return Q.nfcall(fs.copy, srcName, destName).thenLogOk();
         });
     }
 

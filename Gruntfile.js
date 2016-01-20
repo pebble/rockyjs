@@ -6,10 +6,12 @@ module.exports = function(grunt) {
 
     var pkg = grunt.file.readJSON('package.json');
     var githubBanner = grunt.template.process(grunt.file.read('html/misc/githubBanner.html'), {data: {pkg: pkg}});
+    var isMasterBuildOnTravis = process.env.TRAVIS_BRANCH === 'master';
+
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
         pkg: pkg,
-        rockyjs_path: "dist/rocky-<%=pkg.version%>.js",
+        rockyjs_path: isMasterBuildOnTravis ? "dist/rocky-dev.js" : "dist/rocky.js",
         license_banner: "/* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. <%=pkg.license%> */\n\n",
         uglify: {
             options: {
