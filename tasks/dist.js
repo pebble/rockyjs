@@ -1,7 +1,9 @@
 module.exports = function(grunt) {
 
+    var taskName = 'build-missing-dists';
+
     // location of our temporary working copy we use to build tags
-    var tempCheckout = 'temp/checkout';
+    var tempCheckout = '.grunt/' + taskName;
 
     // register a few promise related convenience functions
     var exec = require('./utils')(grunt).exec;
@@ -24,6 +26,11 @@ module.exports = function(grunt) {
         }
     }
 
+    // checks for a valid version string to find tags and verify valid filed names, e.g. x.y.z, x.y.z-beta1
+    function isValidRockyVersion(version) {
+        return version.match(/^\d+\.\d+\.\d+$(-\n+)?/);
+    }
+
     // creates a promise that expresses all steps for a given tag
     function checkoutNpmBuildCopy(tag) {
         return simpleGit(tempCheckout).promising('checkout', tag)
@@ -31,22 +38,28 @@ module.exports = function(grunt) {
             return exec('npm install', {cwd: tempCheckout});
         })
         .then(function() {
-            return exec('grunt build', {cwd:tempCheckout});
+            return exec('grunt build', {cwd: tempCheckout});
         })
         .then(function() {
             var taggedPkg = grunt.file.readJSON(tempCheckout + '/package.json');
-            var destName = rockyNameForTag(taggedPkg.version);
-            if (versionedRockyExists(taggedPkg.version)) {
-                grunt.log.warn("skipping file", destName, "Tag", tag, "seems to be named incorrectly.");
+            var taggedVersion = taggedPkg.version;
+            var destName = rockyNameForTag(taggedVersion);
+            if (!isValidRockyVersion(taggedVersion)) {
+                grunt.log.warn("skipping file", destName, "Version", taggedVersion, "doesn't follow expected format.");
                 return false;
             }
+            if (versionedRockyExists(taggedVersion)) {
+                grunt.log.warn("skipping file", destName, "File already exists.");
+                return false;
+            }
+            // this command is trustworthy, we checked the format of destName by checking the version format
             return exec('cp ' + tempCheckout + '/' + destName + ' ' + destName);
         });
     }
 
     // actual grunt task
     var desc = 'Checks out and builds tags from remote repository and copies versioned output to ./build/dist';
-    grunt.registerTask('build-missing-dists', desc, function() {
+    grunt.registerTask(taskName, desc, function() {
         var done = this.async();
 
         // delete temp folder
@@ -75,7 +88,7 @@ module.exports = function(grunt) {
         // filter tags: keep version tags we don't have a rocky-x.y.z.js for, yet
         .then(function(tags) {
                 var foundTags = tags.all.filter(function(tag) {
-                    return tag.match(/^v?\d\.\d\.\d$/);
+                    return isValidRockyVersion(tag);
                 });
                 grunt.verbose.writeln('found tags', foundTags);
 
@@ -90,9 +103,7 @@ module.exports = function(grunt) {
             var tasks = relevantTags.map(function(tag) {
                 return function(){return checkoutNpmBuildCopy(tag);};
             });
-            return tasks.reduce(function(chain, t){
-                return chain.then(t);
-            }, Q(true));
+            return tasks.reduce(Q.when, Q(true));
         })
         // grunt logging of any error case
         .catch(function (error) {
