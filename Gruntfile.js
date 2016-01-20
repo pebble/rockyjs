@@ -28,7 +28,7 @@ module.exports = function(grunt) {
             rockyjs: {
                 src: ['src/html-binding.js', 'src/symbols-manual.js', 'src/symbols-generated.js',
                       'src/transpiled.js'],
-                dest: '<%= rockyjs_path %>'
+                dest: 'build/<%= rockyjs_path %>'
             }
         },
         newer: {
@@ -84,15 +84,6 @@ module.exports = function(grunt) {
             }
         },
         copy: {
-            dist: {
-                files: [
-                    {
-                        expand: true,
-                        src: ['dist/**/*'],
-                        dest: 'build'
-                    }
-                ]
-            },
             build: {
                 files: [
                     {
