@@ -161,7 +161,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('publish-ci', function() {
         // need this
-        this.requires(['build']);
+        this.requires(['pre-publish']);
 
         // only deploy under these conditions
         if (process.env.TRAVIS === 'true' &&
@@ -194,8 +194,10 @@ module.exports = function(grunt) {
 
     build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy', 'modify_json');
 
+    grunt.registerTask('pre-publish', 'should not be called directly', ['build', 'build-missing-dists']);
+
     grunt.registerTask('build', build_tasks);
     grunt.registerTask('default', ['build']);
     grunt.registerTask('test', ['build', 'jshint:test', 'mochaTest']);
-    grunt.registerTask('publish', ['build', 'gh-pages:publish']);
+    grunt.registerTask('publish', ['pre-publish', 'gh-pages:publish']);
 };
