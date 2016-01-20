@@ -38,7 +38,7 @@ module.exports = function(grunt) {
     // promise wrapper around exec + logging
     var _exec = Q.nfbind(require('child_process').exec);
     var exec = function(cmd, options) {
-        grunt.verbose.write("exec:", cmd, options ? options : {}, "...");
+        grunt.log.write("exec:", cmd, options ? options : {}, "...");
         return _exec.apply(undefined, arguments).thenLogOk();
     };
 

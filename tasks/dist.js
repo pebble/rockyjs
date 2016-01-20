@@ -55,7 +55,7 @@ module.exports = function(grunt) {
         .then(function() {
             var url = grunt.file.readJSON('package.json').repository.url;
             grunt.verbose.writeln('cloning', url, 'into', tempCheckout);
-            return simpleGit('.').clone(url, tempCheckout).promising('tags');
+            return simpleGit('.').clone(url, tempCheckout).fetch().promising('tags');
         })
         // filter tags: keep version tags we don't have a rocky-x.y.z.js for, yet
         .then(function(tags) {
