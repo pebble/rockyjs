@@ -28,7 +28,7 @@ module.exports = function(grunt) {
 
     // checks for a valid version string to find tags and verify valid filed names, e.g. x.y.z, x.y.z-beta1
     function isValidRockyVersion(version) {
-        return version.match(/^\d+\.\d+\.\d+$(-\n+)?/);
+        return version.match(/^\d+\.\d+\.\d+(-\n+)?$/);
     }
 
     // creates a promise that expresses all steps for a given tag
@@ -105,13 +105,11 @@ module.exports = function(grunt) {
             });
             return tasks.reduce(Q.when, Q(true));
         })
-        // grunt logging of any error case
-        .catch(function (error) {
-            grunt.log.error(error);
-            throw error;
-        })
         // correctly terminate async grunt task
-        .done(function(){done(true)}, function(){done(false)});
+        .done(function(){done(true);}, function(error){
+            grunt.log.error(error);
+            done(false);
+        });
     });
 
 };

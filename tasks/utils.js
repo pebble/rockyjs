@@ -23,17 +23,7 @@ module.exports = function(grunt) {
     git.prototype.promising = function(fnName) {
         var logMessage = ("git " + fnName + " " + Array.prototype.slice.call(arguments, 1).join()).trim() + "...";
         grunt.log.write(logMessage);
-        var deferred = Q.defer();
-        var args = Array.prototype.slice.call(arguments, 1);
-        args.push(function(err, data) {
-            if (err) {
-                deferred.reject(err);
-            } else {
-                deferred.resolve(data);
-            }
-        });
-        this[fnName].apply(this, args);
-        return deferred.promise.thenLogOk();
+        return Q.nfapply(this[fnName].bind(this), Array.prototype.slice.call(arguments, 1)).thenLogOk();
     };
     git.prototype.fetchTags = function (then) {
         return this._run(['fetch', '--tags'], function (err, data) {
@@ -44,7 +34,7 @@ module.exports = function(grunt) {
     // promise wrapper around exec + logging
     var _exec = Q.nfbind(require('child_process').exec);
     var exec = function(cmd, options) {
-        grunt.log.write("exec:", cmd, options ? options : {}, "...");
+        grunt.log.write("exec:", cmd, options ||  {}, "...");
         return _exec.apply(undefined, arguments).thenLogOk();
     };
 
