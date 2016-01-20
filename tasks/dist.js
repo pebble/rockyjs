@@ -49,13 +49,28 @@ module.exports = function(grunt) {
     grunt.registerTask('build-missing-dists', desc, function() {
         var done = this.async();
 
-        // delete all of the temp folder
-        exec( 'rm -rf temp')
-        // checkout Rocky.js repo into temp folder and retrieve tags
+        // delete temp folder
+        exec( 'rm -rf ' + tempCheckout)
+        // checkout Rocky.js repo into temp folder
         .then(function() {
             var url = grunt.file.readJSON('package.json').repository.url;
             grunt.verbose.writeln('cloning', url, 'into', tempCheckout);
-            return simpleGit('.').clone(url, tempCheckout).fetchTags().promising('tags');
+            return simpleGit('.').promising("clone", url, tempCheckout);
+        })
+        // checkout gh-pages and copy all missing rocky-x.y.z.js from its dist folder to build/dist
+        // we do this so that we will have gh-pages' dist folder + this working copy's rocky.js
+        .then(function() {
+            return simpleGit(tempCheckout).promising('checkout', 'gh-pages');
+        })
+        .then(function() {
+            // copy all rocky.js files from gh-pages' dist into this working copy's build folder, but
+            // preserve existing files in build/dist (presumably only the one we built from this working copy before)
+            return exec('cp -n ' + tempCheckout + '/dist/*.js build/dist')
+                   .catch(function(){return "this is fine since cp -n returns 1 if there was a file already."});
+        })
+        // retrieve all tags to continue with the actual copy
+        .then(function() {
+            return simpleGit(tempCheckout).fetchTags().promising('tags');
         })
         // filter tags: keep version tags we don't have a rocky-x.y.z.js for, yet
         .then(function(tags) {
