@@ -1,10 +1,8 @@
-// Requires /examples/js/rocky-extended.js
+/*eslint no-unused-vars: 0*/
+/* global TimerService:false, Window:false _timeout:true, _intervalId:true */
 
 // some library code, could be extracted into some JS files
-
-/* global TimerService:false, Window:false */
-
-function scheduleAnimation(options) {
+var scheduleAnimation = function(options) {
   options = options || {};
   var msDelay = options.delay || 0;
   var msDuration = options.duration || 0;
@@ -13,36 +11,38 @@ function scheduleAnimation(options) {
   var stopHandler = options.stop || function() {
   };
 
-  setTimeout(function() {
+  // todo: remove these globals by fixing jswrap_interactive.c
+  _timeout = setTimeout(function() {
     var msPassed = 0;
     var msPerStep = 1000 / 30;
 
-    var intervalId = setInterval(function() {
+    _intervalId = setInterval(function() {
       msPassed += msPerStep;
       var progress = Math.min(1, msPassed / msDuration);
       updateHandler(progress);
       if (progress >= 1) {
         stopHandler();
-        clearInterval(intervalId);
+        clearInterval(_intervalId);
       }
     }, msPerStep);
     updateHandler(0);
   }, msDelay);
-}
+};
 
-function interpolate(f, a, b) {
+var interpolate = function(f, a, b) {
   return a * (1 - f) + f * b;
-}
+};
 
-var SECOND_UNIT = 1 << 0;
-
+var MINUTE_UNIT = 1 << 1;
 var win = new Window();
 var angle_funny = 0;
+
 win.setWindowHandlers({
   load: function() {
     var MINUTE_HAND_MARGIN = 7;
     var HOUR_HAND_MARGIN = 7 * 4;
     var GColorWhite = 255;
+    var GColorBlack = 192;
     var GColorRed = 240;
     var STROKE_WIDTH = 8;
     var CLOCK_RADIUS = 65;
@@ -58,36 +58,12 @@ win.setWindowHandlers({
       dotY2: bounds.size.h / 2
     };
 
-    TimerService.subscribe(SECOND_UNIT, function(tick_time, changed) {
+    TimerService.subscribe(MINUTE_UNIT, function(tick_time, changed) {
       data.lastTime = {
         hours: tick_time.hour % 12,
         minutes: tick_time.min
       };
       canvasLayer.markDirty();
-
-      function romanize(num) {
-        if (!+num) {
-          return false;
-        }
-        var digits = String(+num).split('');
-        var key = ['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM',
-            '', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC',
-            '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
-        var roman = '';
-        var i = 3;
-        while (i--) {
-          roman = (key[+digits.pop() + (i * 10)] || '') + roman;
-        }
-        return Array(+digits.join('') + 1).join('M') + roman;
-      }
-
-      var values = [
-        romanize(tick_time.hour),
-        romanize(tick_time.min),
-        romanize(tick_time.sec)
-      ];
-
-      console.log(values.join(':'));
     }, true);
 
     var bgcolor = 0;
@@ -167,6 +143,7 @@ win.setWindowHandlers({
 
       }
     });
+
   }
 });
 
