@@ -40,6 +40,7 @@
         "load-grunt-tasks": "^3.4.0",
         "mocha": "^2.3.4",
         "q": "^1.4.1",
-        "simple-git": "^1.21.0"
+        "simple-git": "^1.21.0",
+        "sinon": "^1.17.2"
     }
 }

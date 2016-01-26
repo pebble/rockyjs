@@ -461,6 +461,31 @@ Rocky.addGeneratedSymbols = function(obj) {
                    obj.module.getValue(returnRectPTR + 6, 'i16'));
     return returnRect;
   };
+
+  // GBitmap* gbitmap_create_with_data(const uint8_t *data);
+  obj.gbitmap_create_with_data =
+    obj.module.cwrap('gbitmap_create_with_data', 'number', ['number']);
+
+  // void emx_graphics_draw_bitmap_in_rect(GContext *ctx, const GBitmap *bitmap,
+  //                                       int16_t rect_x, int16_t rect_y,
+  //                                       int16_t rect_w, int16_t rect_h);
+  var emx_graphics_draw_bitmap_in_rect =
+    obj.module.cwrap('emx_graphics_draw_bitmap_in_rect', 'void',
+      ['number', 'number', 'number', 'number', 'number', 'number']);
+
+  obj.graphics_draw_bitmap_in_rect = function(ctx, bitmap, rect) {
+    rect = obj.GRect(rect);
+    try {
+      var cPtr = bitmap.captureCPointer();
+      if (!cPtr) {
+        return;
+      }
+      emx_graphics_draw_bitmap_in_rect(ctx, cPtr, rect.x, rect.y, rect.w, rect.h);
+    } finally {
+      bitmap.releaseCPointer(cPtr);
+    }
+  };
+
 };
 
 // export to enable unit tests

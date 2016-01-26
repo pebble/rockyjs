@@ -14,7 +14,7 @@
 
  */
 
-/*global Rocky:true*/
+/*global Rocky:true, XMLHttpRequest:true */
 
 if (typeof (Rocky) === 'undefined') {
   Rocky = {};
@@ -88,6 +88,100 @@ Rocky.addManualSymbols = function(obj) {
       return obj.GRectZero;
     }
     return obj.GRect(rect.x + insets.left, rect.y + insets.top, w, h);
+  };
+
+  obj.Resources = {
+    status: {
+      loading: 'loading', error: 'error', loaded: 'loaded'
+    },
+
+    load: function(url, cb) {
+      if (!url || typeof cb !== 'function') {
+        return this.status.error;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function(e) {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          var success = (xhr.status === 200);
+          if (success) {
+            var data = new Int8Array(xhr.response);
+            cb(this.status.loaded, data);
+          } else {
+            cb(this.status.error);
+          }
+        }
+      }.bind(this);
+      xhr.send();
+
+      return this.status.loading;
+    }
+  };
+
+  obj.Data = {
+    captureCPointerWithData: function(data) {
+      if (!data) {
+        return 0;
+      }
+      var length = data.length;
+      var ptr = obj.module._malloc(length);
+      if (!ptr) {
+        return ptr;
+      }
+
+      for (var i = 0; i < data.length; i++) {
+        obj.module.setValue(ptr + i, data[i], 'i8');
+      }
+
+      return ptr;
+    },
+    releaseCPointer: function(ptr) {
+      obj.module._free(ptr);
+    }
+  };
+
+  var gbitmapCreate = function(obtainData) {
+    var result = {
+      obtainData: obtainData,
+      captureCPointer: function() {
+        this.dataPtr = obj.Data.captureCPointerWithData(this.data);
+        if (!this.dataPtr) {
+          return 0;
+        }
+        this.bmpPtr = obj.module.ccall('gbitmap_create_with_data', 'number',
+                                      ['number'], [this.dataPtr]);
+        return this.bmpPtr;
+      },
+      releaseCPointer: function() {
+        obj.module.ccall('gbitmap_destroy', 'void', ['number'], [this.bmpPtr]);
+        delete this.bmpPtr;
+        obj.Data.releaseCPointer(this.dataPtr);
+        delete this.dataPtr;
+      }
+    };
+
+    result.status = result.obtainData();
+
+    return result;
+  };
+
+  obj.gbitmap_create = function(url) {
+    return gbitmapCreate(function() {
+      var bmp = this;
+      return obj.Resources.load(url, function(status, data) {
+        bmp.status = status;
+        bmp.data = data;
+      });
+    });
+  };
+
+  obj.gbitmap_create_with_data = function(data) {
+    return gbitmapCreate(function() {
+      this.data = data;
+      return obj.Resources.status.loaded;
+    });
   };
 
 };
