@@ -142,6 +142,18 @@ Rocky.addManualSymbols = function(obj) {
     }
   };
 
+  var gbitmapSetStatusAndData = function(bmp, status, data) {
+    bmp.status = status;
+    bmp.data = data;
+    if (status === obj.Resources.status.loaded && bmp.onload) {
+      bmp.onload();
+    } else
+    if (status === obj.Resources.status.error && bmp.onerror) {
+      bmp.onerror();
+    }
+    return bmp.status;
+  };
+
   var gbitmapCreate = function(obtainData) {
     var result = {
       obtainData: obtainData,
@@ -171,16 +183,14 @@ Rocky.addManualSymbols = function(obj) {
     return gbitmapCreate(function() {
       var bmp = this;
       return obj.Resources.load(url, function(status, data) {
-        bmp.status = status;
-        bmp.data = data;
+        return gbitmapSetStatusAndData(bmp, status, data);
       });
     });
   };
 
   obj.gbitmap_create_with_data = function(data) {
     return gbitmapCreate(function() {
-      this.data = data;
-      return obj.Resources.status.loaded;
+      return gbitmapSetStatusAndData(this, obj.Resources.status.loaded, data);
     });
   };
 

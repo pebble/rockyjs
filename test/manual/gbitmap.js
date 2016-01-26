@@ -1,6 +1,7 @@
 /*eslint "no-unused-expressions": 0*/
 /* globals describe:false, it:false, beforeEach:false, afterEach:false */
 
+global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var symbols = require('../../src/symbols-manual.js').symbols;
 var expect = require('chai').expect;
 var sinon = require('sinon');
@@ -17,6 +18,7 @@ describe('GBitmap', function() {
     sandbox.verify();
     delete symbols.module;
     sandbox.restore();
+    delete global.XMLHttpRequest;
   });
 
   describe('gbitmap_create', function() {
@@ -73,6 +75,46 @@ describe('GBitmap', function() {
       expect(bmp.status).to.equal('new status');
       expect(bmp.data).to.equal('some data');
     });
+
+    describe('.onload and .onerror', function() {
+      var bmp;
+      var server;
+
+      beforeEach(function() {
+        server = sinon.fakeServer.create();
+      });
+
+      afterEach(function() {
+        bmp.onload.verify();
+        bmp.onerror.verify();
+        server.restore();
+      });
+
+      it('calls .onload on success', function() {
+        server.respondWith('GET', 'someUrl',
+          [200, { 'Content-Type': 'application/json' }, '[{ "data": 123 }]']);
+        bmp = gbitmap_create('someUrl');
+        expect(bmp.status).to.equal('loading');
+
+        bmp.onload = sinon.expectation.create('onload').once();
+        bmp.onerror = sinon.expectation.create('onerror').never();
+
+        server.respond();
+        expect(bmp.status).to.equal('loaded');
+      });
+
+      it('calls .onerror on failure', function() {
+        bmp = gbitmap_create('someUrl');
+        expect(bmp.status).to.equal('loading');
+
+        bmp.onload = sinon.expectation.create('onload').never();
+        bmp.onerror = sinon.expectation.create('onerror').once();
+
+        server.respond();
+        expect(bmp.status).to.equal('error'); // 404
+      });
+    });
+
   });
 
   describe('gbitmap_create_with_data', function() {
