@@ -456,11 +456,116 @@ Rocky.addGeneratedSymbols = function(obj) {
     var returnRectPTR = emx_grect_centered_from_polar(rect.x, rect.y, rect.w, rect.h,
                               scale_mode, angle, size.w, size.h);
     var returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
-                   obj.module.getValue(returnRectPTR + 2, 'i16'),
-                   obj.module.getValue(returnRectPTR + 4, 'i16'),
-                   obj.module.getValue(returnRectPTR + 6, 'i16'));
+                               obj.module.getValue(returnRectPTR + 2, 'i16'),
+                               obj.module.getValue(returnRectPTR + 4, 'i16'),
+                               obj.module.getValue(returnRectPTR + 6, 'i16'));
     return returnRect;
   };
+
+  // GCompOp
+  obj.GCompOpAssign = 0;
+  obj.GCompOpAssignInverted = 1;
+  obj.GCompOpOr = 2;
+  obj.GCompOpAnd = 3;
+  obj.GCompOpClear = 4;
+  obj.GCompOpSet = 5;
+
+  // void graphics_context_set_compositing_mode(GContext* ctx, GCompOp mode);
+  obj.graphics_context_set_compositing_mode =
+      obj.module.cwrap('graphics_context_set_compositing_mode', 'void',
+                      ['number', 'number']);
+
+  // GBitmapFormat
+  obj.GBitmapFormat1Bit = 0;
+  obj.GBitmapFormat8Bit = 1;
+  obj.GBitmapFormat1BitPalette = 2;
+  obj.GBitmapFormat2BitPalette = 3;
+  obj.GBitmapFormat4BitPalette = 4;
+  obj.GBitmapFormat8BitCircular = 5;
+
+  // GBitmapFormat gbitmap_get_format(const GBitmap *bitmap);
+  var gbitmap_get_format = obj.module.cwrap('gbitmap_get_format', 'number',
+                                           ['number']);
+  obj.gbitmap_get_format = function(bitmap) {
+    try {
+      var cPtr = bitmap.captureCPointer();
+      if (!cPtr) {
+        return 0xff;
+      }
+      return gbitmap_get_format(cPtr);
+    } finally {
+      bitmap.releaseCPointer(cPtr);
+    }
+  };
+
+  // GRect gbitmap_get_bounds(const GBitmap *bitmap);
+  // GRect *emx_gbitmap_get_bounds(GBitmap *bitmap);
+  var emx_gbitmap_get_bounds = obj.module.cwrap('emx_gbitmap_get_bounds', 'number',
+                                               ['number']);
+  obj.gbitmap_get_bounds = function(bitmap) {
+    try {
+      var cPtr = bitmap.captureCPointer();
+      if (!cPtr) {
+        return obj.GRect([0, 0, 0, 0]);
+      }
+      var returnRectPTR = emx_gbitmap_get_bounds(cPtr);
+      return obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
+                       obj.module.getValue(returnRectPTR + 2, 'i16'),
+                       obj.module.getValue(returnRectPTR + 4, 'i16'),
+                       obj.module.getValue(returnRectPTR + 6, 'i16'));
+    } finally {
+      bitmap.releaseCPointer(cPtr);
+    }
+  };
+
+  // void emx_graphics_draw_bitmap_in_rect(GContext *ctx, const GBitmap *bitmap,
+  //                                       int16_t rect_x, int16_t rect_y,
+  //                                       int16_t rect_w, int16_t rect_h);
+  var emx_graphics_draw_bitmap_in_rect =
+      obj.module.cwrap('emx_graphics_draw_bitmap_in_rect', 'void',
+                      ['number', 'number', 'number', 'number', 'number', 'number']);
+
+  obj.graphics_draw_bitmap_in_rect = function(ctx, bitmap, rect) {
+    rect = obj.GRect(rect);
+    try {
+      var cPtr = bitmap.captureCPointer();
+      if (!cPtr) {
+        return;
+      }
+      emx_graphics_draw_bitmap_in_rect(ctx, cPtr, rect.x, rect.y, rect.w, rect.h);
+    } finally {
+      bitmap.releaseCPointer(cPtr);
+    }
+  };
+
+  // void graphics_draw_rotated_bitmap(GContext* ctx, GBitmap *src,
+  //                                   GPoint src_ic, int rotation, GPoint dest_ic);
+  // void emx_graphics_draw_rotated_bitmap(GContext *ctx, GBitmap *src,
+  //                                       int16_t src_x, int16_t src_y,
+  //                                       int rotation,
+  //                                       int16_t dest_x, int16_t dest_y);
+  var emx_graphics_draw_rotated_bitmap =
+      obj.module.cwrap('emx_graphics_draw_rotated_bitmap', 'void',
+                      ['number', 'number', 'number', 'number',
+                       'number', 'number', 'number']);
+  obj.graphics_draw_rotated_bitmap = function(ctx, bitmap, src, rotation, dest) {
+    src = obj.GPoint(src);
+    dest = obj.GPoint(dest);
+    try {
+      var cPtr = bitmap.captureCPointer();
+      if (!cPtr) {
+        return;
+      }
+      var TRIG_MAX_ANGLE = 0x10000;
+      rotation = (rotation * TRIG_MAX_ANGLE) / (Math.PI * 2);
+      emx_graphics_draw_rotated_bitmap(ctx, cPtr, src.x, src.y, rotation,
+                                       dest.x, dest.y);
+    } finally {
+      bitmap.releaseCPointer(cPtr);
+    }
+  };
+
+  return [];
 };
 
 // export to enable unit tests

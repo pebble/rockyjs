@@ -61,6 +61,9 @@ Rocky.bindCanvas = function(canvas, options) {
       binding.graphics_context_set_stroke_width(graphicsContext, 1);
       binding.graphics_context_set_antialiased(graphicsContext, true);
 
+      binding.graphics_context_set_compositing_mode(graphicsContext,
+                                                    binding.GCompOpSet);
+
       binding.update_proc(graphicsContext, bounds);
       binding.render_framebuffer(canvasCtx);
     },
@@ -119,8 +122,8 @@ Rocky.bindCanvas = function(canvas, options) {
 
   // will enhance the binding object by various function
   // from ./symbols-*.js of this folder
-  Rocky.addGeneratedSymbols(binding);
-  Rocky.addManualSymbols(binding);
+  non_c_binding_keys = non_c_binding_keys.concat(Rocky.addGeneratedSymbols(binding));
+  non_c_binding_keys = non_c_binding_keys.concat(Rocky.addManualSymbols(binding));
 
   // useful if clients only have a single Rocky instance
   Rocky.activeBinding = binding;
