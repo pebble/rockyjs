@@ -5,6 +5,7 @@ global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var symbols = require('../../src/symbols-manual.js').symbols;
 var expect = require('chai').expect;
 var sinon = require('sinon');
+global.atob = require('atob');
 
 describe('GBitmap', function() {
 
@@ -31,15 +32,33 @@ describe('GBitmap', function() {
       expect(bmp.releaseCPointer).to.be.a('function');
     });
 
-    it('implements captureCPointer with Data and module', function() {
+    it('implements captureCPointer for pbi', function() {
       var bmp = gbitmap_create();
       bmp.data = 'some data';
       sandbox.mock(symbols.Data)
         .expects('captureCPointerWithData').once().withArgs('some data')
-        .returns(123);
+        .returns([123, 10]);
       sandbox.mock(symbols.module)
         .expects('ccall').once()
         .withArgs('gbitmap_create_with_data', 'number', ['number'], [123])
+        .returns(456);
+
+      expect(bmp.captureCPointer()).to.equal(456);
+      expect(bmp.dataPtr).to.equal(123);
+      expect(bmp.bmpPtr).to.equal(456);
+    });
+
+    it('implements captureCPointer for png', function() {
+      var bmp = gbitmap_create();
+      bmp.data = 'some data';
+      bmp.dataFormat = 'png';
+      sandbox.mock(symbols.Data)
+        .expects('captureCPointerWithData').once().withArgs('some data')
+        .returns([123, 10]);
+      sandbox.mock(symbols.module)
+        .expects('ccall').once()
+        .withArgs('gbitmap_create_from_png_data', 'number',
+          ['number', 'number'], [123, 10])
         .returns(456);
 
       expect(bmp.captureCPointer()).to.equal(456);
@@ -71,7 +90,8 @@ describe('GBitmap', function() {
       expect(dataCallback).to.be.a('function');
 
       expect(bmp.status).to.equal('someInitialStatus');
-      dataCallback('new status', 'some data');
+      var base64encoded = 'c29tZSBkYXRh'; // "some data"
+      dataCallback('new status', {output: {data: base64encoded}});
       expect(bmp.status).to.equal('new status');
       expect(bmp.data).to.equal('some data');
     });
@@ -92,7 +112,10 @@ describe('GBitmap', function() {
 
       it('calls .onload on success', function() {
         server.respondWith('GET', 'someUrl',
-          [200, { 'Content-Type': 'application/json' }, '[{ "data": 123 }]']);
+          [200, { 'Content-Type': 'application/json' },
+          '{"output": {"data": "c29tZSBkYXRh", "outputFormat": "png"}}']);
+        // c29tZSBkYXRh is "some data" in base64
+
         bmp = gbitmap_create('someUrl');
         expect(bmp.status).to.equal('loading');
 
@@ -101,6 +124,8 @@ describe('GBitmap', function() {
 
         server.respond();
         expect(bmp.status).to.equal('loaded');
+        expect(bmp.data).to.equal('some data');
+        expect(bmp.dataFormat).to.equal('png');
       });
 
       it('calls .onerror on failure', function() {
@@ -114,7 +139,6 @@ describe('GBitmap', function() {
         expect(bmp.status).to.equal('error'); // 404
       });
     });
-
   });
 
   describe('gbitmap_create_with_data', function() {

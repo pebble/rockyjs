@@ -14,7 +14,7 @@
 
  */
 
-/*global Rocky:true, XMLHttpRequest:true */
+/*global Rocky:true, XMLHttpRequest:false, atob:false */
 
 if (typeof (Rocky) === 'undefined') {
   Rocky = {};
@@ -102,12 +102,12 @@ Rocky.addManualSymbols = function(obj) {
 
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url);
-      xhr.responseType = 'arraybuffer';
+      xhr.responseType = 'json';
       xhr.onload = function(e) {
         if (xhr.readyState === XMLHttpRequest.DONE) {
           var success = (xhr.status === 200);
           if (success) {
-            var data = new Int8Array(xhr.response);
+            var data = xhr.response;
             cb(this.status.loaded, data);
           } else {
             cb(this.status.error);
@@ -123,7 +123,7 @@ Rocky.addManualSymbols = function(obj) {
   obj.Data = {
     captureCPointerWithData: function(data) {
       if (!data) {
-        return 0;
+        return [0, 0];
       }
       var length = data.length;
       var ptr = obj.module._malloc(length);
@@ -132,19 +132,19 @@ Rocky.addManualSymbols = function(obj) {
       }
 
       for (var i = 0; i < data.length; i++) {
-        obj.module.setValue(ptr + i, data[i], 'i8');
+        var byte = (typeof data === 'string') ? data.charCodeAt(i) : data[i];
+        obj.module.setValue(ptr + i, byte, 'i8');
       }
 
-      return ptr;
+      return [ptr, length];
     },
     releaseCPointer: function(ptr) {
       obj.module._free(ptr);
     }
   };
 
-  var gbitmapSetStatusAndData = function(bmp, status, data) {
+  var gbitmapSetStatusAndCallEvents = function(bmp, status) {
     bmp.status = status;
-    bmp.data = data;
     if (status === obj.Resources.status.loaded && bmp.onload) {
       bmp.onload();
     } else
@@ -158,12 +158,20 @@ Rocky.addManualSymbols = function(obj) {
     var result = {
       obtainData: obtainData,
       captureCPointer: function() {
-        this.dataPtr = obj.Data.captureCPointerWithData(this.data);
-        if (!this.dataPtr) {
+
+        var dataAndSize = obj.Data.captureCPointerWithData(this.data);
+        this.dataPtr = dataAndSize[0];
+        var size = dataAndSize[1];
+        if (!this.dataPtr || !size) {
           return 0;
         }
-        this.bmpPtr = obj.module.ccall('gbitmap_create_with_data', 'number',
-                                      ['number'], [this.dataPtr]);
+        if (this.dataFormat === 'png') {
+          this.bmpPtr = obj.module.ccall('gbitmap_create_from_png_data', 'number',
+            ['number', 'number'], [this.dataPtr, size]);
+        } else {
+          this.bmpPtr = obj.module.ccall('gbitmap_create_with_data', 'number',
+            ['number'], [this.dataPtr]);
+        }
         return this.bmpPtr;
       },
       releaseCPointer: function() {
@@ -183,14 +191,19 @@ Rocky.addManualSymbols = function(obj) {
     return gbitmapCreate(function() {
       var bmp = this;
       return obj.Resources.load(url, function(status, data) {
-        return gbitmapSetStatusAndData(bmp, status, data);
+        var hasData = (data && data.output);
+        bmp.data = hasData ? atob(data.output.data) : undefined;
+        bmp.dataFormat = hasData ? data.output.outputFormat : undefined;
+        return gbitmapSetStatusAndCallEvents(bmp, status);
       });
     });
   };
 
   obj.gbitmap_create_with_data = function(data) {
     return gbitmapCreate(function() {
-      return gbitmapSetStatusAndData(this, obj.Resources.status.loaded, data);
+      this.data = data;
+      this.dataFormat = 'pbi';
+      return gbitmapSetStatusAndCallEvents(this, obj.Resources.status.loaded);
     });
   };
 
