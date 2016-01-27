@@ -84,7 +84,8 @@ describe('GBitmap', function() {
 
     it('reflects status and data according to Recources singleton', function() {
       var expectation = sandbox.mock(symbols.Resources)
-        .expects('load').once().withArgs('someUrl').returns('someInitialStatus');
+        .expects('load').once().withArgs({url: 'someUrl'})
+        .returns('someInitialStatus');
       var bmp = gbitmap_create('someUrl');
       var dataCallback = expectation.firstCall.args[1];
       expect(dataCallback).to.be.a('function');
@@ -162,10 +163,56 @@ describe('GBitmap', function() {
   });
 
   describe('Resources', function() {
-    it('can handle a proxy', function() {
-      var config = {url: 'http://pebble.github.io/rockyjs/img/forkBanner.png', proxy: 'http://proxy.com'};
-      var url = symbols.Resources.constructURL(config);
-      expect(url).to.equal('http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz');
+    describe('constructURL', function() {
+      it('can handle errorneous cases', function() {
+        var url = symbols.Resources.constructURL(undefined);
+        expect(url).to.be.undefined;
+
+        url = symbols.Resources.constructURL({});
+        expect(url).to.be.undefined;
+      });
+
+      it('can handle a proxy', function() {
+        var config = {
+          url: 'http://foo.com?bar=baz',
+          proxy: 'http://proxy.com'
+        };
+        var url = symbols.Resources.constructURL(config);
+        expect(url).to.equal(
+          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+        );
+      });
+
+      it('can handle a default proxy and URL', function() {
+        expect(symbols.Resources.defaultProxy).to.be.undefined;
+        var url = symbols.Resources.constructURL({url: 'http://foo.com?bar=baz'});
+        expect(url).to.equal('http://foo.com?bar=baz');
+
+        symbols.Resources.defaultProxy = 'http://proxy.com';
+        url = symbols.Resources.constructURL({url: 'http://foo.com?bar=baz'});
+        expect(url).to.equal(
+          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+        );
+
+        url = symbols.Resources.constructURL({
+          url: 'http://foo.com?bar=baz',
+          proxy: 'http://overrulingProxy.com'
+        });
+        expect(url).to.equal(
+          'http://overrulingProxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+        );
+
+        delete symbols.Resources.defaultProxy;
+      });
+
+      it('prefers dataURL over anything else', function() {
+        var url = symbols.Resources.constructURL({
+          dataURL: 'dataURL',
+          url: 'http://foo.com?bar=baz',
+          proxy: 'http://proxy.com'
+        });
+        expect(url).to.equal('dataURL');
+      });
     });
   });
 

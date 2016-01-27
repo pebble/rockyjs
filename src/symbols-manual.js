@@ -96,21 +96,30 @@ Rocky.addManualSymbols = function(obj) {
     },
 
     constructURL: function(config) {
-      if (!config.proxy) {
+      if (!config) {
+        return undefined;
+      }
+
+      if (config.dataURL) {
+        return config.dataURL;
+      }
+
+      var proxy = config.proxy || this.defaultProxy;
+      if (!proxy) {
         return config.url;
       }
 
-      return config.proxy + "?url=" + encodeURIComponent(config.url);
+      return proxy + '?url=' + encodeURIComponent(config.url);
     },
 
     load: function(config, cb) {
       var isObject = (typeof config === 'object');
       config = isObject ? config : {url: config};
-      if (!config.url || typeof cb !== 'function') {
+      var url = this.constructURL(config);
+
+      if (!url || typeof cb !== 'function') {
         return this.status.error;
       }
-
-      var url = this.constructURL(config);
 
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
@@ -224,6 +233,7 @@ Rocky.addManualSymbols = function(obj) {
     });
   };
 
+  return ['Data', 'Resources'];
 };
 
 // export to enable unit tests

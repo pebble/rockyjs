@@ -579,6 +579,7 @@ Rocky.addGeneratedSymbols = function(obj) {
     }
   };
 
+  return [];
 };
 
 // export to enable unit tests
