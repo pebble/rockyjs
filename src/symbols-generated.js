@@ -572,6 +572,8 @@ Rocky.addGeneratedSymbols = function(obj) {
       if (!cPtr) {
         return;
       }
+      var TRIG_MAX_ANGLE = 0x10000;
+      rotation = (rotation * TRIG_MAX_ANGLE) / (Math.PI * 2);
       emx_graphics_draw_rotated_bitmap(ctx, cPtr, src.x, src.y, rotation,
                                        dest.x, dest.y);
     } finally {
