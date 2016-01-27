@@ -1,4 +1,5 @@
 /*eslint "no-unused-expressions": 0*/
+/*eslint max-len: [2, 100, 4]*/
 /* globals describe:false, it:false, beforeEach:false, afterEach:false */
 
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
@@ -179,7 +180,7 @@ describe('GBitmap', function() {
         };
         var url = symbols.Resources.constructURL(config);
         expect(url).to.equal(
-          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+          'http://proxy.com/convert/image?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
         );
       });
 
@@ -191,7 +192,7 @@ describe('GBitmap', function() {
         symbols.Resources.defaultProxy = 'http://proxy.com';
         url = symbols.Resources.constructURL({url: 'http://foo.com?bar=baz'});
         expect(url).to.equal(
-          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+          'http://proxy.com/convert/image?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
         );
 
         url = symbols.Resources.constructURL({
@@ -199,7 +200,7 @@ describe('GBitmap', function() {
           proxy: 'http://overrulingProxy.com'
         });
         expect(url).to.equal(
-          'http://overrulingProxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+          'http://overrulingProxy.com/convert/image?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
         );
 
         delete symbols.Resources.defaultProxy;

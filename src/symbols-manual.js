@@ -109,7 +109,7 @@ Rocky.addManualSymbols = function(obj) {
         return config.url;
       }
 
-      return proxy + '?url=' + encodeURIComponent(config.url);
+      return proxy + '/convert/image?url=' + encodeURIComponent(config.url);
     },
 
     load: function(config, cb) {
