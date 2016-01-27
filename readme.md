@@ -31,6 +31,8 @@ We're interested in seeing what kinds of tools developers create when they have 
 
 If you create something interesting with Rocky.js, add it to the examples folder, submit a PR, and we'll take a look. This is a great opportunity to *directly* influence how Pebble approaches JavaScript documentation and API design.
 
+You can see what community members have built with Rocky.js on the [Community Examples](examples/community.html) page.
+
 ## Learn More
 
 If you're interested in staying up to date with our Rocky.js development efforts, you can subscribe to our [JSApps newsletter](http://pbl.io/jsapps), and follow [@pebbledev](https://twitter.com/pebbledev) (or simply star this repo).
