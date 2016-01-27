@@ -161,4 +161,12 @@ describe('GBitmap', function() {
     });
   });
 
+  describe('Resources', function() {
+    it('can handle a proxy', function() {
+      var config = {url: 'http://pebble.github.io/rockyjs/img/forkBanner.png', proxy: 'http://proxy.com'};
+      var url = symbols.Resources.constructURL(config);
+      expect(url).to.equal('http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz');
+    });
+  });
+
 });

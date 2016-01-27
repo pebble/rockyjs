@@ -95,13 +95,25 @@ Rocky.addManualSymbols = function(obj) {
       loading: 'loading', error: 'error', loaded: 'loaded'
     },
 
-    load: function(url, cb) {
-      if (!url || typeof cb !== 'function') {
+    constructURL: function(config) {
+      if (!config.proxy) {
+        return config.url;
+      }
+
+      return config.proxy + "?url=" + encodeURIComponent(config.url);
+    },
+
+    load: function(config, cb) {
+      var isObject = (typeof config === 'object');
+      config = isObject ? config : {url: config};
+      if (!config.url || typeof cb !== 'function') {
         return this.status.error;
       }
 
+      var url = this.constructURL(config);
+
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', url);
+      xhr.open('GET', url, true);
       xhr.responseType = 'json';
       xhr.onload = function(e) {
         if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -113,6 +125,9 @@ Rocky.addManualSymbols = function(obj) {
             cb(this.status.error);
           }
         }
+      }.bind(this);
+      xhr.onerror = function() {
+        cb(this.status.error);
       }.bind(this);
       xhr.send();
 
@@ -187,10 +202,12 @@ Rocky.addManualSymbols = function(obj) {
     return result;
   };
 
-  obj.gbitmap_create = function(url) {
+  obj.gbitmap_create = function(config) {
+    var isObject = (typeof config === 'object');
+    config = isObject ? config : {url: config};
     return gbitmapCreate(function() {
       var bmp = this;
-      return obj.Resources.load(url, function(status, data) {
+      return obj.Resources.load(config, function(status, data) {
         var hasData = (data && data.output);
         bmp.data = hasData ? atob(data.output.data) : undefined;
         bmp.dataFormat = hasData ? data.output.outputFormat : undefined;
