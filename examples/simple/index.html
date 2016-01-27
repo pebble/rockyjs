@@ -102,6 +102,8 @@
             proxy: 'http://delicious.dog/convert/image'});
 
         rocky.update_proc = function (ctx, bounds) {
+            graphics_draw_bitmap_in_rect(ctx, bmpWithData, [10, 10, 3*23, 2*25]);
+
             // this file might not load successfully, draw a placeholder beneath it
             if (bmpWithProxyURL.status != 'loaded') {
                 graphics_draw_rect(ctx, [2, 2, 149, 149]);
@@ -115,8 +117,6 @@
             } else {
                 graphics_draw_bitmap_in_rect(ctx, bmpWithURL, [10, 100, 2*23, 25]);
             }
-
-            graphics_draw_bitmap_in_rect(ctx, bmpWithData, [10, 10, 3*23, 2*25]);
 
             graphics_context_set_stroke_color(ctx, GColorRed);
             graphics_context_set_stroke_width(ctx, 10);
