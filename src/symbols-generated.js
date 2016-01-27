@@ -487,52 +487,36 @@ Rocky.addGeneratedSymbols = function(obj) {
   var gbitmap_get_format = obj.module.cwrap('gbitmap_get_format', 'number',
                                            ['number']);
   obj.gbitmap_get_format = function(bitmap) {
-    var format = 0xff;
-
     try {
       var cPtr = bitmap.captureCPointer();
       if (!cPtr) {
-        return;
+        return 0xff;
       }
-      format = gbitmap_get_format(cPtr);
+      return gbitmap_get_format(cPtr);
     } finally {
       bitmap.releaseCPointer(cPtr);
     }
-
-    return format;
   };
-
-  // uint8_t gbitmap_get_palette_size(GBitmapFormat format);
-  obj.gbitmap_get_palette_size =
-      obj.module.cwrap('gbitmap_get_palette_size', 'number', ['number']);
 
   // GRect gbitmap_get_bounds(const GBitmap *bitmap);
   // GRect *emx_gbitmap_get_bounds(GBitmap *bitmap);
   var emx_gbitmap_get_bounds = obj.module.cwrap('emx_gbitmap_get_bounds', 'number',
                                                ['number']);
   obj.gbitmap_get_bounds = function(bitmap) {
-    var returnRect = obj.GRect([0, 0, 0, 0]);
-
     try {
       var cPtr = bitmap.captureCPointer();
       if (!cPtr) {
-        return;
+        return obj.GRect([0, 0, 0, 0]);
       }
       var returnRectPTR = emx_gbitmap_get_bounds(cPtr);
-      returnRect = obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
-                             obj.module.getValue(returnRectPTR + 2, 'i16'),
-                             obj.module.getValue(returnRectPTR + 4, 'i16'),
-                             obj.module.getValue(returnRectPTR + 6, 'i16'));
+      return obj.GRect(obj.module.getValue(returnRectPTR, 'i16'),
+                       obj.module.getValue(returnRectPTR + 2, 'i16'),
+                       obj.module.getValue(returnRectPTR + 4, 'i16'),
+                       obj.module.getValue(returnRectPTR + 6, 'i16'));
     } finally {
       bitmap.releaseCPointer(cPtr);
     }
-
-    return returnRect;
   };
-
-  // GBitmap* gbitmap_create_with_data(const uint8_t *data);
-  obj.gbitmap_create_with_data =
-      obj.module.cwrap('gbitmap_create_with_data', 'number', ['number']);
 
   // void emx_graphics_draw_bitmap_in_rect(GContext *ctx, const GBitmap *bitmap,
   //                                       int16_t rect_x, int16_t rect_y,
