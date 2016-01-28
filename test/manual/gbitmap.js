@@ -113,7 +113,7 @@ describe('GBitmap', function() {
       });
 
       it('calls .onload on success', function() {
-        server.respondWith('GET', 'someUrl',
+        server.respondWith('GET', symbols.Resources.defaultProxy + '/convert/image?url=someUrl',
           [200, { 'Content-Type': 'application/json' },
           '{"output": {"data": "c29tZSBkYXRh", "outputFormat": "png"}}']);
         // c29tZSBkYXRh is "some data" in base64
@@ -164,6 +164,14 @@ describe('GBitmap', function() {
   });
 
   describe('Resources', function() {
+    beforeEach(function() {
+      this.defaultProxy = symbols.Resources.defaultProxy;
+    });
+
+    afterEach(function() {
+      symbols.Resources.defaultProxy = this.defaultProxy;
+    });
+
     describe('constructURL', function() {
       it('can handle errorneous cases', function() {
         var url = symbols.Resources.constructURL(undefined);
@@ -171,6 +179,10 @@ describe('GBitmap', function() {
 
         url = symbols.Resources.constructURL({});
         expect(url).to.be.undefined;
+      });
+
+      it('has a default proxy', function() {
+        expect(symbols.Resources.defaultProxy).to.equal('http://butkus.pebbledev.com');
       });
 
       it('can handle a proxy', function() {
@@ -185,7 +197,7 @@ describe('GBitmap', function() {
       });
 
       it('can handle a default proxy and URL', function() {
-        expect(symbols.Resources.defaultProxy).to.be.undefined;
+        delete symbols.Resources.defaultProxy;
         var url = symbols.Resources.constructURL({url: 'http://foo.com?bar=baz'});
         expect(url).to.equal('http://foo.com?bar=baz');
 
