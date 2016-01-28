@@ -125,9 +125,9 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Standard JS/HTML5 API</td>
         <td>Use [BatteryStatus API](https://developer.mozilla.org/en-US/docs/Web/API/Battery_Status_API)</td>
     </tr>
-    <tr class="planned">
+    <tr class="implemented">
         <td>[Bitmap](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#gbitmap_get_bytes_per_row)</td>
-        <td>Planned</td>
+        <td>Implemented</td>
         <td></td>
     </tr>
     <tr class="planned">
@@ -175,10 +175,10 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Planned</td>
         <td></td>
     </tr>
-    <tr class="partial">
+    <tr class="implemented">
         <td>[Drawing Primitives](https://developer.pebble.com/docs/c/Graphics/Drawing_Primitives/)</td>
-        <td>Partial</td>
-        <td>Bitmap and framebuffer APIs not currently implemented</td>
+        <td>Implemented</td>
+        <td>Framebuffer APIs will not be part of Rocky.js</td>
     </tr>
     <tr class="planned">
         <td>[Drawing Text](https://developer.pebble.com/docs/c/Graphics/Drawing_Text/)</td>
