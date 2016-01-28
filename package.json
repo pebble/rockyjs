@@ -2,7 +2,7 @@
     "name": "rocky.js",
     "title": "Run Pebble code in the browser",
     "version": "0.2.0",
-    "main": "dist/rocky.js",
+    "main": "build/dist/rocky.js",
     "scripts": {
         "test": "grunt test"
     },

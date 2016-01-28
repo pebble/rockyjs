@@ -132,7 +132,7 @@ module.exports = function(grunt) {
         modify_json: {
             options: {
                 fields: {
-                    main: '<%=rockyjs_path%>'
+                    main: 'build/<%=rockyjs_path%>'
                 },
                 indent: 4
             },
