@@ -203,6 +203,7 @@ Rocky.addManualSymbols = function(obj) {
   };
 
   obj.Resources = {
+    defaultProxy: 'http://butkus.pebbledev.com',
     status: {
       loading: 'loading', error: 'error', loaded: 'loaded'
     },
@@ -214,6 +215,10 @@ Rocky.addManualSymbols = function(obj) {
 
       if (config.dataURL) {
         return config.dataURL;
+      }
+
+      if (!config.url) {
+        return undefined;
       }
 
       var proxy = config.proxy || this.defaultProxy;
