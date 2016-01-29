@@ -238,6 +238,30 @@ Rocky.addManualSymbols = function(obj) {
     });
   };
 
+  obj.gpath_create = function(config) {
+    // handle case where config is an array
+    if (!('points' in config)) {
+      config = {points: config};
+    }
+    config.points = config.points.map(function(pt) {return obj.GPoint(pt);});
+    config.offset = obj.GPoint(config.offset || [0, 0]);
+    config.rotation = config.rotation || 0;
+    config.captureCPointer = function() {};
+    config.releaseCPointer = function() {};
+
+    return config;
+  };
+
+  //void gpath_rotate_to(GPath *path, int32_t angle);
+  //void gpath_move_to(GPath *path, GPoint point);
+  obj.gpath_rotate_to = function(path, angle) {
+    path.rotation = angle;
+  };
+
+  obj.gpath_move_to = function(path, point) {
+    path.offset = obj.GPoint(point);
+  };
+
   return ['Data', 'Resources'];
 };
 
