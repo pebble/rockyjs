@@ -32,7 +32,7 @@ describe('GPath', function() {
     });
 
     it('creates an object from array of points', function() {
-      var path = gpath_create({points: [[1, 2]], offset: [2, 3], rotation:123});
+      var path = gpath_create({points: [[1, 2]], offset: [2, 3], rotation: 123});
       expect(path).to.have.property('points').eql([{x: 1, y: 2}]);
       expect(path).to.have.property('offset').eql({x: 2, y: 3});
       expect(path).to.have.property('rotation').eql(123);

@@ -246,18 +246,43 @@ Rocky.addManualSymbols = function(obj) {
     config.points = config.points.map(function(pt) {return obj.GPoint(pt);});
     config.offset = obj.GPoint(config.offset || [0, 0]);
     config.rotation = config.rotation || 0;
-    config.captureCPointer = function() {};
-    config.releaseCPointer = function() {};
+    config.captureCPointer = function() {
+      // we're describing a GPath structure followed by the actual points
+      // typedef struct GPath {
+      //   uint32_t num_points; // 0
+      //   GPoint *points;      // 4
+      //   int32_t rotation;    // 8
+      //   GPoint offset;       // 12
+      // } GPath;               // 16+ actual points
+      var needed_bytes = 16 + this.points.length * 4;
+      var ptr = obj.module._malloc(needed_bytes);
+      obj.module.setValue(ptr + 0, this.points.length, 'i32');
+      obj.module.setValue(ptr + 4, ptr + 16, 'i32');
+      var TRIG_MAX_ANGLE = 0x10000;
+      var rotation = (this.rotation * TRIG_MAX_ANGLE) / (Math.PI * 2);
+      obj.module.setValue(ptr + 8, rotation, 'i32');
+      obj.module.setValue(ptr + 12 + 0, this.offset.x, 'i16');
+      obj.module.setValue(ptr + 12 + 2, this.offset.y, 'i16');
+      for (var i = 0; i < this.points.length; i++) {
+        var pt = this.points[i];
+        obj.module.setValue(ptr + 16 + i * 4 + 0, pt.x, 'i16');
+        obj.module.setValue(ptr + 16 + i * 4 + 2, pt.y, 'i16');
+      }
+      return ptr;
+    };
+    config.releaseCPointer = function(ptr) {
+      obj.module._free(ptr);
+    };
 
     return config;
   };
 
-  //void gpath_rotate_to(GPath *path, int32_t angle);
-  //void gpath_move_to(GPath *path, GPoint point);
+  // void gpath_rotate_to(GPath *path, int32_t angle);
   obj.gpath_rotate_to = function(path, angle) {
     path.rotation = angle;
   };
 
+  // void gpath_move_to(GPath *path, GPoint point);
   obj.gpath_move_to = function(path, point) {
     path.offset = obj.GPoint(point);
   };

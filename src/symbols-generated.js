@@ -565,6 +565,33 @@ Rocky.addGeneratedSymbols = function(obj) {
     }
   };
 
+  // void gpath_draw_filled(GContext* ctx, GPath *path);
+  var gpath_draw_filled = obj.module.cwrap('gpath_draw_filled',
+                                           'void', ['number', 'number']);
+
+  // void gpath_draw_outline(GContext* ctx, GPath *path);
+  var gpath_draw_outline = obj.module.cwrap('gpath_draw_outline', 'void',
+                                            ['number', 'number']);
+
+  // void gpath_draw_outline_open(GContext* ctx, GPath* path);
+  var gpath_draw_outline_open = obj.module.cwrap('gpath_draw_outline_open', 'void',
+                                                 ['number', 'number']);
+
+  var create_gpath_func = function(func) {
+    return function(ctx, path) {
+      var cPtr = path.captureCPointer();
+      try {
+        func(ctx, cPtr);
+      } finally {
+        path.releaseCPointer(cPtr);
+      }
+    };
+  };
+
+  obj.gpath_draw_filled = create_gpath_func(gpath_draw_filled);
+  obj.gpath_draw_outline = create_gpath_func(gpath_draw_outline);
+  obj.gpath_draw_outline_open = create_gpath_func(gpath_draw_outline_open);
+
   return [];
 };
 
