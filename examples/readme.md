@@ -6,5 +6,6 @@ This folder contains a variety of examples designed to help you understand some 
  - [Interactive Documentation](interactive/index.html) – Interactive documentation for Pebble's C-API.
  - [TicToc](tictoc/index.html) – Implementation of a custom/extended API and basic watchface.
  - [GPath](gpath/index.html) – Shows how to use APIs around `GPath`
+ - [Text](text/index.html) – Shows how to draw text and use fonts
  - [Community Examples](community.html) - Additional examples built by community members.
  

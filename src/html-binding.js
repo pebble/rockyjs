@@ -61,6 +61,8 @@ Rocky.bindCanvas = function(canvas, options) {
       binding.graphics_context_set_stroke_width(graphicsContext, 1);
       binding.graphics_context_set_antialiased(graphicsContext, true);
 
+      binding.graphics_context_set_text_color(graphicsContext, binding.GColorBlack);
+
       binding.graphics_context_set_compositing_mode(graphicsContext,
                                                     binding.GCompOpSet);
 

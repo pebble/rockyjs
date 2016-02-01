@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Simple Example</title>
+
+    <!-- build:template
+    <script src="../../<%= rockyjs_path %>"></script>
+    /build -->
+    <!-- build:remove -->
+    <!-- this template/remove construct is a workaround as processhtml doesn't support variables for values -->
+    <script src="../../src/html-binding.js"></script>
+    <script src="../../src/symbols-manual.js"></script>
+    <script src="../../src/symbols-generated.js"></script>
+    <script src="../../src/transpiled.js"></script>
+    <!-- /build -->
+
+    <!-- build:css ../../css/bootstrap.min.css -->
+    <link href="../../html/css/bootstrap.min.css" rel="stylesheet">
+    <!-- /build -->
+    <!-- build:css ../../css/style.css -->
+    <link href="../../html/css/style.css" rel="stylesheet">
+    <!-- /build -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="../common/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>Text Example</h1>
+        <p class="lead">
+            This example demostrates the APIs around text rendering and fonts.
+        </p>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>    
+    </div>
+
+    <div class="col-md-6">
+        <h2>What's going on?</h2>
+        <p>
+            Similar to the <a href="../simple">simple example</a> it binds Rocky.js to a canvas, and update the output at a regular interval.
+        </p>
+        <p>
+            TODO: this needs some better explanation.
+        </p>
+    </div>
+    <!-- build:template
+    <%= github_banner %>
+    /build -->
+</div>
+</body>
+
+<script>
+    (function () {
+        var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+        // puts all C-symbols from rocky onto window.* so they can be used almost
+        // the same way you were using them in C
+        rocky.export_global_c_symbols();
+
+        var font1 = fonts_get_system_font(FONT_KEY_GOTHIC_18);
+        var font2 = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+        var font3 = fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT);
+
+        var value = 0;
+        rocky.update_proc = function (ctx, bounds) {
+            graphics_draw_text(ctx, "some text", font1, [0, 0, bounds.w, 40], 0, 0);
+            graphics_context_set_text_color(ctx, GColorRed);
+            graphics_draw_text(ctx, "more text", font2, [0, 20, bounds.w, 40], 0, 0);
+            graphics_context_set_text_color(ctx, GColorBlue);
+            graphics_draw_text(ctx, "and more", font3, [0, 40, bounds.w, 80], 0, 0);
+        };
+    })();
+</script>
+</html>

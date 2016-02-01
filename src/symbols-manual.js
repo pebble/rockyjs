@@ -287,6 +287,26 @@ Rocky.addManualSymbols = function(obj) {
     path.offset = obj.GPoint(point);
   };
 
+  obj.fonts_get_system_font = function(name) {
+    if (!name) {
+      return null;
+    }
+    var sysFont = obj.module.ccall('fonts_get_system_font', 'number',
+                                  ['string'], [name]);
+    if (!sysFont) {
+      return null;
+    }
+
+    return {
+      captureCPointer: function() {
+        return sysFont;
+      },
+      releaseCPointer: function() {
+        // nothing to do
+      }
+    };
+  };
+
   return ['Data', 'Resources'];
 };
 
