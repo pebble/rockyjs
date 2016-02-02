@@ -87,6 +87,12 @@ Rocky.addGeneratedSymbols = function(obj) {
       obj.module.cwrap('graphics_context_set_antialiased', 'void',
                       ['number', 'number']);
 
+  // void graphics_context_set_text_color(GContext* ctx, GColor color);
+  // void emx_graphics_context_set_text_color(GContext* ctx, uint8_t color);
+  obj.graphics_context_set_text_color =
+    obj.module.cwrap('emx_graphics_context_set_text_color', 'void',
+      ['number', 'number']);
+
   // GColor definitions
   obj.GColorBlack = 0xC0;
   obj.GColorOxfordBlue = 0xC1;
@@ -270,8 +276,8 @@ Rocky.addGeneratedSymbols = function(obj) {
   };
 
   // void grect_standardize(GRect *rect);
-  // void emx_grect_standardize(int16_t rect_origin_x, int16_t rect_origin_y,
-  //                int16_t rect_size_w, int16_t rect_size_h);
+  // GRect *emx_grect_standardize(int16_t rect_origin_x, int16_t rect_origin_y,
+  //                              int16_t rect_size_w, int16_t rect_size_h);
   var emx_grect_standardize = obj.module.cwrap('emx_grect_standardize', 'number',
                                                []);
   obj.grect_standardize = function(rect) {
@@ -284,10 +290,10 @@ Rocky.addGeneratedSymbols = function(obj) {
   };
 
   // void grect_clip(GRect *rect_to_clip, GRect *rect_clipper);
-  // void emx_grect_clip(int16_t to_clip_x, int16_t to_clip_y,
-  //                     int16_t to_clip_w, int16_t to_clip_h,
-  //                     int16_t clipper_x, int16_t clipper_y,
-  //                     int16_t clipper_w, int16_t clipper_h);
+  // GRect *emx_grect_clip(int16_t to_clip_x, int16_t to_clip_y,
+  //                       int16_t to_clip_w, int16_t to_clip_h,
+  //                       int16_t clipper_x, int16_t clipper_y,
+  //                       int16_t clipper_w, int16_t clipper_h);
   var emx_grect_clip = obj.module.cwrap('emx_grect_clip', 'number',
                      ['number', 'number', 'number', 'number',
                       'number', 'number', 'number', 'number']);
@@ -359,11 +365,11 @@ Rocky.addGeneratedSymbols = function(obj) {
   obj.GAlignBottomLeft = 0x8;
 
   // void grect_align(GRect *rect, GRect *inside_rect, GAlign alignment, bool clip);)
-  // void emx_grect_align(int16_t rect_x, int16_t rect_y,
-  //                      int16_t rect_w, int16_t rect_h,
-  //                      int16_t inside_x, int16_t inside_y,
-  //                      int16_t inside_w, int16_t inside_h,
-  //                      const GAlign alignment, const bool clip);
+  // GRect* emx_grect_align(int16_t rect_x, int16_t rect_y,
+  //                        int16_t rect_w, int16_t rect_h,
+  //                        int16_t inside_x, int16_t inside_y,
+  //                        int16_t inside_w, int16_t inside_h,
+  //                        const GAlign alignment, const bool clip);
   var emx_grect_align = obj.module.cwrap('emx_grect_align', 'number',
                                         ['number', 'number', 'number', 'number',
                                          'number', 'number', 'number', 'number',
@@ -591,6 +597,110 @@ Rocky.addGeneratedSymbols = function(obj) {
   obj.gpath_draw_filled = create_gpath_func(gpath_draw_filled);
   obj.gpath_draw_outline = create_gpath_func(gpath_draw_outline);
   obj.gpath_draw_outline_open = create_gpath_func(gpath_draw_outline_open);
+
+  // system font identifiers
+  obj.FONT_KEY_FONT_FALLBACK_INTERNAL = 'RESOURCE_ID_FONT_FALLBACK_INTERNAL';
+  obj.FONT_KEY_GOTHIC_18_BOLD = 'RESOURCE_ID_GOTHIC_18_BOLD';
+  obj.FONT_KEY_GOTHIC_24 = 'RESOURCE_ID_GOTHIC_24';
+  obj.FONT_KEY_GOTHIC_09 = 'RESOURCE_ID_GOTHIC_09';
+  obj.FONT_KEY_GOTHIC_14 = 'RESOURCE_ID_GOTHIC_14';
+  obj.FONT_KEY_GOTHIC_14_EMOJI = 'RESOURCE_ID_GOTHIC_14_EMOJI';
+  obj.FONT_KEY_GOTHIC_14_BOLD = 'RESOURCE_ID_GOTHIC_14_BOLD';
+  obj.FONT_KEY_GOTHIC_18 = 'RESOURCE_ID_GOTHIC_18';
+  obj.FONT_KEY_GOTHIC_18_EMOJI = 'RESOURCE_ID_GOTHIC_18_EMOJI';
+  obj.FONT_KEY_GOTHIC_24_BOLD = 'RESOURCE_ID_GOTHIC_24_BOLD';
+  obj.FONT_KEY_GOTHIC_24_EMOJI = 'RESOURCE_ID_GOTHIC_24_EMOJI';
+  obj.FONT_KEY_GOTHIC_28 = 'RESOURCE_ID_GOTHIC_28';
+  obj.FONT_KEY_GOTHIC_28_BOLD = 'RESOURCE_ID_GOTHIC_28_BOLD';
+  obj.FONT_KEY_GOTHIC_28_EMOJI = 'RESOURCE_ID_GOTHIC_28_EMOJI';
+  obj.FONT_KEY_BITHAM_30_BLACK = 'RESOURCE_ID_BITHAM_30_BLACK';
+  obj.FONT_KEY_BITHAM_42_BOLD = 'RESOURCE_ID_BITHAM_42_BOLD';
+  obj.FONT_KEY_BITHAM_42_LIGHT = 'RESOURCE_ID_BITHAM_42_LIGHT';
+  obj.FONT_KEY_BITHAM_42_MEDIUM_NUMBERS = 'RESOURCE_ID_BITHAM_42_MEDIUM_NUMBERS';
+  obj.FONT_KEY_BITHAM_34_MEDIUM_NUMBERS = 'RESOURCE_ID_BITHAM_34_MEDIUM_NUMBERS';
+  obj.FONT_KEY_BITHAM_34_LIGHT_SUBSET = 'RESOURCE_ID_BITHAM_34_LIGHT_SUBSET';
+  obj.FONT_KEY_BITHAM_18_LIGHT_SUBSET = 'RESOURCE_ID_BITHAM_18_LIGHT_SUBSET';
+  obj.FONT_KEY_ROBOTO_CONDENSED_21 = 'RESOURCE_ID_ROBOTO_CONDENSED_21';
+  obj.FONT_KEY_ROBOTO_BOLD_SUBSET_49 = 'RESOURCE_ID_ROBOTO_BOLD_SUBSET_49';
+  obj.FONT_KEY_DROID_SERIF_28_BOLD = 'RESOURCE_ID_DROID_SERIF_28_BOLD';
+  obj.FONT_KEY_LECO_20_BOLD_NUMBERS = 'RESOURCE_ID_LECO_20_BOLD_NUMBERS';
+  obj.FONT_KEY_LECO_26_BOLD_NUMBERS_AM_PM = 'RESOURCE_ID_LECO_26_BOLD_NUMBERS_AM_PM';
+  obj.FONT_KEY_LECO_32_BOLD_NUMBERS = 'RESOURCE_ID_LECO_32_BOLD_NUMBERS';
+  obj.FONT_KEY_LECO_36_BOLD_NUMBERS = 'RESOURCE_ID_LECO_36_BOLD_NUMBERS';
+  obj.FONT_KEY_LECO_38_BOLD_NUMBERS = 'RESOURCE_ID_LECO_38_BOLD_NUMBERS';
+  obj.FONT_KEY_LECO_42_NUMBERS = 'RESOURCE_ID_LECO_42_NUMBERS';
+  obj.FONT_KEY_LECO_28_LIGHT_NUMBERS = 'RESOURCE_ID_LECO_28_LIGHT_NUMBERS';
+  obj.FONT_KEY_FONT_FALLBACK = 'RESOURCE_ID_GOTHIC_14';
+
+  // GTextOverflowMode
+  obj.GTextOverflowModeWordWrap = 0;
+  obj.GTextOverflowModeTrailingEllipsis = 1;
+  obj.GTextOverflowModeFill = 2;
+
+  // GTextAlignment
+  obj.GTextAlignmentLeft = 0;
+  obj.GTextAlignmentCenter = 1;
+  obj.GTextAlignmentRight = 2;
+
+  // void graphics_draw_text(GContext *ctx, const char *text,
+  //   GFont const font, const GRect box,
+  //   const GTextOverflowMode overflow_mode, const GTextAlignment alignment,
+  //   GTextAttributes *text_attributes);
+  // void emx_graphics_draw_text(GContext *ctx, const char *text, GFont const font,
+  //   int16_t box_x, int16_t box_y, int16_t box_w, int16_t box_h,
+  //   const GTextOverflowMode overflow_mode, const GTextAlignment alignment,
+  //   GTextAttributes *text_attributes;
+  var emx_graphics_draw_text =
+    obj.module.cwrap('emx_graphics_draw_text', 'void',
+                     ['number', 'string', 'number', 'number', 'number',
+                      'number', 'number', 'number', 'number', 'number']);
+
+  obj.graphics_draw_text = function(ctx, text, font, box, overflowMode,
+                                    alignment) {
+    box = obj.GRect(box);
+    var cPtr = font.captureCPointer();
+    if (!cPtr) {
+      return;
+    }
+    try {
+      return emx_graphics_draw_text(ctx, text, cPtr, box.x, box.y, box.w, box.h,
+                                    overflowMode, alignment, null);
+    } finally {
+      font.releaseCPointer(cPtr);
+    }
+  };
+
+  // GSize graphics_text_layout_get_content_size(const char *text,
+  //   GFont const font, const GRect box, const GTextOverflowMode overflow_mode,
+  //   const GTextAlignment alignment);
+  // GSize *emx_graphics_text_layout_get_content_size_with_attributes(
+  //   char *text, GFont const font, int16_t box_x, int16_t box_y, int16_t box_w,
+  //   int16_t box_h, GTextOverflowMode overflow_mode, GTextAlignment alignment,
+  //   GTextAttributes *text_attributes);
+  var emx_graphics_text_layout_get_content_size_with_attributes =
+    obj.module.cwrap('emx_graphics_text_layout_get_content_size_with_attributes',
+      'void', ['string', 'number', 'number', 'number',
+        'number', 'number', 'number', 'number', 'number']);
+
+  obj.graphics_text_layout_get_content_size = function(
+      text, font, box, overflowMode, alignment) {
+    box = obj.GRect(box);
+    var cPtr = font.captureCPointer();
+    if (!cPtr) {
+      return {w: 0, h: 0};
+    }
+    try {
+      var returnSizePtr = emx_graphics_text_layout_get_content_size_with_attributes(
+        text, cPtr, box.x, box.y, box.w, box.h, overflowMode, alignment, null);
+
+      return {
+        w: obj.module.getValue(returnSizePtr, 'i16'),
+        h: obj.module.getValue(returnSizePtr + 2, 'i16')
+      };
+    } finally {
+      font.releaseCPointer(cPtr);
+    }
+  };
 
   return [];
 };
