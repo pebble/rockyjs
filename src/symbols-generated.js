@@ -632,6 +632,16 @@ Rocky.addGeneratedSymbols = function(obj) {
   obj.FONT_KEY_LECO_28_LIGHT_NUMBERS = 'RESOURCE_ID_LECO_28_LIGHT_NUMBERS';
   obj.FONT_KEY_FONT_FALLBACK = 'RESOURCE_ID_GOTHIC_14';
 
+  // GTextOverflowMode
+  obj.GTextOverflowModeWordWrap = 0;
+  obj.GTextOverflowModeTrailingEllipsis = 1;
+  obj.GTextOverflowModeFill = 2;
+
+  // GTextAlignment
+  obj.GTextAlignmentLeft = 0;
+  obj.GTextAlignmentCenter = 1;
+  obj.GTextAlignmentRight = 2;
+
   // void graphics_draw_text(GContext *ctx, const char *text,
   //   GFont const font, const GRect box,
   //   const GTextOverflowMode overflow_mode, const GTextAlignment alignment,
