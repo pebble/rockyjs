@@ -807,7 +807,7 @@ Rocky.addGeneratedSymbols = function(obj) {
     rect = obj.GRect(rect);
     var TRIG_MAX_ANGLE = 0x10000;
     angle = (angle * TRIG_MAX_ANGLE) / (Math.PI * 2);
-    var returnPointPTR = emx_gpoint_from_polar(rect.x, rect.y, rect.w, rect.y,
+    var returnPointPTR = emx_gpoint_from_polar(rect.x, rect.y, rect.w, rect.h,
                                                scale_mode, angle);
     var returnPoint = obj.GPoint(obj.module.getValue(returnPointPTR, 'i16'),
                                  obj.module.getValue(returnPointPTR + 2, 'i16'));
