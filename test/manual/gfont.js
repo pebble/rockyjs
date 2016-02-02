@@ -139,8 +139,8 @@ describe('GFont', function() {
           .expects('ccall').twice();
         sandbox.mock(rocky.module.Runtime)
           .expects('removeFunction').twice()
-          .onCall(0).returns(456)
-          .onCall(1).returns(123);
+          .onCall(0).returns(456) // registering the get_size_cb
+          .onCall(1).returns(123); // registering the read_cb
 
         font.read_cb = 123;
         font.get_size_cb = 456;
