@@ -1,16 +1,74 @@
-#githubForkLink {
-    background: url(../img/forkBanner.png) no-repeat top right;
-    position: absolute;
-    display: block;
-    width: 149px;
-    height: 149px;
-    top: 0;
-    right: 0;
+@import url(https://fonts.googleapis.com/css?family=Bowlby+One+SC|Roboto:400,700,400italic);
 
-    /* Hide the text. */
-    text-indent: 100%;
-    white-space: nowrap;
-    overflow: hidden;
+body {
+  font: 16px/1.5 'Roboto', sans-serif;
+}
+
+body {
+  padding-bottom: 2em;
+}
+
+body > .container:first-child > .row:first-child > div > p:first-child {
+  display: none;
+}
+
+h1 {
+  font-size: 3em;
+}
+
+h1 + blockquote {
+  border: 0 none;
+  max-width: 600px;
+  text-align: center;
+  margin: 0 auto 3em;
+  padding: 0;
+}
+
+h1, h2 {
+  font-family: "Bowlby One SC";
+  overflow: hidden;
+  text-align: center;
+  margin: 2em 0 1em;
+  text-transform: uppercase;
+}
+
+h1:before, h1:after, h2:before, h2:after {
+  background-color: #ddd;
+  content: "";
+  display: inline-block;
+  height: 1px;
+  position: relative;
+  vertical-align: middle;
+  width: 50%;
+}
+
+h1:before, h2:before {
+  right: 0.5em;
+  margin-left: -50%;
+}
+
+h1:after, h2:after {
+  left: 0.5em;
+  margin-right: -50%;
+}
+
+h3 {
+  margin: 1em 0 0.5em;
+}
+
+#githubForkLink {
+  background: url(../img/forkBanner.png) no-repeat top right;
+  position: absolute;
+  display: block;
+  width: 149px;
+  height: 149px;
+  top: 0;
+  right: 0;
+
+  /* Hide the text. */
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 table.table-compatibility>tbody>tr.standard {
@@ -32,4 +90,3 @@ table.table-compatibility>tbody>tr.planned {
 table.table-compatibility>tbody>tr.not-planned {
   background-color: #f2dede
 }
-
