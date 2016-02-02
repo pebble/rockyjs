@@ -85,7 +85,8 @@ describe('GBitmap', function() {
 
     it('reflects status and data according to Recources singleton', function() {
       var expectation = sandbox.mock(symbols.Resources)
-        .expects('load').once().withArgs({url: 'someUrl', convertPath: '/convert/image'})
+        .expects('load').once()
+        .withArgs({url: 'someUrl', convertPath: '/convert/image', proxyArgs: []})
         .returns('someInitialStatus');
       var bmp = gbitmap_create('someUrl');
       var dataCallback = expectation.firstCall.args[1];
@@ -247,6 +248,74 @@ describe('GBitmap', function() {
           proxy: 'http://proxy.com'
         });
         expect(url).to.equal('dataURL');
+      });
+
+      it('adds proxy args', function() {
+        var url = symbols.Resources.constructURL({
+          url: 'http://foo.com?bar=baz',
+          proxy: 'http://proxy.com',
+          proxyArgs: []
+        });
+        expect(url).to.equal(
+          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+        );
+
+        url = symbols.Resources.constructURL({
+          url: 'http://foo.com?bar=baz',
+          proxy: 'http://proxy.com',
+          proxyArgs: [['a', 123], ['b', '3:2']]
+        });
+        expect(url).to.equal(
+          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz&a=123&b=3%3A2'
+        );
+      });
+    });
+
+    describe('config', function() {
+      it('fills config with empty proxy args', function() {
+        var config = symbols.Resources.config({
+          url: 'http://foo',
+          someArg: 123,
+          anotherArg: 456
+        }, 'convert/some');
+        expect(config).to.eql({
+          url: 'http://foo',
+          convertPath: 'convert/some',
+          anotherArg: 456,
+          someArg: 123,
+          proxyArgs: []
+        });
+      });
+
+      it('maps proxy args with values from config', function() {
+        var config = symbols.Resources.config({
+          url: 'http://foo',
+          someArg: 123,
+          anotherArg: 456
+        }, 'convert/some', ['someArg']);
+        expect(config).to.eql({
+          url: 'http://foo',
+          convertPath: 'convert/some',
+          anotherArg: 456,
+          someArg: 123,
+          proxyArgs: [['someArg', 123]]
+        });
+      });
+
+      it('keeps configs proxy args with values from config', function() {
+        var config = symbols.Resources.config({
+          url: 'http://foo',
+          someArg: 123,
+          anotherArg: 456,
+          proxyArgs: [['a', 'b']]
+        }, 'convert/some', ['someArg']);
+        expect(config).to.eql({
+          url: 'http://foo',
+          convertPath: 'convert/some',
+          anotherArg: 456,
+          someArg: 123,
+          proxyArgs: [['a', 'b']]
+        });
       });
     });
   });

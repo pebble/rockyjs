@@ -9,6 +9,7 @@ var addGeneratedSymbols =
   require('../../src/symbols-generated.js').addGeneratedSymbols;
 var expect = require('chai').expect;
 var sinon = require('sinon');
+global.atob = require('atob');
 
 describe('GFont', function() {
   var rocky;
@@ -82,16 +83,12 @@ describe('GFont', function() {
     var sandbox, font;
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
-      this.ccall = rocky.module.ccall;
-      this.addFunction = rocky.module.Runtime.addFunction;
       font = rocky.fonts_load_custom_font_with_data('some data');
     });
 
     afterEach(function() {
       sandbox.verify();
       sandbox.restore();
-      rocky.module.ccall = this.ccall;
-      rocky.module.Runtime.addFunction = this.addFunction;
     });
 
     describe('fonts_load_custom_font_with_data', function() {
@@ -160,6 +157,25 @@ describe('GFont', function() {
           ['fonts_unload_custom_font', 'void', ['number'], [321]]);
         expect(ccall.getCall(1).args).to.eql(
           ['emx_resources_remove_custom', 'void', ['number'], [789]]);
+      });
+    });
+
+    describe('fonts_load_custom_font', function() {
+      it('reflects status and data according to Recources singleton', function() {
+        var expectation = sandbox.mock(rocky.Resources)
+          .expects('load').once().withArgs({
+            url: 'someUrl', convertPath: '/convert/font', height: 123, proxyArgs: [['height', 123]]
+          })
+          .returns('someInitialStatus');
+        var font = rocky.fonts_load_custom_font({url: 'someUrl', height: 123});
+        var dataCallback = expectation.firstCall.args[1];
+        expect(dataCallback).to.be.a('function');
+
+        expect(font.status).to.equal('someInitialStatus');
+        var base64encoded = 'c29tZSBkYXRh'; // "some data"
+        dataCallback('new status', {output: {data: base64encoded}});
+        expect(font.status).to.equal('new status');
+        expect(font.data).to.equal('some data');
       });
     });
   });

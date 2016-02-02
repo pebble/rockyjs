@@ -90,19 +90,26 @@ Rocky.addManualSymbols = function(obj) {
     return obj.GRect(rect.x + insets.left, rect.y + insets.top, w, h);
   };
 
-  function resourceConfig(config, convertPath) {
-    var isObject = (typeof config === 'object');
-    config = isObject ? config : {url: config};
-    config.convertPath = config.convertPath || convertPath;
-    return config;
-  }
-
   obj.Resources = {
     defaultProxy: 'http://butkus.pebbledev.com',
     status: {
       loading: 'loading', error: 'error', loaded: 'loaded'
     },
+    config: function(config, convertPath, proxyArgs) {
+      var isObject = (typeof config === 'object');
+      config = isObject ? config : {url: config};
+      config.convertPath = config.convertPath || convertPath;
+      if (proxyArgs) {
+        proxyArgs = proxyArgs.filter(function(arg) {
+          return arg in config;
+        }).map(function(arg) {
+          return [arg, config[arg]];
+        });
+      }
+      config.proxyArgs = config.proxyArgs || proxyArgs || [];
 
+      return config;
+    },
     constructURL: function(config) {
       if (!config) {
         return undefined;
@@ -126,11 +133,16 @@ Rocky.addManualSymbols = function(obj) {
         path += config.convertPath;
       }
 
-      return path + '?url=' + encodeURIComponent(config.url);
+      var args = [['url', config.url]].concat(config.proxyArgs || []);
+      args = args.map(function(arg) {
+        return '' + arg[0] + '=' + encodeURIComponent(arg[1]);
+      }).join('&');
+
+      return path + '?' + args;
     },
 
     load: function(config, cb) {
-      config = resourceConfig(config);
+      config = obj.Resources.config(config);
       var url = this.constructURL(config);
 
       if (!url || typeof cb !== 'function') {
@@ -186,15 +198,15 @@ Rocky.addManualSymbols = function(obj) {
     }
   };
 
-  var gbitmapSetStatusAndCallEvents = function(bmp, status) {
-    bmp.status = status;
-    if (status === obj.Resources.status.loaded && bmp.onload) {
-      bmp.onload();
+  var resourceObjectSetStatusAndCallEvents = function(resObj, status) {
+    resObj.status = status;
+    if (status === obj.Resources.status.loaded && resObj.onload) {
+      resObj.onload();
     } else
-    if (status === obj.Resources.status.error && bmp.onerror) {
-      bmp.onerror();
+    if (status === obj.Resources.status.error && resObj.onerror) {
+      resObj.onerror();
     }
-    return bmp.status;
+    return resObj.status;
   };
 
   var gbitmapCreate = function(obtainData) {
@@ -231,14 +243,14 @@ Rocky.addManualSymbols = function(obj) {
   };
 
   obj.gbitmap_create = function(config) {
-    config = resourceConfig(config, '/convert/image');
+    config = obj.Resources.config(config, '/convert/image');
     return gbitmapCreate(function() {
       var bmp = this;
       return obj.Resources.load(config, function(status, data) {
         var hasData = (data && data.output);
         bmp.data = hasData ? atob(data.output.data) : undefined;
         bmp.dataFormat = hasData ? data.output.outputFormat : undefined;
-        return gbitmapSetStatusAndCallEvents(bmp, status);
+        return resourceObjectSetStatusAndCallEvents(bmp, status);
       });
     });
   };
@@ -247,7 +259,7 @@ Rocky.addManualSymbols = function(obj) {
     return gbitmapCreate(function() {
       this.data = data;
       this.dataFormat = 'pbi';
-      return gbitmapSetStatusAndCallEvents(this, obj.Resources.status.loaded);
+      return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
     });
   };
 
@@ -321,10 +333,9 @@ Rocky.addManualSymbols = function(obj) {
     };
   };
 
-  obj.fonts_load_custom_font_with_data = function(data) {
-    return {
-      status: obj.Resources.status.loaded,
-      data: data,
+  var customFontCreate = function(obtainData) {
+    var result = {
+      obtainData: obtainData,
       captureCPointer: function() {
         if (this.status !== obj.Resources.status.loaded || !this.data) {
           return 0;
@@ -371,6 +382,28 @@ Rocky.addManualSymbols = function(obj) {
         delete this.get_size_cb;
       }
     };
+
+    result.status = result.obtainData();
+    return result;
+  };
+
+  obj.fonts_load_custom_font_with_data = function(data) {
+    return customFontCreate(function() {
+      this.data = data;
+      return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
+    });
+  };
+
+  obj.fonts_load_custom_font = function(config) {
+    config = obj.Resources.config(config, '/convert/font', ['height']);
+    return customFontCreate(function() {
+      var font = this;
+      return obj.Resources.load(config, function(status, data) {
+        var hasData = (data && data.output);
+        font.data = hasData ? atob(data.output.data) : undefined;
+        return resourceObjectSetStatusAndCallEvents(font, status);
+      });
+    });
   };
 
   return ['Data', 'Resources'];
