@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Simple Example</title>
+
+    <script src="../../dist/rocky-dev.js"></script>
+    <link rel="stylesheet" href="../../css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../../css/style.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="../common/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>Text Example</h1>
+        <p class="lead">
+            This example demostrates the APIs around text rendering and fonts.
+        </p>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>    
+    </div>
+
+    <div class="col-md-6">
+        <h2>What's going on?</h2>
+        <p>
+            Similar to the <a href="../simple">simple example</a> it binds Rocky.js to a canvas, and update the output at a regular interval.
+        </p>
+        <p>
+            This example uses <code>fonts_get_system_font()</code> to load one of Pebble's system fonts,
+            as well as <code>fonts_load_custom_font()</code> and <code>fonts_load_custom_font_with_data()</code> to load custom fonts.
+            Read more about <a href="https://developer.pebble.com/guides/pebble-apps/resources/font-resources/#font-compatibility-note">custom fonts at the developer documentation page</a>.
+        </p>
+    </div>
+    <a id="githubForkLink" href="https://github.com/pebble/rockyjs.git">Fork me on GitHub</a>
+</div>
+</body>
+
+<script>
+    (function () {
+        var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+        // puts all C-symbols from rocky onto window.* so they can be used almost
+        // the same way you were using them in C
+        rocky.export_global_c_symbols();
+
+        // OSP-DIN at 10pt taken from https://github.com/pebble-examples/feature-custom-font
+        var fontData = atob("AxCNAK8l/wIKAQAAAAABAAAAAgAAAAMAAAAEAAAABQAAAAYAAAAHAAAACAAAAAkAAAAKAAAACwAAAAwAAAANAAAADgAAAA8AAAAQAAAAEQAAABIAAAATAAAAFAAAABUAAAAWAAAAFwAAABgAAAAZAAAAGgAAABsAAAAcAAAAHQAAAB4AAAAfAAAAIAEAACEBBAAiAQgAIwAMACQADAAlAQwAJgAQACcBEAAoARQAKQEYACoAHAArARwALAEgAC0BJAAuASgALwEsADABMAAxATQAMgE4ADMBPAA0AUAANQFEADYBSAA3AUwAOAFQADkBVAA6AVgAOwFcADwBYAA9AWQAPgFoAD8BbABAAXAAQQF0AEIBeABDAXwARAGAAEUBhABGAYgARwGMAEgBkABJAZQASgGYAEsBnABMAaAATQGkAE4BqABPAawAUAGwAFEBtABSAbgAUwK8AFQCxABVAcwAVgHQAFcB1ABYAdgAWQHcAFoB4ABbAeQAXAHoAF0B7ABeAfAAXwD0AGAB9ABhAfgAYgH8AGMBAAFkAQQBZQEIAWYBDAFnARABaAEUAWkBGAFqARwBawEgAWwBJAFtASgBbgEsAW8BMAFwATQBcQE4AXIBPAFzAUABdAFEAXUBSAF2AUwBdwFQAXgBVAF5AVgBegFcAXsBYAF8AWQBfQFoAX4BbAF/AHABgABwAYEAcAGCAHABgwBwAYQAcAGFAHABhgBwAYcAcAGIAHABiQBwAYoAcAGLAHABjABwAY0AcAGOAHABjwBwAZAAcAGRAHABkgBwAZMAcAGUAHABlQBwAZYAcAGXAHABmABwAZkAcAGaAHABmwBwAZwAcAGdAHABngBwAZ8AcAGgAHABoQFwAaIAdAGjAHQBpAB0AaUAdAGmAHQBpwB0AagAdAGpAHQBqgB0AasBdAGsAHgBrQB4Aa4AeAGvAHgBsAB4AbEAeAGyAHgBswB4AbQAeAG1AHgBtgB4AbcAeAG4AXgBuQB8AboAfAG7AXwBvACAAb0AgAG+AIABvwGAAcABhAHBAYgBwgGMAcMAkAHEAZABxQCUAcYBlAHHAJgByAGYAckBnAHKAaABywGkAcwBqAHNAawBzgGwAc8BtAHQALgB0QC4AdIBuAHTAbwB1ALAAdUByAHWAcwB1wHQAdgA1AHZAdQB2gHYAdsB3AHcAeAB3QDkAd4A5AHfAOQB4AHkAeEB6AHiAewB4wDwAeQB8AHlAPQB5gH0AecB+AHoAfwB6QEAAuoBBALrAQgC7AEMAu0BEALuARQC7wEYAvAAHALxABwC8gEcAvMBIAL0ASQC9QAoAvYBKAL3ACwC+AAsAvkBLAL6ADAC+wEwAvwANAL9ADQC/gA0AiAACQAhAA4AIgAXACUAIAAnADEAKAA6ACkARwArAFQALABhAC0AagAuAHMALwB8ADAAiQAxAJYAMgCjADMAsAA0AL0ANQDKADYA1wA3AOQAOADxADkA/gA6AAsBOwAUATwAHQE9ACYBPgAvAT8AOAFAAEkBQQBOAUIAXwFDAGwBRAB5AUUAhgFGAJMBRwCgAUgArQFJALoBSgDDAUsA0AFMAN0BTQDqAU4A+wFPAAgCUAAVAlEAIgJSADMCUwBAAlIBKwdUAE0CUwFAB1UAWgJWAGcCVwB4AlgAjQJZAJ4CWgCvAlsAvAJcAMkCXQDWAl4A4wJgAOwCYQD1AmIAAgNjAA8DZAAcA2UAKQNmADYDZwBDA2gAUANpAF0DagBmA2sAcwNsAIADbQCNA24AmgNvAKcDcAC0A3EAwQNyAM4DcwDbA3QA6AN1APUDdgACBHcADwR4ABwEeQApBHoANgR7AEMEfABQBH0AWQR+AGYEoQBvBKsAeAS4AIUEuwCOBL8AmwTAAKwEwQC9BMIAzgTEAN8ExgDwBMgABQXJABYFygAnBcsAOAXMAEkFzQBWBc4AYwXPAHQF0gCFBdMAlgXUAKcFryUEANUAuAXWAMUF1wDSBdkA2wXaAOwF2wD9BdwADgbgAB8G4QAsBuIAOQbkAEYG5gBTBucAYAboAG0G6QB6BuoAhwbrAJQG7AChBu0ArgbuALsG7wDMBvIA3QbzAOoG9AD3BvYABAf5ABEH+wAeBwAAAAAAAAAQBgAAABADAQsBBQP/BQAAAwEBBQUHAAAABQ0BBQdzrUUIIULrnAEAAAACAQEFBAMAAAADDQEFBbS2bZtEAAAAAw0ABQSZbNu2FgAAAAYGAQkIDPMzDAMAAAACAwEOBB8AAAAEAQEKBg8AAAACAQEPBAMAAAAEDwADBIjMRERmJiIDBQsBBQdu77333ns7AAMLAQUGvm3btgEAAAAFCwEFB25jzJgxZnwABQsBBQdub4wZxns7AAULAQUHxBhjxN4fYwAFCwEF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");
+        var font1 = fonts_load_custom_font_with_data(fontData);
+        var font2 = fonts_get_system_font(FONT_KEY_GOTHIC_18);
+        var font3 = fonts_load_custom_font({height: 40, url:"https://github.com/pebble-examples/feature-custom-font/raw/master/resources/fonts/osp-din/OSP-DIN.ttf"});
+
+        var value = 0;
+        rocky.update_proc = function (ctx, bounds) {
+            function calcX(phase) {
+                return 30 + Math.sin(value / 10 + phase) * 30;
+            }
+
+            graphics_draw_text(ctx, "font from data", font1, [calcX(0.5), 0, bounds.w, 40], 0, 0);
+            graphics_context_set_text_color(ctx, GColorRed);
+            graphics_draw_text(ctx, "system font", font2, [calcX(1), 20, bounds.w, 40], 0, 0);
+            graphics_context_set_text_color(ctx, GColorBlue);
+            graphics_draw_text(ctx, "online font", font3, [calcX(1.5), 40, bounds.w, 80], 0, 0);
+        };
+        setInterval(function () {
+            value += 1;
+            rocky.mark_dirty();
+        }, 1000 / 20);
+
+    })();
+</script>
+</html>
