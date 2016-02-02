@@ -85,7 +85,7 @@ describe('GBitmap', function() {
 
     it('reflects status and data according to Recources singleton', function() {
       var expectation = sandbox.mock(symbols.Resources)
-        .expects('load').once().withArgs({url: 'someUrl'})
+        .expects('load').once().withArgs({url: 'someUrl', convertPath: '/convert/image'})
         .returns('someInitialStatus');
       var bmp = gbitmap_create('someUrl');
       var dataCallback = expectation.firstCall.args[1];
@@ -192,6 +192,12 @@ describe('GBitmap', function() {
         };
         var url = symbols.Resources.constructURL(config);
         expect(url).to.equal(
+          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+        );
+
+        config.convertPath = '/convert/image';
+        url = symbols.Resources.constructURL(config);
+        expect(url).to.equal(
           'http://proxy.com/convert/image?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
         );
       });
@@ -200,11 +206,19 @@ describe('GBitmap', function() {
         delete symbols.Resources.defaultProxy;
         var url = symbols.Resources.constructURL({url: 'http://foo.com?bar=baz'});
         expect(url).to.equal('http://foo.com?bar=baz');
+        url = symbols.Resources.constructURL({
+          url: 'http://foo.com?bar=baz', convertPath: '/p'});
+        expect(url).to.equal('http://foo.com?bar=baz');
 
         symbols.Resources.defaultProxy = 'http://proxy.com';
         url = symbols.Resources.constructURL({url: 'http://foo.com?bar=baz'});
         expect(url).to.equal(
-          'http://proxy.com/convert/image?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+          'http://proxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+        );
+        url = symbols.Resources.constructURL({
+          url: 'http://foo.com?bar=baz', convertPath: '/p'});
+        expect(url).to.equal(
+          'http://proxy.com/p?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
         );
 
         url = symbols.Resources.constructURL({
@@ -212,7 +226,15 @@ describe('GBitmap', function() {
           proxy: 'http://overrulingProxy.com'
         });
         expect(url).to.equal(
-          'http://overrulingProxy.com/convert/image?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+          'http://overrulingProxy.com?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
+        );
+        url = symbols.Resources.constructURL({
+          url: 'http://foo.com?bar=baz',
+          proxy: 'http://overrulingProxy.com',
+          convertPath: '/p'
+        });
+        expect(url).to.equal(
+          'http://overrulingProxy.com/p?url=http%3A%2F%2Ffoo.com%3Fbar%3Dbaz'
         );
 
         delete symbols.Resources.defaultProxy;

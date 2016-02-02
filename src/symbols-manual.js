@@ -90,6 +90,13 @@ Rocky.addManualSymbols = function(obj) {
     return obj.GRect(rect.x + insets.left, rect.y + insets.top, w, h);
   };
 
+  function resourceConfig(config, convertPath) {
+    var isObject = (typeof config === 'object');
+    config = isObject ? config : {url: config};
+    config.convertPath = config.convertPath || convertPath;
+    return config;
+  }
+
   obj.Resources = {
     defaultProxy: 'http://butkus.pebbledev.com',
     status: {
@@ -114,12 +121,16 @@ Rocky.addManualSymbols = function(obj) {
         return config.url;
       }
 
-      return proxy + '/convert/image?url=' + encodeURIComponent(config.url);
+      var path = proxy;
+      if (config.convertPath) {
+        path += config.convertPath;
+      }
+
+      return path + '?url=' + encodeURIComponent(config.url);
     },
 
     load: function(config, cb) {
-      var isObject = (typeof config === 'object');
-      config = isObject ? config : {url: config};
+      config = resourceConfig(config);
       var url = this.constructURL(config);
 
       if (!url || typeof cb !== 'function') {
@@ -150,6 +161,9 @@ Rocky.addManualSymbols = function(obj) {
   };
 
   obj.Data = {
+    byteAt: function(data, i) {
+      return (typeof data === 'string') ? data.charCodeAt(i) : data[i];
+    },
     captureCPointerWithData: function(data) {
       if (!data) {
         return [0, 0];
@@ -161,7 +175,7 @@ Rocky.addManualSymbols = function(obj) {
       }
 
       for (var i = 0; i < data.length; i++) {
-        var byte = (typeof data === 'string') ? data.charCodeAt(i) : data[i];
+        var byte = obj.Data.byteAt(data, i);
         obj.module.setValue(ptr + i, byte, 'i8');
       }
 
@@ -217,8 +231,7 @@ Rocky.addManualSymbols = function(obj) {
   };
 
   obj.gbitmap_create = function(config) {
-    var isObject = (typeof config === 'object');
-    config = isObject ? config : {url: config};
+    config = resourceConfig(config, '/convert/image');
     return gbitmapCreate(function() {
       var bmp = this;
       return obj.Resources.load(config, function(status, data) {
@@ -298,11 +311,64 @@ Rocky.addManualSymbols = function(obj) {
     }
 
     return {
+      status: obj.Resources.status.loaded,
       captureCPointer: function() {
         return sysFont;
       },
       releaseCPointer: function() {
         // nothing to do
+      }
+    };
+  };
+
+  obj.fonts_load_custom_font_with_data = function(data) {
+    return {
+      status: obj.Resources.status.loaded,
+      data: data,
+      captureCPointer: function() {
+        if (this.status !== obj.Resources.status.loaded || !this.data) {
+          return 0;
+        }
+
+        this.read_cb = obj.module.Runtime.addFunction(
+          function(offset, buf, numBytes) {
+            for (var i = 0; (i < numBytes) && (i + offset < this.data.length); i++) {
+              var byte = obj.Data.byteAt(this.data, offset + i);
+              obj.module.setValue(buf + i, byte, 'i8');
+            }
+            return i;
+          }.bind(this)
+        );
+        this.get_size_cb = obj.module.Runtime.addFunction(function() {
+          console.log('get_size_cb');
+          return this.data.length;
+        }.bind(this));
+
+        // uint32_t emx_resources_register_custom(ResourceReadCb read_cb,
+        //                                        ResourceGetSizeCb get_size_cb);
+        this.resourceId = obj.module.ccall(
+            'emx_resources_register_custom', 'number',
+            ['number', 'number'], [this.read_cb, this.get_size_cb]);
+
+        // GFont fonts_load_custom_font(ResHandle handle);
+        return obj.module.ccall('fonts_load_custom_font',
+            'number', ['number'], [this.resourceId]);
+      },
+      releaseCPointer: function(fontId) {
+        // void fonts_unload_custom_font(GFont font);
+        obj.module.ccall('fonts_unload_custom_font', 'void',
+          ['number'], [fontId]);
+
+        // void emx_resources_remove_custom(uint32_t resource_id);
+        obj.module.ccall('emx_resources_remove_custom', 'void',
+          ['number'], [this.resourceId]);
+        delete this.resourceId;
+
+        obj.module.Runtime.removeFunction(this.read_cb);
+        delete this.read_cb;
+
+        obj.module.Runtime.removeFunction(this.get_size_cb);
+        delete this.get_size_cb;
       }
     };
   };
