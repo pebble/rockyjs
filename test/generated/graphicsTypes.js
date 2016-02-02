@@ -108,7 +108,7 @@ describe('Graphic Types', function() {
     it('works for common cases', function() {
       var pt = gpoint_from_polar([10, 20, 30, 40],
                                  rocky.GOvalScaleModeFitCircle, Math.PI);
-      expect(pt).to.eql({x: 24, y: 39});
+      expect(pt).to.eql({x: 24, y: 54});
     });
   });
   describe('grect_centered_from_polar', function() {
