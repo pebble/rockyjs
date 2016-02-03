@@ -193,8 +193,15 @@ Rocky.addManualSymbols = function(obj) {
 
       return [ptr, length];
     },
-    releaseCPointer: function(ptr) {
+    releaseCPointer: function(ptr, numReadBytes) {
+      var result = [];
+      numReadBytes = numReadBytes || 0;
+      for (var i = 0; i < numReadBytes; i++) {
+        var byte = obj.module.getValue(ptr + i, 'i8');
+        result.push(byte);
+      }
       obj.module._free(ptr);
+      return result;
     }
   };
 
@@ -403,6 +410,35 @@ Rocky.addManualSymbols = function(obj) {
         font.data = hasData ? atob(data.output.data) : undefined;
         return resourceObjectSetStatusAndCallEvents(font, status);
       });
+    });
+  };
+
+  var gdrawCommandCreate = function(obtainData) {
+    var result = {
+      obtainData: obtainData,
+      captureCPointer: function() {
+        var dataAndSize = obj.Data.captureCPointerWithData(this.data);
+        var dataPtr = dataAndSize[0];
+        var size = dataAndSize[1];
+        if (!dataPtr || !size) {
+          return 0;
+        }
+        return dataPtr;
+      },
+      releaseCPointer: function(ptr) {
+        this.data = obj.Data.releaseCPointer(ptr, this.data.length);
+      }
+    };
+
+    result.status = result.obtainData();
+
+    return result;
+  };
+
+  obj.gdraw_command_image_create_with_data = function(data) {
+    return gdrawCommandCreate(function() {
+      this.data = data.slice(8);
+      return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
     });
   };
 

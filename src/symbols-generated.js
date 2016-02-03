@@ -94,6 +94,7 @@ Rocky.addGeneratedSymbols = function(obj) {
       ['number', 'number']);
 
   // GColor definitions
+  obj.GColorClear = 0x00;
   obj.GColorBlack = 0xC0;
   obj.GColorOxfordBlue = 0xC1;
   obj.GColorDukeBlue = 0xC2;
@@ -701,6 +702,252 @@ Rocky.addGeneratedSymbols = function(obj) {
       font.releaseCPointer(cPtr);
     }
   };
+
+  obj.GDrawCommandTypeInvalid = 0;
+  obj.GDrawCommandTypePath = 1;
+  obj.GDrawCommandTypeCircle = 2;
+  obj.GDrawCommandTypePrecisePath = 3;
+
+  function firstArgCaptured(func, processResult) {
+    return function(obj) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      var cPtr = obj.captureCPointer();
+      try {
+        args.unshift(cPtr);
+        if (processResult) {
+          args.unshift(func);
+          return processResult.apply(undefined, args);
+        }
+        return func.apply(undefined, args);
+      } finally {
+        obj.releaseCPointer(cPtr);
+      }
+    };
+  }
+
+  function firstArgCapturedCWrap(funcName, returnType, argTypes, processResult) {
+    var func = obj.module.cwrap(funcName, returnType, argTypes);
+    return firstArgCaptured(func, processResult);
+  }
+
+  function addFirstArgCapturedCWrap(
+    funcName, returnType, argTypes, processResult) {
+    obj[funcName] = firstArgCapturedCWrap(
+      funcName, returnType, argTypes, processResult);
+  }
+
+  // void gdraw_command_image_draw(GContext * ctx,
+  //                               GDrawCommandImage *image, GPoint offset)
+  // void emx_gdraw_command_image_draw(GContext * ctx,
+  //                                   GDrawCommandImage * image,
+  //                                   int16_t offset_x, int16_t offset_y)
+  var emx_gdraw_command_image_draw =
+    obj.module.cwrap('emx_gdraw_command_image_draw', 'void',
+      ['number', 'number', 'number', 'number']);
+
+  obj.gdraw_command_image_draw = function(ctx, image, offset) {
+    offset = obj.GRect(offset);
+    var cPtr = image.captureCPointer();
+    if (!cPtr) {
+      return;
+    }
+    try {
+      emx_gdraw_command_image_draw(ctx, cPtr, offset.x, offset.y);
+    } finally {
+      image.releaseCPointer(cPtr);
+    }
+  };
+
+  // GSize gdraw_command_image_get_bounds_size(GDrawCommandImage * image)
+  // GSize *emx_gdraw_command_image_get_bounds_size(GDrawCommandImage *image);
+  var emx_gdraw_command_image_get_bounds_size =
+    obj.module.cwrap('emx_gdraw_command_image_get_bounds_size',
+      'number', ['number']);
+  obj.gdraw_command_image_get_bounds_size = function(image) {
+    var cPtr = image.captureCPointer();
+    if (!cPtr) {
+      return obj.GSize(0, 0);
+    }
+    try {
+
+      var returnSizePtr = emx_gdraw_command_image_get_bounds_size(cPtr);
+      return {
+        w: obj.module.getValue(returnSizePtr, 'i16'),
+        h: obj.module.getValue(returnSizePtr + 2, 'i16')
+      };
+    } finally {
+      image.releaseCPointer(cPtr);
+    }
+  };
+
+  // void gdraw_command_image_set_bounds_size(GDrawCommandImage *image, GSize size)
+  // void emx_gdraw_command_image_set_bounds_size(GDrawCommandImage *image,
+  //                                              int16_t size_w, int16_t size_h)
+  var emx_gdraw_command_image_set_bounds_size =
+    obj.module.cwrap('emx_gdraw_command_image_set_bounds_size', 'number',
+                     ['number', 'number', 'number']);
+  obj.gdraw_command_image_set_bounds_size = function(image, size) {
+    size = obj.GSize(size);
+    var cPtr = image.captureCPointer();
+    if (!cPtr) {
+      return;
+    }
+    try {
+      emx_gdraw_command_image_set_bounds_size(cPtr, size.w, size.h);
+    } finally {
+      image.releaseCPointer(cPtr);
+    }
+  };
+
+  var createNestedObject = function(outerObject, outerPtr, innerPtr) {
+    if (!innerPtr) {
+      return null;
+    }
+    var offset = innerPtr - outerPtr;
+    return {
+      captureCPointer: function() {
+        var ptr = outerObject.captureCPointer();
+        if (!ptr) {
+          return 0;
+        }
+        return ptr + offset;
+      },
+      releaseCPointer: function(ptr) {
+        return outerObject.releaseCPointer(ptr - offset);
+      }
+    };
+  };
+
+  // GDrawCommandList *gdraw_command_image_get_command_list(
+  //     GDrawCommandImage *image)
+  var gdraw_command_image_get_command_list =
+    obj.module.cwrap('gdraw_command_image_get_command_list', 'number',
+      ['number', 'number']);
+  obj.gdraw_command_image_get_command_list = function(image) {
+    var cPtr = image.captureCPointer();
+    try {
+      return createNestedObject(image, cPtr,
+        gdraw_command_image_get_command_list(cPtr)
+      );
+    } finally {
+      image.releaseCPointer(cPtr);
+    }
+  };
+
+  // uint32_t gdraw_command_list_get_num_commands(GDrawCommandList * command_list)
+  addFirstArgCapturedCWrap('gdraw_command_list_get_num_commands',
+    'number', ['number']);
+
+  // GDrawCommand *gdraw_command_list_get_command(
+  //     GDrawCommandList * command_list, uint16_t command_idx)
+  var gdraw_command_list_get_command =
+    obj.module.cwrap('gdraw_command_list_get_command', 'number',
+                     ['number', 'number']);
+  obj.gdraw_command_list_get_command = function(list, idx) {
+    var cPtr = list.captureCPointer();
+    try {
+      return createNestedObject(list, cPtr,
+        gdraw_command_list_get_command(cPtr, idx)
+      );
+    } finally {
+      list.releaseCPointer(cPtr);
+    }
+  };
+
+  // GDrawCommandType gdraw_command_get_type(GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_type',
+    'number', ['number']);
+
+  // void gdraw_command_set_stroke_width(
+  //     GDrawCommand *command, uint8_t stroke_width)
+  addFirstArgCapturedCWrap('gdraw_command_set_stroke_width',
+    'void', ['number', 'number']);
+
+  // uint8_t gdraw_command_get_stroke_width(
+  //     GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_stroke_width',
+    'number', ['number']);
+
+  // void gdraw_command_set_path_open(GDrawCommand *command,
+  //     bool path_open)
+  addFirstArgCapturedCWrap('gdraw_command_set_path_open',
+    'void', ['number', 'number']);
+
+  // bool gdraw_command_get_path_open(GDrawCommand * command)
+  addFirstArgCapturedCWrap('gdraw_command_get_path_open',
+    'bool', ['number'],
+    function(f, command) {return !!f(command);}
+  );
+
+  // void gdraw_command_set_hidden(GDrawCommand *command,
+  //     bool hidden)
+  addFirstArgCapturedCWrap('gdraw_command_set_hidden',
+    'void', ['number', 'number']);
+
+  // bool gdraw_command_get_hidden(GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_hidden',
+    'number', ['number'],
+    function(f, command) {return !!f(command);}
+  );
+
+  // uint16_t gdraw_command_get_num_points(GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_num_points',
+    'number', ['number']);
+
+  // void gdraw_command_set_radius(GDrawCommand * command, uint16_t radius)
+  addFirstArgCapturedCWrap('gdraw_command_set_radius',
+    'void', ['number', 'number']);
+
+  // uint16_t gdraw_command_get_radius(GDrawCommand * command)
+  addFirstArgCapturedCWrap('gdraw_command_get_radius',
+    'number', ['number']);
+
+  // void gdraw_command_set_fill_color(GDrawCommand * command, GColor fill_color)
+  // void emx_gdraw_command_set_fill_color(GDrawCommand *command,
+  //                                       uint8_t color_argb);
+  obj.gdraw_command_set_fill_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_set_fill_color', 'void', ['number', 'number']);
+
+  // GColor gdraw_command_get_fill_color(GDrawCommand * command)
+  // unsigned emx_gdraw_command_get_fill_color(GDrawCommand *command);
+  obj.gdraw_command_get_fill_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_get_fill_color', 'number', ['number']);
+
+  // void gdraw_command_set_stroke_color(GDrawCommand * command, GColor stroke_color)
+  // void emx_gdraw_command_set_stroke_color(GDrawCommand *command,
+  //                                         uint8_t stroke_color_argb);
+  obj.gdraw_command_set_stroke_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_set_stroke_color', 'void', ['number', 'number']);
+
+  // GColor gdraw_command_get_stroke_color(GDrawCommand * command)
+  // unsigned emx_gdraw_command_get_stroke_color(GDrawCommand *command);
+  obj.gdraw_command_get_stroke_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_get_stroke_color', 'number', ['number']);
+
+  // void gdraw_command_set_point(GDrawCommand * command,
+  //                              uint16_t point_idx, GPoint point)
+  // void emx_gdraw_command_set_point(GDrawCommand *command, uint16_t point_idx,
+  //                                  int16_t point_x, int16_t point_y);
+  obj.gdraw_command_set_point = firstArgCapturedCWrap(
+    'emx_gdraw_command_set_point ', 'void', ['number', 'number', 'number'],
+    function(f, command, point_idx, point) {
+      point = obj.GPoint(point);
+      return f(command, point_idx, point.x, point.y);
+    }
+  );
+
+  // GPoint gdraw_command_get_point(GDrawCommand * command, uint16_t point_idx)
+  // GPoint *emx_gdraw_command_get_point(GDrawCommand *command, uint16_t point_idx);
+  obj.gdraw_command_get_point = firstArgCapturedCWrap(
+    'emx_gdraw_command_get_point', 'number', ['number', 'number'],
+    function(f, command, point_idx) {
+      var resultPtr = f(command, point_idx);
+      return {
+        x: obj.module.getValue(resultPtr, 'i16'),
+        y: obj.module.getValue(resultPtr + 2, 'i16')
+      };
+    }
+  );
 
   return [];
 };
