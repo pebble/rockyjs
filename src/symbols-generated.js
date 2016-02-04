@@ -805,6 +805,8 @@ Rocky.addGeneratedSymbols = function(obj) {
     }
     var offset = innerPtr - outerPtr;
     return {
+      outerObject: outerObject,
+      outerPtr: outerPtr,
       captureCPointer: function() {
         var ptr = outerObject.captureCPointer();
         if (!ptr) {
@@ -948,6 +950,125 @@ Rocky.addGeneratedSymbols = function(obj) {
       };
     }
   );
+
+  // GSize gdraw_command_sequence_get_bounds_size(GDrawCommandSequence *sequence)
+  // GSize *emx_gdraw_command_sequence_get_bounds_size(
+  //     GDrawCommandSequence *sequence)
+  obj.gdraw_command_sequence_get_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_sequence_get_bounds_size', 'number', ['number'],
+    function(f, sequencePtr) {
+      var resultPtr = f(sequencePtr);
+      return {
+        w: obj.module.getValue(resultPtr, 'i16'),
+        h: obj.module.getValue(resultPtr + 2, 'i16')
+      };
+    }
+  );
+
+  // void gdraw_command_sequence_set_bounds_size(GDrawCommandSequence *sequence,
+  //                                             GSize size)
+  // void emx_gdraw_command_sequence_set_bounds_size(GDrawCommandSequence *sequence,
+  //                                                 int16_t size_x, int16_t size_y)
+  obj.gdraw_command_sequence_set_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_sequence_set_bounds_size', 'void',
+    ['number', 'number', 'number'],
+    function(f, sequencePtr, size) {
+      size = obj.GSize(size);
+      return f(sequencePtr, size.w, size.h);
+    }
+  );
+
+  // uint32_t gdraw_command_sequence_get_play_count(GDrawCommandSequence *sequence)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_get_play_count',
+    'number', ['number']);
+
+  // void gdraw_command_sequence_set_play_count(GDrawCommandSequence *sequence,
+  //                                            uint32_t play_count)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_set_play_count',
+    'void', ['number', 'number']);
+
+  // uint32_t gdraw_command_sequence_get_total_duration(
+  //     GDrawCommandSequence *sequence)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_get_total_duration',
+    'number', ['number']);
+
+  // uint32_t gdraw_command_sequence_get_num_frames(GDrawCommandSequence *sequence)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_get_num_frames',
+    'number', ['number']);
+
+  // void gdraw_command_frame_set_duration(
+  //     GDrawCommandFrame * frame, uint32_t duration)
+  addFirstArgCapturedCWrap('gdraw_command_frame_set_duration',
+    'void', ['number', 'number']);
+
+  // uint32_t gdraw_command_frame_get_duration(GDrawCommandFrame * frame)
+  addFirstArgCapturedCWrap('gdraw_command_frame_get_duration',
+    'number', ['number']);
+
+  // GDrawCommandFrame * gdraw_command_sequence_get_frame_by_index(
+  //     GDrawCommandSequence * sequence, uint32_t index)
+  var gdraw_command_sequence_get_frame_by_index =
+    obj.module.cwrap('gdraw_command_sequence_get_frame_by_index',
+      'number', ['number', 'number']);
+  obj.gdraw_command_sequence_get_frame_by_index = function(sequence, index) {
+    var cPtr = sequence.captureCPointer();
+    try {
+      return createNestedObject(sequence, cPtr,
+        gdraw_command_sequence_get_frame_by_index(cPtr, index)
+      );
+    } finally {
+      sequence.releaseCPointer(cPtr);
+    }
+  };
+
+  // GDrawCommandFrame * gdraw_command_sequence_get_frame_by_elapsed(
+  //     GDrawCommandSequence * sequence, uint32_t elapsed_ms)
+  var gdraw_command_sequence_get_frame_by_elapsed =
+    obj.module.cwrap('gdraw_command_sequence_get_frame_by_elapsed',
+      'number', ['number', 'number']);
+  obj.gdraw_command_sequence_get_frame_by_elapsed = function(sequence, elapsed_ms) {
+    var cPtr = sequence.captureCPointer();
+    try {
+      return createNestedObject(sequence, cPtr,
+        gdraw_command_sequence_get_frame_by_elapsed(cPtr, elapsed_ms)
+      );
+    } finally {
+      sequence.releaseCPointer(cPtr);
+    }
+  };
+
+  // GDrawCommandList *gdraw_command_frame_get_command_list(
+  //     GDrawCommandFrame *frame);
+  var gdraw_command_frame_get_command_list =
+    obj.module.cwrap('gdraw_command_frame_get_command_list',
+      'number', ['number']);
+  obj.gdraw_command_frame_get_command_list = function(frame) {
+    var cPtr = frame.captureCPointer();
+    try {
+      return createNestedObject(frame, cPtr,
+        gdraw_command_frame_get_command_list(cPtr)
+      );
+    } finally {
+      frame.releaseCPointer(cPtr);
+    }
+  };
+
+  // void gdraw_command_frame_draw(GContext * ctx, GDrawCommandSequence *sequence,
+  //     GDrawCommandFrame* frame, GPoint offset)
+  // void emx_gdraw_command_frame_draw(GContext *ctx, GDrawCommandSequence *sequence,
+  //     GDrawCommandFrame *frame, int16_t point_x, int16_t point_y)
+  var emx_gdraw_command_frame_draw = obj.module.cwrap('emx_gdraw_command_frame_draw',
+      'void', ['number', 'number', 'number', 'number', 'number']);
+  obj.gdraw_command_frame_draw = function(ctx, sequence, frame, offset) {
+    var framePtr = frame.captureCPointer();
+    try {
+      offset = obj.GPoint(offset);
+      var sequencePtr = frame.outerPtr;
+      emx_gdraw_command_frame_draw(ctx, sequencePtr, framePtr, offset.x, offset.y);
+    } finally {
+      frame.releaseCPointer(framePtr);
+    }
+  };
 
   return [];
 };

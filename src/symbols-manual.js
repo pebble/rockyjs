@@ -413,7 +413,7 @@ Rocky.addManualSymbols = function(obj) {
     });
   };
 
-  var gdrawCommandCreate = function(obtainData) {
+  var memoryMappedObjectCreate = function(obtainData) {
     var result = {
       obtainData: obtainData,
       captureCPointer: function() {
@@ -436,11 +436,14 @@ Rocky.addManualSymbols = function(obj) {
   };
 
   obj.gdraw_command_image_create_with_data = function(data) {
-    return gdrawCommandCreate(function() {
+    return memoryMappedObjectCreate(function() {
       this.data = data.slice(8);
       return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
     });
   };
+
+  obj.gdraw_command_sequence_create_with_data =
+    obj.gdraw_command_image_create_with_data;
 
   return ['Data', 'Resources'];
 };
