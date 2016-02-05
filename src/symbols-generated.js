@@ -703,20 +703,27 @@ Rocky.addGeneratedSymbols = function(obj) {
     }
   };
 
+  // GDrawCommandType
   obj.GDrawCommandTypeInvalid = 0;
   obj.GDrawCommandTypePath = 1;
   obj.GDrawCommandTypeCircle = 2;
   obj.GDrawCommandTypePrecisePath = 3;
 
-  function firstArgCaptured(func, processResult) {
+  // constructs a function that calls hides:
+  //   var f = firstArgCaptured(func)
+  //   f(a, b, c) === func(aCapturedAsCPtr, b, c)
+  // if you provide a function for wrap, if will call that instead:
+  //   var f = firstArgCaptured(func, process)
+  //   f(a,b, c) === process(func, aCapturedAsCPtr, b, c)
+  function firstArgCaptured(func, wrap) {
     return function(obj) {
       var args = Array.prototype.slice.call(arguments, 1);
       var cPtr = obj.captureCPointer();
       try {
         args.unshift(cPtr);
-        if (processResult) {
+        if (wrap) {
           args.unshift(func);
-          return processResult.apply(undefined, args);
+          return wrap.apply(undefined, args);
         }
         return func.apply(undefined, args);
       } finally {
@@ -736,69 +743,9 @@ Rocky.addGeneratedSymbols = function(obj) {
       funcName, returnType, argTypes, processResult);
   }
 
-  // void gdraw_command_image_draw(GContext * ctx,
-  //                               GDrawCommandImage *image, GPoint offset)
-  // void emx_gdraw_command_image_draw(GContext * ctx,
-  //                                   GDrawCommandImage * image,
-  //                                   int16_t offset_x, int16_t offset_y)
-  var emx_gdraw_command_image_draw =
-    obj.module.cwrap('emx_gdraw_command_image_draw', 'void',
-      ['number', 'number', 'number', 'number']);
-
-  obj.gdraw_command_image_draw = function(ctx, image, offset) {
-    offset = obj.GRect(offset);
-    var cPtr = image.captureCPointer();
-    if (!cPtr) {
-      return;
-    }
-    try {
-      emx_gdraw_command_image_draw(ctx, cPtr, offset.x, offset.y);
-    } finally {
-      image.releaseCPointer(cPtr);
-    }
-  };
-
-  // GSize gdraw_command_image_get_bounds_size(GDrawCommandImage * image)
-  // GSize *emx_gdraw_command_image_get_bounds_size(GDrawCommandImage *image);
-  var emx_gdraw_command_image_get_bounds_size =
-    obj.module.cwrap('emx_gdraw_command_image_get_bounds_size',
-      'number', ['number']);
-  obj.gdraw_command_image_get_bounds_size = function(image) {
-    var cPtr = image.captureCPointer();
-    if (!cPtr) {
-      return obj.GSize(0, 0);
-    }
-    try {
-
-      var returnSizePtr = emx_gdraw_command_image_get_bounds_size(cPtr);
-      return {
-        w: obj.module.getValue(returnSizePtr, 'i16'),
-        h: obj.module.getValue(returnSizePtr + 2, 'i16')
-      };
-    } finally {
-      image.releaseCPointer(cPtr);
-    }
-  };
-
-  // void gdraw_command_image_set_bounds_size(GDrawCommandImage *image, GSize size)
-  // void emx_gdraw_command_image_set_bounds_size(GDrawCommandImage *image,
-  //                                              int16_t size_w, int16_t size_h)
-  var emx_gdraw_command_image_set_bounds_size =
-    obj.module.cwrap('emx_gdraw_command_image_set_bounds_size', 'number',
-                     ['number', 'number', 'number']);
-  obj.gdraw_command_image_set_bounds_size = function(image, size) {
-    size = obj.GSize(size);
-    var cPtr = image.captureCPointer();
-    if (!cPtr) {
-      return;
-    }
-    try {
-      emx_gdraw_command_image_set_bounds_size(cPtr, size.w, size.h);
-    } finally {
-      image.releaseCPointer(cPtr);
-    }
-  };
-
+  // creates and "inner" object that responds to .captureCPointer, .releaseCPointer
+  // that's dependent on a given outerObject. It assumes that the inner object
+  // has constant offset to the offset of the outer one.
   var createNestedObject = function(outerObject, outerPtr, innerPtr) {
     if (!innerPtr) {
       return null;
@@ -819,6 +766,54 @@ Rocky.addGeneratedSymbols = function(obj) {
       }
     };
   };
+
+  // void gdraw_command_image_draw(GContext * ctx,
+  //                               GDrawCommandImage *image, GPoint offset)
+  // void emx_gdraw_command_image_draw(GContext * ctx,
+  //                                   GDrawCommandImage * image,
+  //                                   int16_t offset_x, int16_t offset_y)
+  var emx_gdraw_command_image_draw =
+    obj.module.cwrap('emx_gdraw_command_image_draw', 'void',
+      ['number', 'number', 'number', 'number']);
+
+  obj.gdraw_command_image_draw = function(ctx, image, offset) {
+    offset = obj.GRect(offset);
+    var cPtr = image.captureCPointer();
+    try {
+      emx_gdraw_command_image_draw(ctx, cPtr, offset.x, offset.y);
+    } finally {
+      image.releaseCPointer(cPtr);
+    }
+  };
+
+  // GSize gdraw_command_image_get_bounds_size(GDrawCommandImage * image)
+  // GSize *emx_gdraw_command_image_get_bounds_size(GDrawCommandImage *image);
+  obj.gdraw_command_image_get_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_image_get_bounds_size',
+    'number', ['number'],
+    function(f, imagePtr) {
+      if (!imagePtr) {
+        return obj.GSize(0, 0);
+      }
+      var returnSizePtr = f(imagePtr);
+      return {
+        w: obj.module.getValue(returnSizePtr, 'i16'),
+        h: obj.module.getValue(returnSizePtr + 2, 'i16')
+      };
+    }
+  );
+
+  // void gdraw_command_image_set_bounds_size(GDrawCommandImage *image, GSize size)
+  // void emx_gdraw_command_image_set_bounds_size(GDrawCommandImage *image,
+  //                                              int16_t size_w, int16_t size_h)
+  obj.gdraw_command_image_set_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_image_set_bounds_size', 'number',
+    ['number', 'number', 'number'],
+    function(f, imagePtr, size) {
+      size = obj.GSize(size);
+      f(imagePtr, size.w, size.h);
+    }
+  );
 
   // GDrawCommandList *gdraw_command_image_get_command_list(
   //     GDrawCommandImage *image)

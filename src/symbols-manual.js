@@ -437,6 +437,7 @@ Rocky.addManualSymbols = function(obj) {
 
   obj.gdraw_command_image_create_with_data = function(data) {
     return memoryMappedObjectCreate(function() {
+      // first 8 bytes of a PDC are a file header ('PDCx' + size)
       this.data = data.slice(8);
       return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
     });
