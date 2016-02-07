@@ -180,20 +180,20 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Implemented</td>
         <td>Framebuffer APIs will not be part of Rocky.js</td>
     </tr>
-    <tr class="planned">
+    <tr class="implemented">
         <td>[Drawing Text](https://developer.pebble.com/docs/c/Graphics/Drawing_Text/)</td>
-        <td>Planned</td>
+        <td>Implemented</td>
         <td></td>
     </tr>
-    <tr class="planned">
+    <tr class="partial">
         <td>[Fonts](https://developer.pebble.com/docs/c/Graphics/Fonts/)</td>
-        <td>Planned</td>
+        <td>Partial</td>
         <td></td>
     </tr>
     <tr class="partial">
         <td>[Graphics Context](https://developer.pebble.com/docs/c/Graphics/Graphics_Context/)</td>
         <td>Partial</td>
-        <td>Not Implemented: graphics_context_set_text_color and graphics_context_compositing_mode</td>
+        <td>Not Implemented: graphics_context_compositing_mode</td>
     </tr>
     <tr class="partial">
         <td>[Graphics Types](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/)</td>
