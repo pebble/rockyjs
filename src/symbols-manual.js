@@ -194,6 +194,9 @@ Rocky.addManualSymbols = function(obj) {
       return [ptr, length];
     },
     releaseCPointer: function(ptr, numReadBytes) {
+      if (!ptr) {
+        return undefined;
+      }
       var result = [];
       numReadBytes = numReadBytes || 0;
       for (var i = 0; i < numReadBytes; i++) {
@@ -426,7 +429,7 @@ Rocky.addManualSymbols = function(obj) {
         return dataPtr;
       },
       releaseCPointer: function(ptr) {
-        this.data = obj.Data.releaseCPointer(ptr, this.data.length);
+        this.data = obj.Data.releaseCPointer(ptr, this.data ? this.data.length : 0);
       }
     };
 
@@ -445,6 +448,19 @@ Rocky.addManualSymbols = function(obj) {
 
   obj.gdraw_command_sequence_create_with_data =
     obj.gdraw_command_image_create_with_data;
+
+  obj.gdraw_command_image_create = function(config) {
+    config = obj.Resources.config(config, '/convert/vector');
+    return memoryMappedObjectCreate(function() {
+      var pdc = this;
+      return obj.Resources.load(config, function(status, data) {
+        var hasData = (data && data.output);
+        // first 8 bytes of a PDC are a file header ('PDCx' + size)
+        pdc.data = hasData ? atob(data.output.data).slice(8) : undefined;
+        return resourceObjectSetStatusAndCallEvents(pdc, status);
+      });
+    });
+  };
 
   return ['Data', 'Resources'];
 };
