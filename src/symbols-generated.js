@@ -709,7 +709,7 @@ Rocky.addGeneratedSymbols = function(obj) {
   obj.GDrawCommandTypeCircle = 2;
   obj.GDrawCommandTypePrecisePath = 3;
 
-  // constructs a function that calls hides:
+  // constructs a function that captures the C pointer of its first argument:
   //   var f = firstArgCaptured(func)
   //   f(a, b, c) === func(aCapturedAsCPtr, b, c)
   // if you provide a function for wrap, if will call that instead:
@@ -791,11 +791,11 @@ Rocky.addGeneratedSymbols = function(obj) {
   obj.gdraw_command_image_get_bounds_size = firstArgCapturedCWrap(
     'emx_gdraw_command_image_get_bounds_size',
     'number', ['number'],
-    function(f, imagePtr) {
+    function(get_bounds_size, imagePtr) {
       if (!imagePtr) {
         return obj.GSize(0, 0);
       }
-      var returnSizePtr = f(imagePtr);
+      var returnSizePtr = get_bounds_size(imagePtr);
       return {
         w: obj.module.getValue(returnSizePtr, 'i16'),
         h: obj.module.getValue(returnSizePtr + 2, 'i16')
@@ -809,9 +809,9 @@ Rocky.addGeneratedSymbols = function(obj) {
   obj.gdraw_command_image_set_bounds_size = firstArgCapturedCWrap(
     'emx_gdraw_command_image_set_bounds_size', 'number',
     ['number', 'number', 'number'],
-    function(f, imagePtr, size) {
+    function(set_bounds_size, imagePtr, size) {
       size = obj.GSize(size);
-      f(imagePtr, size.w, size.h);
+      set_bounds_size(imagePtr, size.w, size.h);
     }
   );
 
@@ -937,8 +937,8 @@ Rocky.addGeneratedSymbols = function(obj) {
   // GPoint *emx_gdraw_command_get_point(GDrawCommand *command, uint16_t point_idx);
   obj.gdraw_command_get_point = firstArgCapturedCWrap(
     'emx_gdraw_command_get_point', 'number', ['number', 'number'],
-    function(f, command, point_idx) {
-      var resultPtr = f(command, point_idx);
+    function(get_point, command, point_idx) {
+      var resultPtr = get_point(command, point_idx);
       return {
         x: obj.module.getValue(resultPtr, 'i16'),
         y: obj.module.getValue(resultPtr + 2, 'i16')
@@ -951,8 +951,8 @@ Rocky.addGeneratedSymbols = function(obj) {
   //     GDrawCommandSequence *sequence)
   obj.gdraw_command_sequence_get_bounds_size = firstArgCapturedCWrap(
     'emx_gdraw_command_sequence_get_bounds_size', 'number', ['number'],
-    function(f, sequencePtr) {
-      var resultPtr = f(sequencePtr);
+    function(get_bounds_size, sequencePtr) {
+      var resultPtr = get_bounds_size(sequencePtr);
       return {
         w: obj.module.getValue(resultPtr, 'i16'),
         h: obj.module.getValue(resultPtr + 2, 'i16')
@@ -967,9 +967,9 @@ Rocky.addGeneratedSymbols = function(obj) {
   obj.gdraw_command_sequence_set_bounds_size = firstArgCapturedCWrap(
     'emx_gdraw_command_sequence_set_bounds_size', 'void',
     ['number', 'number', 'number'],
-    function(f, sequencePtr, size) {
+    function(set_bounds_size, sequencePtr, size) {
       size = obj.GSize(size);
-      return f(sequencePtr, size.w, size.h);
+      return set_bounds_size(sequencePtr, size.w, size.h);
     }
   );
 
