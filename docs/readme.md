@@ -185,9 +185,9 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Implemented</td>
         <td></td>
     </tr>
-    <tr class="partial">
+    <tr class="implemented">
         <td>[Fonts](https://developer.pebble.com/docs/c/Graphics/Fonts/)</td>
-        <td>Partial</td>
+        <td>Implemented</td>
         <td></td>
     </tr>
     <tr class="partial">
