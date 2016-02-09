@@ -193,8 +193,18 @@ Rocky.addManualSymbols = function(obj) {
 
       return [ptr, length];
     },
-    releaseCPointer: function(ptr) {
+    releaseCPointer: function(ptr, numReadBytes) {
+      if (!ptr) {
+        return undefined;
+      }
+      var result = [];
+      numReadBytes = numReadBytes || 0;
+      for (var i = 0; i < numReadBytes; i++) {
+        var byte = obj.module.getValue(ptr + i, 'i8');
+        result.push(byte);
+      }
       obj.module._free(ptr);
+      return result;
     }
   };
 
@@ -402,6 +412,52 @@ Rocky.addManualSymbols = function(obj) {
         var hasData = (data && data.output);
         font.data = hasData ? atob(data.output.data) : undefined;
         return resourceObjectSetStatusAndCallEvents(font, status);
+      });
+    });
+  };
+
+  var memoryMappedObjectCreate = function(obtainData) {
+    var result = {
+      obtainData: obtainData,
+      captureCPointer: function() {
+        var dataAndSize = obj.Data.captureCPointerWithData(this.data);
+        var dataPtr = dataAndSize[0];
+        var size = dataAndSize[1];
+        if (!dataPtr || !size) {
+          return 0;
+        }
+        return dataPtr;
+      },
+      releaseCPointer: function(ptr) {
+        this.data = obj.Data.releaseCPointer(ptr, this.data ? this.data.length : 0);
+      }
+    };
+
+    result.status = result.obtainData();
+
+    return result;
+  };
+
+  obj.gdraw_command_image_create_with_data = function(data) {
+    return memoryMappedObjectCreate(function() {
+      // first 8 bytes of a PDC are a file header ('PDCx' + size)
+      this.data = data.slice(8);
+      return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
+    });
+  };
+
+  obj.gdraw_command_sequence_create_with_data =
+    obj.gdraw_command_image_create_with_data;
+
+  obj.gdraw_command_image_create = function(config) {
+    config = obj.Resources.config(config, '/convert/vector');
+    return memoryMappedObjectCreate(function() {
+      var pdc = this;
+      return obj.Resources.load(config, function(status, data) {
+        var hasData = (data && data.output);
+        // first 8 bytes of a PDC are a file header ('PDCx' + size)
+        pdc.data = hasData ? atob(data.output.data).slice(8) : undefined;
+        return resourceObjectSetStatusAndCallEvents(pdc, status);
       });
     });
   };

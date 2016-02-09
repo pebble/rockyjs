@@ -94,6 +94,7 @@ Rocky.addGeneratedSymbols = function(obj) {
       ['number', 'number']);
 
   // GColor definitions
+  obj.GColorClear = 0x00;
   obj.GColorBlack = 0xC0;
   obj.GColorOxfordBlue = 0xC1;
   obj.GColorDukeBlue = 0xC2;
@@ -699,6 +700,368 @@ Rocky.addGeneratedSymbols = function(obj) {
       };
     } finally {
       font.releaseCPointer(cPtr);
+    }
+  };
+
+  // GDrawCommandType
+  obj.GDrawCommandTypeInvalid = 0;
+  obj.GDrawCommandTypePath = 1;
+  obj.GDrawCommandTypeCircle = 2;
+  obj.GDrawCommandTypePrecisePath = 3;
+
+  // constructs a function that captures the C pointer of its first argument:
+  //   var f = firstArgCaptured(func)
+  //   f(a, b, c) === func(aCapturedAsCPtr, b, c)
+  // if you provide a function for wrap, if will call that instead:
+  //   var f = firstArgCaptured(func, process)
+  //   f(a,b, c) === process(func, aCapturedAsCPtr, b, c)
+  function firstArgCaptured(func, wrap) {
+    return function(obj) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      var cPtr = obj.captureCPointer();
+      try {
+        args.unshift(cPtr);
+        if (wrap) {
+          args.unshift(func);
+          return wrap.apply(undefined, args);
+        }
+        return func.apply(undefined, args);
+      } finally {
+        obj.releaseCPointer(cPtr);
+      }
+    };
+  }
+
+  function firstArgCapturedCWrap(funcName, returnType, argTypes, processResult) {
+    var func = obj.module.cwrap(funcName, returnType, argTypes);
+    return firstArgCaptured(func, processResult);
+  }
+
+  function addFirstArgCapturedCWrap(
+    funcName, returnType, argTypes, processResult) {
+    obj[funcName] = firstArgCapturedCWrap(
+      funcName, returnType, argTypes, processResult);
+  }
+
+  // creates and "inner" object that responds to .captureCPointer, .releaseCPointer
+  // that's dependent on a given outerObject. It assumes that the inner object
+  // has constant offset to the offset of the outer one.
+  var createNestedObject = function(outerObject, outerPtr, innerPtr) {
+    if (!innerPtr) {
+      return null;
+    }
+    var offset = innerPtr - outerPtr;
+    return {
+      outerObject: outerObject,
+      outerPtr: outerPtr,
+      captureCPointer: function() {
+        var ptr = outerObject.captureCPointer();
+        if (!ptr) {
+          return 0;
+        }
+        return ptr + offset;
+      },
+      releaseCPointer: function(ptr) {
+        return outerObject.releaseCPointer(ptr - offset);
+      }
+    };
+  };
+
+  // void gdraw_command_image_draw(GContext * ctx,
+  //                               GDrawCommandImage *image, GPoint offset)
+  // void emx_gdraw_command_image_draw(GContext * ctx,
+  //                                   GDrawCommandImage * image,
+  //                                   int16_t offset_x, int16_t offset_y)
+  var emx_gdraw_command_image_draw =
+    obj.module.cwrap('emx_gdraw_command_image_draw', 'void',
+      ['number', 'number', 'number', 'number']);
+
+  obj.gdraw_command_image_draw = function(ctx, image, offset) {
+    offset = obj.GRect(offset);
+    var cPtr = image.captureCPointer();
+    try {
+      emx_gdraw_command_image_draw(ctx, cPtr, offset.x, offset.y);
+    } finally {
+      image.releaseCPointer(cPtr);
+    }
+  };
+
+  // GSize gdraw_command_image_get_bounds_size(GDrawCommandImage * image)
+  // GSize *emx_gdraw_command_image_get_bounds_size(GDrawCommandImage *image);
+  obj.gdraw_command_image_get_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_image_get_bounds_size',
+    'number', ['number'],
+    function(get_bounds_size, imagePtr) {
+      if (!imagePtr) {
+        return obj.GSize(0, 0);
+      }
+      var returnSizePtr = get_bounds_size(imagePtr);
+      return {
+        w: obj.module.getValue(returnSizePtr, 'i16'),
+        h: obj.module.getValue(returnSizePtr + 2, 'i16')
+      };
+    }
+  );
+
+  // void gdraw_command_image_set_bounds_size(GDrawCommandImage *image, GSize size)
+  // void emx_gdraw_command_image_set_bounds_size(GDrawCommandImage *image,
+  //                                              int16_t size_w, int16_t size_h)
+  obj.gdraw_command_image_set_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_image_set_bounds_size', 'number',
+    ['number', 'number', 'number'],
+    function(set_bounds_size, imagePtr, size) {
+      size = obj.GSize(size);
+      set_bounds_size(imagePtr, size.w, size.h);
+    }
+  );
+
+  // GDrawCommandList *gdraw_command_image_get_command_list(
+  //     GDrawCommandImage *image)
+  var gdraw_command_image_get_command_list =
+    obj.module.cwrap('gdraw_command_image_get_command_list', 'number',
+      ['number', 'number']);
+  obj.gdraw_command_image_get_command_list = function(image) {
+    var cPtr = image.captureCPointer();
+    try {
+      return createNestedObject(image, cPtr,
+        gdraw_command_image_get_command_list(cPtr)
+      );
+    } finally {
+      image.releaseCPointer(cPtr);
+    }
+  };
+
+  // uint32_t gdraw_command_list_get_num_commands(GDrawCommandList * command_list)
+  addFirstArgCapturedCWrap('gdraw_command_list_get_num_commands',
+    'number', ['number']);
+
+  // GDrawCommand *gdraw_command_list_get_command(
+  //     GDrawCommandList * command_list, uint16_t command_idx)
+  var gdraw_command_list_get_command =
+    obj.module.cwrap('gdraw_command_list_get_command', 'number',
+                     ['number', 'number']);
+  obj.gdraw_command_list_get_command = function(list, idx) {
+    var cPtr = list.captureCPointer();
+    try {
+      return createNestedObject(list, cPtr,
+        gdraw_command_list_get_command(cPtr, idx)
+      );
+    } finally {
+      list.releaseCPointer(cPtr);
+    }
+  };
+
+  // GDrawCommandType gdraw_command_get_type(GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_type',
+    'number', ['number']);
+
+  // void gdraw_command_set_stroke_width(
+  //     GDrawCommand *command, uint8_t stroke_width)
+  addFirstArgCapturedCWrap('gdraw_command_set_stroke_width',
+    'void', ['number', 'number']);
+
+  // uint8_t gdraw_command_get_stroke_width(
+  //     GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_stroke_width',
+    'number', ['number']);
+
+  // void gdraw_command_set_path_open(GDrawCommand *command,
+  //     bool path_open)
+  addFirstArgCapturedCWrap('gdraw_command_set_path_open',
+    'void', ['number', 'number']);
+
+  // bool gdraw_command_get_path_open(GDrawCommand * command)
+  addFirstArgCapturedCWrap('gdraw_command_get_path_open',
+    'bool', ['number'],
+    function(f, command) {return !!f(command);}
+  );
+
+  // void gdraw_command_set_hidden(GDrawCommand *command,
+  //     bool hidden)
+  addFirstArgCapturedCWrap('gdraw_command_set_hidden',
+    'void', ['number', 'number']);
+
+  // bool gdraw_command_get_hidden(GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_hidden',
+    'number', ['number'],
+    function(f, command) {return !!f(command);}
+  );
+
+  // uint16_t gdraw_command_get_num_points(GDrawCommand *command)
+  addFirstArgCapturedCWrap('gdraw_command_get_num_points',
+    'number', ['number']);
+
+  // void gdraw_command_set_radius(GDrawCommand * command, uint16_t radius)
+  addFirstArgCapturedCWrap('gdraw_command_set_radius',
+    'void', ['number', 'number']);
+
+  // uint16_t gdraw_command_get_radius(GDrawCommand * command)
+  addFirstArgCapturedCWrap('gdraw_command_get_radius',
+    'number', ['number']);
+
+  // void gdraw_command_set_fill_color(GDrawCommand * command, GColor fill_color)
+  // void emx_gdraw_command_set_fill_color(GDrawCommand *command,
+  //                                       uint8_t color_argb);
+  obj.gdraw_command_set_fill_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_set_fill_color', 'void', ['number', 'number']);
+
+  // GColor gdraw_command_get_fill_color(GDrawCommand * command)
+  // unsigned emx_gdraw_command_get_fill_color(GDrawCommand *command);
+  obj.gdraw_command_get_fill_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_get_fill_color', 'number', ['number']);
+
+  // void gdraw_command_set_stroke_color(GDrawCommand * command, GColor stroke_color)
+  // void emx_gdraw_command_set_stroke_color(GDrawCommand *command,
+  //                                         uint8_t stroke_color_argb);
+  obj.gdraw_command_set_stroke_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_set_stroke_color', 'void', ['number', 'number']);
+
+  // GColor gdraw_command_get_stroke_color(GDrawCommand * command)
+  // unsigned emx_gdraw_command_get_stroke_color(GDrawCommand *command);
+  obj.gdraw_command_get_stroke_color = firstArgCapturedCWrap(
+    'emx_gdraw_command_get_stroke_color', 'number', ['number']);
+
+  // void gdraw_command_set_point(GDrawCommand * command,
+  //                              uint16_t point_idx, GPoint point)
+  // void emx_gdraw_command_set_point(GDrawCommand *command, uint16_t point_idx,
+  //                                  int16_t point_x, int16_t point_y);
+  obj.gdraw_command_set_point = firstArgCapturedCWrap(
+    'emx_gdraw_command_set_point ', 'void', ['number', 'number', 'number'],
+    function(f, command, point_idx, point) {
+      point = obj.GPoint(point);
+      return f(command, point_idx, point.x, point.y);
+    }
+  );
+
+  // GPoint gdraw_command_get_point(GDrawCommand * command, uint16_t point_idx)
+  // GPoint *emx_gdraw_command_get_point(GDrawCommand *command, uint16_t point_idx);
+  obj.gdraw_command_get_point = firstArgCapturedCWrap(
+    'emx_gdraw_command_get_point', 'number', ['number', 'number'],
+    function(get_point, command, point_idx) {
+      var resultPtr = get_point(command, point_idx);
+      return {
+        x: obj.module.getValue(resultPtr, 'i16'),
+        y: obj.module.getValue(resultPtr + 2, 'i16')
+      };
+    }
+  );
+
+  // GSize gdraw_command_sequence_get_bounds_size(GDrawCommandSequence *sequence)
+  // GSize *emx_gdraw_command_sequence_get_bounds_size(
+  //     GDrawCommandSequence *sequence)
+  obj.gdraw_command_sequence_get_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_sequence_get_bounds_size', 'number', ['number'],
+    function(get_bounds_size, sequencePtr) {
+      var resultPtr = get_bounds_size(sequencePtr);
+      return {
+        w: obj.module.getValue(resultPtr, 'i16'),
+        h: obj.module.getValue(resultPtr + 2, 'i16')
+      };
+    }
+  );
+
+  // void gdraw_command_sequence_set_bounds_size(GDrawCommandSequence *sequence,
+  //                                             GSize size)
+  // void emx_gdraw_command_sequence_set_bounds_size(GDrawCommandSequence *sequence,
+  //                                                 int16_t size_x, int16_t size_y)
+  obj.gdraw_command_sequence_set_bounds_size = firstArgCapturedCWrap(
+    'emx_gdraw_command_sequence_set_bounds_size', 'void',
+    ['number', 'number', 'number'],
+    function(set_bounds_size, sequencePtr, size) {
+      size = obj.GSize(size);
+      return set_bounds_size(sequencePtr, size.w, size.h);
+    }
+  );
+
+  // uint32_t gdraw_command_sequence_get_play_count(GDrawCommandSequence *sequence)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_get_play_count',
+    'number', ['number']);
+
+  // void gdraw_command_sequence_set_play_count(GDrawCommandSequence *sequence,
+  //                                            uint32_t play_count)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_set_play_count',
+    'void', ['number', 'number']);
+
+  // uint32_t gdraw_command_sequence_get_total_duration(
+  //     GDrawCommandSequence *sequence)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_get_total_duration',
+    'number', ['number']);
+
+  // uint32_t gdraw_command_sequence_get_num_frames(GDrawCommandSequence *sequence)
+  addFirstArgCapturedCWrap('gdraw_command_sequence_get_num_frames',
+    'number', ['number']);
+
+  // void gdraw_command_frame_set_duration(
+  //     GDrawCommandFrame * frame, uint32_t duration)
+  addFirstArgCapturedCWrap('gdraw_command_frame_set_duration',
+    'void', ['number', 'number']);
+
+  // uint32_t gdraw_command_frame_get_duration(GDrawCommandFrame * frame)
+  addFirstArgCapturedCWrap('gdraw_command_frame_get_duration',
+    'number', ['number']);
+
+  // GDrawCommandFrame * gdraw_command_sequence_get_frame_by_index(
+  //     GDrawCommandSequence * sequence, uint32_t index)
+  var gdraw_command_sequence_get_frame_by_index =
+    obj.module.cwrap('gdraw_command_sequence_get_frame_by_index',
+      'number', ['number', 'number']);
+  obj.gdraw_command_sequence_get_frame_by_index = function(sequence, index) {
+    var cPtr = sequence.captureCPointer();
+    try {
+      return createNestedObject(sequence, cPtr,
+        gdraw_command_sequence_get_frame_by_index(cPtr, index)
+      );
+    } finally {
+      sequence.releaseCPointer(cPtr);
+    }
+  };
+
+  // GDrawCommandFrame * gdraw_command_sequence_get_frame_by_elapsed(
+  //     GDrawCommandSequence * sequence, uint32_t elapsed_ms)
+  var gdraw_command_sequence_get_frame_by_elapsed =
+    obj.module.cwrap('gdraw_command_sequence_get_frame_by_elapsed',
+      'number', ['number', 'number']);
+  obj.gdraw_command_sequence_get_frame_by_elapsed = function(sequence, elapsed_ms) {
+    var cPtr = sequence.captureCPointer();
+    try {
+      return createNestedObject(sequence, cPtr,
+        gdraw_command_sequence_get_frame_by_elapsed(cPtr, elapsed_ms)
+      );
+    } finally {
+      sequence.releaseCPointer(cPtr);
+    }
+  };
+
+  // GDrawCommandList *gdraw_command_frame_get_command_list(
+  //     GDrawCommandFrame *frame);
+  var gdraw_command_frame_get_command_list =
+    obj.module.cwrap('gdraw_command_frame_get_command_list',
+      'number', ['number']);
+  obj.gdraw_command_frame_get_command_list = function(frame) {
+    var cPtr = frame.captureCPointer();
+    try {
+      return createNestedObject(frame, cPtr,
+        gdraw_command_frame_get_command_list(cPtr)
+      );
+    } finally {
+      frame.releaseCPointer(cPtr);
+    }
+  };
+
+  // void gdraw_command_frame_draw(GContext * ctx, GDrawCommandSequence *sequence,
+  //     GDrawCommandFrame* frame, GPoint offset)
+  // void emx_gdraw_command_frame_draw(GContext *ctx, GDrawCommandSequence *sequence,
+  //     GDrawCommandFrame *frame, int16_t point_x, int16_t point_y)
+  var emx_gdraw_command_frame_draw = obj.module.cwrap('emx_gdraw_command_frame_draw',
+      'void', ['number', 'number', 'number', 'number', 'number']);
+  obj.gdraw_command_frame_draw = function(ctx, sequence, frame, offset) {
+    var framePtr = frame.captureCPointer();
+    try {
+      offset = obj.GPoint(offset);
+      var sequencePtr = frame.outerPtr;
+      emx_gdraw_command_frame_draw(ctx, sequencePtr, framePtr, offset.x, offset.y);
+    } finally {
+      frame.releaseCPointer(framePtr);
     }
   };
 
