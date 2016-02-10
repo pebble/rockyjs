@@ -116,7 +116,7 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Will use [WebWorker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) semantics</td>
     </tr>
     <tr class="not-planned">
-        <td>[AppSync](https://developer.pebble.com/docs/c/Foundation/AppSyn/)</td>
+        <td>[AppSync](https://developer.pebble.com/docs/c/Foundation/AppSync/)</td>
         <td>Not Currently Planned</td>
         <td></td>
     </tr>
