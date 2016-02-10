@@ -8,5 +8,6 @@ This folder contains a variety of examples designed to help you understand some 
  - [Vector Graphics](pdc/index.html) – Draws and modifies vector graphics.  
  - [GPath](gpath/index.html) – Shows how to use APIs around `GPath`.
  - [Text](text/index.html) – Shows how to draw text and use fonts.
+ - [Buttons](buttons/index.html) - Shows how to interact using keyboard arrows.
  - [Community Examples](community.html) - Additional examples built by community members.
  

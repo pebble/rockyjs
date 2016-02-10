@@ -462,6 +462,24 @@ Rocky.addManualSymbols = function(obj) {
     });
   };
 
+  obj.buttonHandler = {};
+
+  obj.onPress = function onPress(type, callback) {
+    this.buttonHandler[type] = callback;
+  };
+
+  document.addEventListener('keydown', function(event) {
+    if (event.keyCode === 37 && obj.buttonHandler.back) {
+      obj.buttonHandler['back'].bind(obj)();
+    } else if (event.keyCode === 38 && obj.buttonHandler.up) {
+      obj.buttonHandler['up'].bind(obj)();
+    } else if (event.keyCode === 39 && obj.buttonHandler.select) {
+      obj.buttonHandler['select'].bind(obj)();
+    } else if (event.keyCode === 40 && obj.buttonHandler.down) {
+      obj.buttonHandler['down'].bind(obj)();
+    }
+  });
+
   return ['Data', 'Resources'];
 };
 
