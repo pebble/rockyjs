@@ -8,5 +8,6 @@ This folder contains a variety of examples designed to help you understand some 
  - [Vector Graphics](pdc/index.html) – Draws and modifies vector graphics.  
  - [GPath](gpath/index.html) – Shows how to use APIs around `GPath`.
  - [Text](text/index.html) – Shows how to draw text and use fonts.
+ - [Dictation](dictation/index.html) - Shows how to use the Web Speech API to obtain dictated text.
  - [Community Examples](community.html) - Additional examples built by community members.
  
