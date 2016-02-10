@@ -18,6 +18,8 @@
     <script src="../../src/transpiled.js"></script>
     <!-- /build -->
 
+    <script src="modules/buttons.js"></script>
+
     <!-- build:css ../../css/bootstrap.min.css -->
     <link href="../../html/css/bootstrap.min.css" rel="stylesheet">
     <!-- /build -->
@@ -53,7 +55,7 @@
             This example demonstrates how to interact with RockyJS bound to a canvas. Using the left, right, up, and down arrows on your keyboard you can simulate the back, select, up, and down buttons of the Pebble respectively. 
         </p>
 
-        <code>rocky.onPress(type, callback)</code>
+        <code>onPress(type, callback)</code>
         <p>
             Options for <code>type</code> are 'back', 'select', 'up', or 'down'.
         </p>
@@ -80,25 +82,25 @@ rocky.update_proc = function (ctx, bounds) {
 };
 
 (function() {
-  rocky.onPress("back", function() {
+  onPress("back", function() {
     console.log("Back Button Pressed");
     currentText = "Back lets us run away.";
-    this.mark_dirty();
+    rocky.mark_dirty();
   });
-  rocky.onPress("up", function() {
+  onPress("up", function() {
     console.log("Up Button Pressed");
     currentText = "Up and away we go!";
-    this.mark_dirty();
+    rocky.mark_dirty();
   });
-  rocky.onPress("select", function() {
+  onPress("select", function() {
     console.log("Select Button Pressed");
     currentText = "Select is the best button.";
-    this.mark_dirty();
+    rocky.mark_dirty();
   });
-  rocky.onPress("down", function() {
+  onPress("down", function() {
     console.log("Down Button Pressed");
     currentText = "Down into the depths we go.";
-    this.mark_dirty();
+    rocky.mark_dirty();
   });
 })();
 
