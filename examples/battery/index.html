@@ -77,7 +77,6 @@
         rocky.update_proc = function (ctx, bounds) {
           graphics_context_set_text_color(ctx, GColorBlack);
           if(battery.getIsAvailable()) {
-            graphics_context_set_text_color(ctx, GColorBlack);
             graphics_draw_text(ctx,
                                "Level: " + battery.getLevelPercent() + "%\n\n" +
                                "Charging: " + battery.getCharging() + "\n\n" +
