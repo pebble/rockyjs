@@ -35,7 +35,7 @@
 var rocky = Rocky.bindCanvas(document.getElementById(&quot;pebble&quot;));
 </code></pre>
 <h3 id="rocky-export_global_c_symbols-">rocky.export_global_c_symbols()</h3>
-<p>Rocky exposes a <a href="#pebble-api-compatibility">subset of Pebble&#39;s C-Style</a> that can invoked with <code>rocky.c_api_function_name(...)</code>. The <code>export_global_c_symbols</code> adds all of the available methods from the C-Style API to the global namespace, removing the need to preface each API call with <code>rocky.</code>.</p>
+<p>Rocky exposes a <a href="#pebble-api-compatibility">subset of Pebble&#39;s C-Style</a> that can be invoked with <code>rocky.c_api_function_name(...)</code>. The <code>export_global_c_symbols</code> adds all of the available methods from the C-Style API to the global namespace, removing the need to preface each API call with <code>rocky.</code>.</p>
 <p>The following two examples demonstrate how <code>rocky.export_global_c_symbols()</code> affects a simple implementation:</p>
 <pre><code>// Calling a C-Style API without rocky.export_global_c_symbols
 var rocky = Rocky.bindCanvas(document.getElementById(&quot;pebble&quot;));
