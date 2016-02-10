@@ -16,6 +16,7 @@
     <script src="../../src/symbols-manual.js"></script>
     <script src="../../src/symbols-generated.js"></script>
     <script src="../../src/transpiled.js"></script>
+    <script src="modules/dictation.js"></script>
     <!-- /build -->
 
     <!-- build:css ../../css/bootstrap.min.css -->
@@ -73,7 +74,6 @@
         // the same way you were using them in C
         rocky.export_global_c_symbols();
 
-        var dictation = new Dictation();
         var lastTranscript = 'Speak now';
 
         rocky.update_proc = function (ctx, bounds) {
@@ -83,13 +83,20 @@
                                GTextOverflowModeWordWrap, GTextAlignmentCenter, null);
         };
 
-        dictation.start(function(transcript) {
-            lastTranscript = 'You said: \n' + transcript;
-            rocky.mark_dirty();
-        }, function(errorMsg) {
-            lastTranscript = 'Error: ' + errorMsg;
-            rocky.mark_dirty();
-        });
+        var lang = navigator.language;
+        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+
+        var speechRecognition = new SpeechRecognition();
+        var dictation = new Dictation(speechRecognition, lang);
+        if(dictation !== undefined) {
+            dictation.start(function(transcript) {
+                lastTranscript = 'You said: \n' + transcript;
+                rocky.mark_dirty();
+            }, function(errorMsg) {
+                lastTranscript = 'Error: ' + errorMsg;
+                rocky.mark_dirty();
+            });
+        }
 
         rocky.mark_dirty();
     })();
