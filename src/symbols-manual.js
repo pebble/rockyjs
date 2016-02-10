@@ -462,6 +462,42 @@ Rocky.addManualSymbols = function(obj) {
     });
   };
 
+  obj.Dictation = function() {
+    var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+    this.recognition = new SpeechRecognition();
+    this.recognition.lang = navigator.language;
+
+    this.recognition.onspeechend = function() {
+      this.stop();
+    };
+  };
+
+  obj.Dictation.prototype.setLanguage = function(language) {
+    this.recognition.lang = language;
+  };
+
+  obj.Dictation.prototype.getLastTranscript = function() {
+    return this.lastTranscript;
+  };
+
+  obj.Dictation.prototype.start = function(successCallback, failureCallback) {
+    var success = function(event) {
+      this.lastTranscript = event.results[0][0].transcript;
+      successCallback(this.lastTranscript);
+    };
+    this.recognition.onresult = success.bind(this);
+
+    this.recognition.onerror = function(event) {
+      failureCallback(event.error);
+    };
+
+    this.recognition.start();
+  };
+
+  obj.Dictation.prototype.stop = function() {
+    this.recognition.stop();
+  };
+
   return ['Data', 'Resources'];
 };
 
