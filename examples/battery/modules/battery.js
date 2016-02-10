@@ -1,11 +1,14 @@
 var Battery = function() {
   var _this = this;
 
-  if(navigator.getBattery) {
+  if (navigator.getBattery) {
     navigator.getBattery().then(function(battery) {
       _this.setState(battery);
-      var eventList = ['chargingchange', 'chargingtimechange', 'dischargingtimechange', 'levelchange'];
-      for(var evt in eventList) {
+      var eventList = ['chargingchange',
+                      'chargingtimechange',
+                      'dischargingtimechange',
+                      'levelchange'];
+      for (var evt in eventList) {
         battery.addEventListener(eventList[evt], function() {
           _this.setState(battery);
         });
