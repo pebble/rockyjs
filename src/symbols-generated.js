@@ -1065,6 +1065,49 @@ Rocky.addGeneratedSymbols = function(obj) {
     }
   };
 
+  // uint32_t gbitmap_sequence_get_current_frame_delay_ms(
+  //     GBitmapSequence *bitmap_sequence);
+  addFirstArgCapturedCWrap('gbitmap_sequence_get_current_frame_delay_ms',
+    'number', ['number']);
+
+  // uint32_t gbitmap_sequence_get_total_num_frames(
+  //     GBitmapSequence *bitmap_sequence);
+  addFirstArgCapturedCWrap('gbitmap_sequence_get_total_num_frames',
+    'number', ['number']);
+
+  // uint32_t gbitmap_sequence_get_play_count(GBitmapSequence *bitmap_sequence);
+  addFirstArgCapturedCWrap('gbitmap_sequence_get_play_count',
+    'number', ['number']);
+
+  // uint32_t gbitmap_sequence_get_play_count(GBitmapSequence *bitmap_sequence);
+  addFirstArgCapturedCWrap('gbitmap_sequence_get_play_count',
+    'number', ['number']);
+
+  // bool emx_gbitmap_sequence_seek_to_elapsed(GBitmapSequence *bitmap_sequence,
+  //          uint32_t elapsed);
+  obj.gbitmap_sequence_seek_to_elapsed = firstArgCapturedCWrap(
+    'emx_gbitmap_sequence_seek_to_elapsed',
+    'number', ['number', 'number'],
+    function(seek_to_elapsed, cPtr, elapsed) {
+      return !!seek_to_elapsed(cPtr, elapsed);
+    }
+  );
+
+  // GSize gbitmap_sequence_get_bitmap_size(
+  //     GBitmapSequence *bitmap_sequence)
+  // GSize *emx_gbitmap_sequence_get_bitmap_size(
+  //     GBitmapSequence *bitmap_sequence)
+  obj.gbitmap_sequence_get_bitmap_size = firstArgCapturedCWrap(
+    'emx_gbitmap_sequence_get_bitmap_size', 'number', ['number'],
+    function(get_bitmap_size, sequencePtr) {
+      var resultPtr = get_bitmap_size(sequencePtr);
+      return {
+        w: obj.module.getValue(resultPtr, 'i16'),
+        h: obj.module.getValue(resultPtr + 2, 'i16')
+      };
+    }
+  );
+
   return [];
 };
 
