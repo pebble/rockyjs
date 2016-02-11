@@ -83,7 +83,7 @@ Instances of Rocky.js include a property, `update_proc`, that will be invoked ea
 
 See [rocky.mark_dirty](#rocky-mark_dirty) for sample usage.
 
-## Pebble API Compatibility
+## <a name="api-compatibility"></a>Pebble API Compatibility
 
 Rocky.js currently implements a subset of Pebble's C-Style API. This section of the document outlines what methods have been implemented, as well as recommendations for how to manage some of the sections of the API that are not implemented.
 
@@ -130,9 +130,9 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Implemented</td>
         <td></td>
     </tr>
-    <tr class="planned">
+    <tr class="implemented">
         <td>[BitmapSequence](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/#gbitmap_sequence_create_with_resource)</td>
-        <td>Planned</td>
+        <td>Implemented</td>
         <td></td>
     </tr>
     <tr class="not-planned">
@@ -165,14 +165,14 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Standard JS/HTML5 API</td>
         <td>Use [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)</td>
     </tr>
-    <tr class="planned">
+    <tr class="implemented">
         <td>[DrawCommand](https://developer.pebble.com/docs/c/Graphics/Draw_Commands/)</td>
-        <td>Planned</td>
+        <td>Implemented</td>
         <td></td>
     </tr>
-    <tr class="planned">
+    <tr class="implemented">
         <td>[Drawing Paths](https://developer.pebble.com/docs/c/Graphics/Drawing_Paths/)</td>
-        <td>Planned</td>
+        <td>Implemented</td>
         <td></td>
     </tr>
     <tr class="implemented">
@@ -190,15 +190,15 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Implemented</td>
         <td></td>
     </tr>
-    <tr class="partial">
+    <tr class="implemented">
         <td>[Graphics Context](https://developer.pebble.com/docs/c/Graphics/Graphics_Context/)</td>
-        <td>Partial</td>
-        <td>Not Implemented: graphics_context_compositing_mode</td>
+        <td>Implemented</td>
+        <td></td>
     </tr>
-    <tr class="partial">
+    <tr class="implemented">
         <td>[Graphics Types](https://developer.pebble.com/docs/c/Graphics/Graphics_Types/)</td>
-        <td>Partial</td>
-        <td>Currently Implemented: GColor, GPoint, GRect (modified)</td>
+        <td>Implemented</td>
+        <td></td>
     </tr>
     <tr class="not-planned">
         <td>[Heap](https://developer.pebble.com/docs/c/Foundation/Memory_Management/)</td>
@@ -210,10 +210,10 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Not Currently Planned</td>
         <td></td>
     </tr>
-    <tr class="planned">
+    <tr class="not-planned">
         <td>[Layer](https://developer.pebble.com/docs/c/User_Interface/Layers/)</td>
-        <td>Planned</td>
-        <td>Or similar functionality</td>
+        <td>Not Currently Planned</td>
+        <td></td>
     </tr>
     <tr class="standard">
         <td>[Logging](https://developer.pebble.com/docs/c/Foundation/Logging/)</td>
@@ -261,14 +261,14 @@ Rocky.js currently implements a subset of Pebble's C-Style API. This section of 
         <td>Planned</td>
         <td></td>
     </tr>
-    <tr class="planned">
+    <tr class="not-planned">
         <td>[Window](https://developer.pebble.com/docs/c/User_Interface/Window/)</td>
-        <td>Planned</td>
-        <td>Or similar functionality</td>
+        <td>Not Currently Planned</td>
+        <td></td>
     </tr>
-    <tr class="planned">
+    <tr class="not-planned">
         <td>[WindowStack](https://developer.pebble.com/docs/c/User_Interface/Window_Stack/)</td>
-        <td>Planned</td>
+        <td>Not Currently Planned</td>
         <td>Or similar functionality</td>
     </tr>
     <tr class="not-planned">
