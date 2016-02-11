@@ -1,3 +1,6 @@
+/*eslint no-unused-vars: 0*/
+/* global gbitmap_create:true, XMLHttpRequest:true */
+
 var Weather = function(apiKey) {
 
   this.apiKey = apiKey;
