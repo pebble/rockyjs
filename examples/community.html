@@ -9,6 +9,11 @@
   <!-- /build -->
   <link href="common/css/style.css" rel="stylesheet">
   <title>Community Examples</title>
+  <script>
+    // examples don't load on https
+    if (location.protocol == 'https:')
+      location.href = location.href.replace(/^https:/, 'http:')
+  </script>
 </head>
 <body>
 <div class="container">
