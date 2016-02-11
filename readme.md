@@ -30,7 +30,7 @@ We're interested in seeing what kinds of tools developers create when they have 
 
 If you create something interesting with *Rocky.js*, add it to the [examples](//github.com/pebble/rockyjs/tree/master/examples) folder, submit a pull-request, and we'll take a look. This is a great opportunity to *directly* influence how Pebble approaches JavaScript documentation and API design.
 
-You can see what community members have built with *Rocky.js* on the [Community Examples](examples/community.html) page.
+You can see what community members have built with *Rocky.js* on the [Community Examples](http://pebble.github.io/rockyjs/examples/community.html) page.
 
 ### Learn More
 
