@@ -343,9 +343,9 @@ Rocky.addManualSymbols = function(obj) {
     };
   };
 
-  var customFontCreate = function(obtainData) {
+  var resourceObjectCreate = function(funcs) {
     var result = {
-      obtainData: obtainData,
+      obtainData: funcs.obtainData,
       captureCPointer: function() {
         if (this.status !== obj.Resources.status.loaded || !this.data) {
           return 0;
@@ -361,24 +361,22 @@ Rocky.addManualSymbols = function(obj) {
           }.bind(this)
         );
         this.get_size_cb = obj.module.Runtime.addFunction(function() {
-          console.log('get_size_cb');
           return this.data.length;
         }.bind(this));
 
         // uint32_t emx_resources_register_custom(ResourceReadCb read_cb,
         //                                        ResourceGetSizeCb get_size_cb);
         this.resourceId = obj.module.ccall(
-            'emx_resources_register_custom', 'number',
-            ['number', 'number'], [this.read_cb, this.get_size_cb]);
+          'emx_resources_register_custom', 'number',
+          ['number', 'number'], [this.read_cb, this.get_size_cb]);
 
-        // GFont fonts_load_custom_font(ResHandle handle);
-        return obj.module.ccall('fonts_load_custom_font',
-            'number', ['number'], [this.resourceId]);
+        return funcs.captureCPointer.call(this, this.resourceId);
       },
-      releaseCPointer: function(fontId) {
-        // void fonts_unload_custom_font(GFont font);
-        obj.module.ccall('fonts_unload_custom_font', 'void',
-          ['number'], [fontId]);
+      releaseCPointer: function(ptr) {
+        if (!ptr) {
+          return;
+        }
+        funcs.releaseCPointer.call(this, ptr);
 
         // void emx_resources_remove_custom(uint32_t resource_id);
         obj.module.ccall('emx_resources_remove_custom', 'void',
@@ -392,9 +390,24 @@ Rocky.addManualSymbols = function(obj) {
         delete this.get_size_cb;
       }
     };
-
     result.status = result.obtainData();
     return result;
+  };
+
+  var customFontCreate = function(obtainData) {
+    return resourceObjectCreate({
+      obtainData: obtainData,
+      captureCPointer: function(resId) {
+        // GFont fonts_load_custom_font(ResHandle handle);
+        return obj.module.ccall('fonts_load_custom_font',
+          'number', ['number'], [resId]);
+      },
+      releaseCPointer: function(fontId) {
+        // void fonts_unload_custom_font(GFont font);
+        obj.module.ccall('fonts_unload_custom_font', 'void',
+          ['number'], [fontId]);
+      }
+    });
   };
 
   obj.fonts_load_custom_font_with_data = function(data) {
@@ -460,6 +473,127 @@ Rocky.addManualSymbols = function(obj) {
         return resourceObjectSetStatusAndCallEvents(pdc, status);
       });
     });
+  };
+
+  function gbitmapSequenceCaptureState(sequence, ptr, replaceAll) {
+    if (replaceAll || !('currentFrameIdx' in sequence)) {
+      // int32_t gbitmap_sequence_get_current_frame_idx(
+      //   GBitmapSequence *bitmap_sequence);
+      sequence.currentFrameIdx = obj.module.ccall(
+        'gbitmap_sequence_get_current_frame_idx',
+        'number', ['number'], [ptr]);
+    }
+    if (replaceAll || !('playCount' in sequence)) {
+      // uint32_t gbitmap_sequence_get_play_count(
+      //   GBitmapSequence *bitmap_sequence);
+      sequence.playCount = obj.module.ccall(
+        'gbitmap_sequence_get_play_count',
+        'number', ['number'], [ptr]);
+    }
+  }
+
+  function gbitmapSequencePtrSeekToFrame(cPtr, newFrameIdx) {
+    // bool emx_gbitmap_sequence_seek_to_frame(
+    //          GBitmapSequence *bitmap_sequence, int32_t frameIdx,
+    //          GBitmap **rendered_bmp);
+    return !!obj.module.ccall(
+      'emx_gbitmap_sequence_seek_to_frame',
+      'number', ['number', 'number', 'number'], [cPtr, newFrameIdx, 0]);
+  }
+
+  function gbitmapSequenceCreate(obtainData) {
+    return resourceObjectCreate({
+      obtainData: obtainData,
+      captureCPointer: function(resId) {
+        // GBitmapSequence *gbitmap_sequence_create_with_resource(
+        //     uint32_t resource_id);
+        var result = obj.module.ccall(
+          'gbitmap_sequence_create_with_resource',
+          'number', ['number'], [resId]);
+
+        // as our C objects are short-lived
+        // we need to recreate their state each time we need a pointer
+        gbitmapSequenceCaptureState(this, result, false);
+
+        // void gbitmap_sequence_set_play_count(
+        //   GBitmapSequence *bitmap_sequence, uint32_t play_count)
+        obj.module.ccall('gbitmap_sequence_set_play_count',
+          'void', ['number', 'number'], [result, this.playCount]);
+        if (this.currentFrameIdx > 0) {
+          gbitmapSequencePtrSeekToFrame(result, this.currentFrameIdx);
+        }
+
+        return result;
+      },
+      releaseCPointer: function(ptr) {
+        // store the state of the C object so we can re-apply it
+        // when we call .captureCPointer() the next time
+        gbitmapSequenceCaptureState(this, ptr, true);
+
+        // void gbitmap_sequence_destroy(GBitmapSequence *bitmap_sequence);
+        return obj.module.ccall('gbitmap_sequence_destroy',
+          'number', ['number'], [ptr]);
+      }
+    });
+  }
+
+  obj.gbitmap_sequence_create_with_data = function(data) {
+    return gbitmapSequenceCreate(function() {
+      this.data = data;
+      return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
+    });
+  };
+
+  obj.gbitmap_sequence_create = function(config) {
+    config = obj.Resources.config(config, '/convert/imagesequence');
+    return gbitmapSequenceCreate(function() {
+      var sequence = this;
+      return obj.Resources.load(config, function(status, data) {
+        var hasData = (data && data.output);
+        sequence.data = hasData ? atob(data.output.data) : undefined;
+        return resourceObjectSetStatusAndCallEvents(sequence, status);
+      });
+    });
+  };
+
+  obj.gbitmap_sequence_update_bitmap_next_frame = function(sequence) {
+    var cPtr = sequence.captureCPointer();
+    try {
+      var newFrameIdx = sequence.currentFrameIdx + 1;
+      return gbitmapSequencePtrSeekToFrame(cPtr, newFrameIdx);
+    } finally {
+      sequence.releaseCPointer(cPtr);
+    }
+  };
+
+  obj.gbitmap_sequence_set_play_count = function(sequence, playCount) {
+    // this implementation will not call anything in C-land
+    // instead it stores the desired value in the JS object so it will be
+    // applied as soon as .captureCPointer() is being called next time.
+    sequence.playCount = playCount;
+  };
+
+  obj.gbitmap_sequence_get_current_frame_idx = function(sequence) {
+    // by capturing and releasing the C object
+    // the state of the JS object will be updated
+    var cPtr = sequence.captureCPointer();
+    sequence.releaseCPointer(cPtr);
+    return sequence.currentFrameIdx;
+  };
+
+  obj.graphics_draw_bitmap_sequence = function(ctx, sequence, point) {
+    var cPtr = sequence.captureCPointer();
+    try {
+      point = obj.GPoint(point);
+      //  void emx_graphics_draw_bitmap_sequence(GContext *ctx,
+      //           GBitmapSequence *bitmap_sequence,
+      //           int16_t point_x, int16_t point_y)
+      obj.module.ccall('emx_graphics_draw_bitmap_sequence',
+        'void', ['number', 'number', 'number', 'number'],
+        [ctx, cPtr, point.x, point.y]);
+    } finally {
+      sequence.releaseCPointer(cPtr);
+    }
   };
 
   return ['Data', 'Resources'];
