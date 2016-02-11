@@ -39,22 +39,22 @@
             This example demonstrates how to bind RockyJS to a canvas, and update the output at a regular interval. More information about the key RockyJS API calls for this example can be found below. 
         </p>
 
-        <h3><code><a href="../../docs.html#rocky-bindCanvas-el-">var rocky = Rocky.bindCanvas(el)</a></code></h3>
+        <h3><code><a href="../../docs/index.html#rocky-bindCanvas-el-">var rocky = Rocky.bindCanvas(el)</a></code></h3>
         <p>
             This method creates an instance of Rocky, and binds it to a canvas object. Once we have a Rocky object, we can use it to invoke a subset of Pebble's C API, and have the results rendered on the canvas.
         </p>
         
-        <h3><code><a href="../../docs.html#rock-export_global_c_symbols-">rocky.export_global_c_symbols()</a></code></h3>
+        <h3><code><a href="../../docs/index.html#rock-export_global_c_symbols-">rocky.export_global_c_symbols()</a></code></h3>
         <p>
             This method pollutes the global namespace with a subset of Pebble's C API. This allows you to invoke (the implemented) functions from Pebble's C API without having to preface every call with <code>rocky.<em>functionName</em></code>.
         </p>
         
-        <h3><code><a href="../../docs.html#rocky-mark_dirty-">rocky.mark_dirty()</a></code></h3>
+        <h3><code><a href="../../docs/index.html#rocky-mark_dirty-">rocky.mark_dirty()</a></code></h3>
         <p>
             This method indicates to Rocky that <code>update_proc</code> should be invoked.
         </p>
         
-        <h3><code><a href="../../docs.html#rocky-update_proc">rocky.update_proc</a></code></h3>
+        <h3><code><a href="../../docs/index.html#rocky-update_proc">rocky.update_proc</a></code></h3>
         <p>
             Rocky's <code>update_proc</code> is a method that will be invoked everytime the canvas is marked as dirty with the <code>mark_dirty</code> method. The update_proc takes two parameters: <em>ctx</em> - the graphics context, and <em>bounds</em> - the bounds of the window.
         </p>
