@@ -117,7 +117,7 @@ describe('GBitmapSequence', function() {
     expect(result).to.be.true;
     expect(sequence)
       .to.have.a.property('currentFrameIdx')
-      .which.equals(0);
+      .which.equals(8);
 
     result = rocky.gbitmap_sequence_update_bitmap_next_frame(sequence); // 1
     expect(result).to.be.true;
@@ -191,6 +191,26 @@ describe('GBitmapSequence', function() {
     it('can handle uninitialized data', function() {
       delete sequence.data;
       rocky.graphics_draw_bitmap_sequence(0, sequence, [10, 20]);
+    });
+  });
+
+  describe('gbitmap_sequence_create', function() {
+    it('reflects status and data according to Resources singleton', function() {
+      var expectation = sandbox.mock(rocky.Resources)
+        .expects('load').once().withArgs({
+          url: 'someUrl', convertPath: '/convert/imagesequence', proxyArgs: []
+        })
+        .returns('someInitialStatus');
+      var font = rocky.gbitmap_sequence_create({url: 'someUrl'});
+      var dataCallback = expectation.firstCall.args[1];
+      expect(dataCallback).to.be.a('function');
+
+      expect(font.status).to.equal('someInitialStatus');
+      var base64encoded = 'c2VxdWVuY2UgZGF0YQ=='; // "sequence data"
+      dataCallback('new status', {output: {data: base64encoded}});
+      expect(font.status).to.equal('new status');
+      // first 8 bytes are removed
+      expect(font.data).to.equal('sequence data');
     });
   });
 

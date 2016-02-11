@@ -373,6 +373,9 @@ Rocky.addManualSymbols = function(obj) {
         return funcs.captureCPointer.call(this, this.resourceId);
       },
       releaseCPointer: function(ptr) {
+        if (!ptr) {
+          return;
+        }
         funcs.releaseCPointer.call(this, ptr);
 
         // void emx_resources_remove_custom(uint32_t resource_id);
@@ -506,7 +509,7 @@ Rocky.addManualSymbols = function(obj) {
         //     uint32_t resource_id);
         var result = obj.module.ccall(
           'gbitmap_sequence_create_with_resource',
-          'number', ['number'], [this.resourceId]);
+          'number', ['number'], [resId]);
 
         // as our C objects are short-lived
         // we need to recreate their state each time we need a pointer
@@ -538,6 +541,18 @@ Rocky.addManualSymbols = function(obj) {
     return gbitmapSequenceCreate(function() {
       this.data = data;
       return resourceObjectSetStatusAndCallEvents(this, obj.Resources.status.loaded);
+    });
+  };
+
+  obj.gbitmap_sequence_create = function(config) {
+    config = obj.Resources.config(config, '/convert/imagesequence');
+    return gbitmapSequenceCreate(function() {
+      var sequence = this;
+      return obj.Resources.load(config, function(status, data) {
+        var hasData = (data && data.output);
+        sequence.data = hasData ? atob(data.output.data) : undefined;
+        return resourceObjectSetStatusAndCallEvents(sequence, status);
+      });
     });
   };
 
