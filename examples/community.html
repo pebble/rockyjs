@@ -10,6 +10,8 @@
 <div class="container">
   <div class="page-header">
     <h1>Community Examples</h1>
+    <h3 id="https-message" class="alert alert-danger hide" role="alert">Some of the community examples won't work with <strong><em>HTTPS</em></strong>.
+      To fix this issue, <a id="https-message-link" href="#">reload this page with <em>HTTP</em></a>.</h3>
     <p class="lead">
     Below you can find what people are building with Rocky.js.
     <a href="https://github.com/pebble/rockyjs/compare">Open a pull request</a> to share your work!
@@ -42,6 +44,17 @@
 
 
 </div>
+<script>
+  // examples don't load on https
+  (function(){
+    if (location.protocol == 'https:') {
+      var linkElem = document.getElementById('https-message-link');
+      linkElem.setAttribute('href', location.href.replace(/^https:/, 'http:'));
+      document.getElementById('https-message').classList.remove('hide');
+    }
+  })();
+
+</script>
 <script src="https://static.jsbin.com/js/embed.min.js?3.35.9"></script>
 <a id="githubForkLink" href="https://github.com/pebble/rockyjs.git">Fork me on GitHub</a>
 </body>
