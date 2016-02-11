@@ -83,8 +83,7 @@ Instances of Rocky.js include a property, `update_proc`, that will be invoked ea
 
 See [rocky.mark_dirty](#rocky-mark_dirty) for sample usage.
 
-<a name="api-compatibility"></a>
-## Pebble API Compatibility
+## <a name="api-compatibility"></a>Pebble API Compatibility
 
 Rocky.js currently implements a subset of Pebble's C-Style API. This section of the document outlines what methods have been implemented, as well as recommendations for how to manage some of the sections of the API that are not implemented.
 
