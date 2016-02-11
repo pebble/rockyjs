@@ -9,4 +9,4 @@ This folder contains a variety of examples designed to help you understand some 
  - [GPath](gpath/index.html) – Shows how to use APIs around `GPath`.
  - [APNG/GIF](apng/index.html) – Renders an animatd GIF/animated PNG.
  - [Text](text/index.html) – Shows how to draw text and use fonts.
- - [Community Examples](community.html) - Additional examples built by community members.
+ - [Community Examples](http://pebble.github.io/rockyjs/examples/community.html) - Additional examples built by community members.
