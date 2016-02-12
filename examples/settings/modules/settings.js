@@ -11,12 +11,11 @@ var Settings = function(configureUrl, defaultValues) {
   this.jsonString = '';
 
   this.initialize = function() {
+
     this.jsonString = this.getUrlParameter('json');
     if (this.jsonString && this.jsonString !== '') {
       // Load configuration from URL
-
-      // TODO: 'settings' is not right - need help!
-      window.opener.settings.saveConfiguration(this.jsonString);
+      window.opener.rockySettings.saveConfiguration(this.jsonString);
 
       window.close();
     } else {
@@ -26,6 +25,7 @@ var Settings = function(configureUrl, defaultValues) {
   };
 
   this.openConfiguration = function() {
+    window.rockySettings = this;
     window.open(this.configureUrl + '?return_to=' +
                 encodeURIComponent(window.location.href +
                   '?config=true&json='),
