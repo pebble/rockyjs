@@ -30,6 +30,60 @@ var PebbleUI = function(rocky, options) {
     // Intentionally empty
     this.render = function(ctx, bounds) { };
 
+    this._boundsAreEqual = function(a, b) {
+      if(a.length !== b.length) {
+        return false;
+      }
+
+      for(var i = 0; i < a.length; i++) {
+        if(a[i] !== b[i]) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    this.animateBounds = function(targetBounds, duration, delay, stoppedCallback) {
+      if(this._boundsAreEqual(this.bounds, targetBounds)) {
+        return;
+      }
+
+      var fps = 30;
+      var interval = duration / fps;
+      var deltas = [];
+      for(var i = 0; i < this.bounds.length; i++) {
+        deltas[i] = Math.abs(this.bounds[i] - targetBounds[i]) / interval;
+      }
+
+      setTimeout((function() {
+        var id = setInterval((function() {
+          if(this._boundsAreEqual(this.bounds, targetBounds)) {
+            clearInterval(id);
+
+            if(stoppedCallback) {
+              stoppedCallback();
+            }
+          }
+
+          for(var i = 0; i < this.bounds.length; i++) {
+            if(Math.abs(this.bounds[i] - targetBounds[i]) < deltas[i]) {
+              this.bounds[i] = targetBounds[i];
+              continue;
+            }
+
+            if(this.bounds[i] < targetBounds[i]) {
+              this.bounds[i] += deltas[i];
+            } else if(this.bounds[i] > targetBounds[i]) {
+              this.bounds[i] -= deltas[i];
+            }
+          }
+
+          rocky.mark_dirty();
+        }).bind(this), interval);
+      }).bind(this), delay);
+    }
+
     return this;
   };
 
