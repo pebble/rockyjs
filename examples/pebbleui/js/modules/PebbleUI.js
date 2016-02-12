@@ -51,7 +51,8 @@ var PebbleUI = function(rocky, options) {
     circle.render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this.backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, rocky.GColorClear);
-      rocky.graphics_fill_radial(ctx, this.bounds, rocky.GOvalScaleModeFitCircle, Math.min(this.bounds[2], this.bounds[3])/2, 
+      rocky.graphics_fill_radial(ctx, this.bounds, rocky.GOvalScaleModeFitCircle, 
+                                  Math.min(this.bounds[2], this.bounds[3])/2, 
                                   rocky.DEG_TO_TRIGANGLE(0), rocky.DEG_TO_TRIGANGLE(360));
     };
 
