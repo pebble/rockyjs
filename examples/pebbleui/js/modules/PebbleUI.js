@@ -75,7 +75,7 @@ var PebbleUI = function(rocky, options) {
     };
 
     return t;
-  }
+  };
 
   // An Image is an Element
   this.Image = function(url, bounds, options) {
@@ -194,3 +194,4 @@ var PebbleUI = function(rocky, options) {
   rocky.update_proc = this.render.bind(this);
   return this;  
 };
+
