@@ -75,7 +75,7 @@
         // the same way you were using them in C
         rocky.export_global_c_symbols();
 
-        var lastTranscript = 'Speak now';
+        var lastTranscript = "Speak now";
 
         rocky.update_proc = function (ctx, bounds) {
             graphics_context_set_text_color(ctx, GColorBlack);
@@ -89,12 +89,12 @@
 
         var speechRecognition = new SpeechRecognition();
         var dictation = new Dictation(speechRecognition, lang);
-        if(dictation !== undefined) {
-            dictation.start(function(transcript) {
-                lastTranscript = 'You said: \n' + transcript;
+        if (dictation) {
+            dictation.start(function (transcript) {
+                lastTranscript = "You said: \n" + transcript;
                 rocky.mark_dirty();
-            }, function(errorMsg) {
-                lastTranscript = 'Error: ' + errorMsg;
+            }, function (errorMsg) {
+                lastTranscript = "Error: " + errorMsg;
                 rocky.mark_dirty();
             });
         }
