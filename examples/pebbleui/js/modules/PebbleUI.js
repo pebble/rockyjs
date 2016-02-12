@@ -7,15 +7,53 @@ var PebbleUI = function(rocky, options) {
   // Load the default font
   this.defaultFont = rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18);
 
-  this.render = function(ctx, bounds) {
+  this._getTopWindow = function() {
     // short circuit if there's nothing to render
-    if (!this.windows || this.windows.length < 1) return;
+    if (!this.windows || this.windows.length < 1) return null;
     
     // otherwise render the active screen
-    this.windows[this.windows.length-1].render(ctx, bounds); 
+    return this.windows[this.windows.length-1]
+  }
+
+  this.render = function(ctx, bounds) {
+    var win = this._getTopWindow();
+    if (win) win.render(ctx, bounds); 
   };
 
   var parent = this;
+
+  this.window = window || {};
+
+  this._keys = {};
+
+  this.window.addEventListener('keydown', function(event) {
+    var code = event.keyCode;
+    var keys = parent._keys;
+    var win = parent._getTopWindow();
+    if (!win) return;
+
+    if (code < 37 || code > 40) return;   // ignore everything except the arrow keys
+    
+    if (!keys[code]) {
+      keys[code] = { timedown: event.timeStamp };
+      win._invokeButtonCallbackByCode(code, { type: "short" });
+    }
+
+    if (event.timeStamp - keys[code].timedown > 500 && !keys[code].longPress) {
+      keys[code].longPress = true;  // Mark that we've fired the longPress
+      win._invokeButtonCallbackByCode(code, { type: "long" });
+    }
+  });
+
+  this.window.addEventListener('keyup', function(event) {
+    var code = event.keyCode;
+    var keys = parent._keys;
+    
+    if (code < 37 || code > 40) return;   // ignore everything except the arrow keys
+    
+    delete keys[code];
+  });
+
 
   // Everything is an Element!
   this.Element = function(options) {
@@ -166,6 +204,47 @@ var PebbleUI = function(rocky, options) {
       setTimeout(rocky.mark_dirty, 0);
     };
 
+    windowElement._defaultBackHandler = function(event) {
+      // Remove the current window
+      windowElement.hide();
+    }
+
+    windowElement.onUp = function(cb) {
+      windowElement.upHandler = cb;
+    };
+
+    windowElement.onDown = function(cb) {
+      windowElement.downHandler = cb;
+    };
+
+    windowElement.onSelect = function(cb) {
+      windowElement.selectHandler = cb;
+    };
+
+    windowElement.onBack = function(cb) {
+      if (cb) windowElement.backHhandler = cb;
+      else windowElement.backHandler = windowElement._defaultBackHandler;
+    };
+
+    windowElement._invokeButtonCallbackByCode = function(code, event) {
+      switch (code) {
+        case 37:
+          if (windowElement.backHandler) windowElement.backHandler(event);
+          break;
+        case 38:
+          if (windowElement.upHandler) windowElement.upHandler(event);
+          break;
+        case 39:
+          if (windowElement.selectHandler) windowElement.selectHandler(event);
+          break;
+        case 40:
+          if (windowElement.downHandler) windowElement.downHandler(event);
+          break;
+        default:
+          console.log("Unknown keycode: " + code);
+      }
+    };
+
     windowElement.render = function(ctx, bounds) {
       windowElement.background.render(ctx, bounds);
 
@@ -174,6 +253,12 @@ var PebbleUI = function(rocky, options) {
         if (el.render) el.render(ctx, bounds);
       }.bind(windowElement));
     };
+
+    // Set callbacks
+    windowElement.backHandler = options.onBack || windowElement._defaultBackHandler;
+    windowElement.selectHandler = options.onSelect;
+    windowElement.upHandler = options.onUp;
+    windowElement.downHandler = options.onDown;
 
     return windowElement;
   };
@@ -207,6 +292,31 @@ var PebbleUI = function(rocky, options) {
     card.add(card.titleElement);
     card.add(card.subtitleElement);
     card.add(card.bodyElement);
+
+    // _ indicates a private method
+    var _modifyText = function(el, data) {
+      if (typeof data === 'string') {
+        el.text = data;
+      } else {
+        for(var key in data) {
+          el[key] = data[key];
+        }
+      }
+
+      rocky.mark_dirty();
+    }
+
+    card.title = function(data) {
+      _modifyText(card.titleElement, data);
+    };
+
+    card.subtitle = function(data) {
+      _modifyText(card.subtitleElement, data);
+    };
+
+    card.body = function(data) {
+      _modifyText(card.bodyElement, data);
+    };
     
     return card;
   };
