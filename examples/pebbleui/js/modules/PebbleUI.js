@@ -22,7 +22,7 @@ var PebbleUI = function(rocky, options) {
     options = options || { };
 
     this.bounds = bounds;
-    this.z = options.z || this.currentZ++;    // z-index
+    this.z = options.z || parent.currentZ++;    // z-index
 
     this.backgroundColor = options.backgroundColor || rocky.GColorClear;
     this.color = options.color || rocky.GColorBlack;
@@ -127,7 +127,7 @@ var PebbleUI = function(rocky, options) {
 
       // Render the remainder of the elements
       this.elements.forEach(function(el) {
-        if (el && el.render) el.render(ctx, bounds);
+        if (el.render) el.render(ctx, bounds);
       }.bind(this));
     };
 
@@ -140,7 +140,9 @@ var PebbleUI = function(rocky, options) {
       
       // Add the element to the list and sort
       this.elements.push(el);
-      this.elements = this.elements.sort(function(a,b) { return a-b; });
+      this.elements = this.elements.sort(function(a,b) { 
+        return a.z-b.z; 
+      });
       setTimeout(rocky.mark_dirty, 0);
     };
 
