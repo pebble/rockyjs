@@ -8,16 +8,16 @@ var PebbleUI = function(rocky, options) {
   this.defaultFont = rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18);
 
   this._getTopWindow = function() {
-    // short circuit if there's nothing to render
+    // short circuit if there's nothing to _render
     if (!this.windows || this.windows.length < 1) return null;
     
-    // otherwise render the active screen
+    // otherwise _render the active screen
     return this.windows[this.windows.length-1]
   }
 
-  this.render = function(ctx, bounds) {
+  this._render = function(ctx, bounds) {
     var win = this._getTopWindow();
-    if (win) win.render(ctx, bounds); 
+    if (win) win._render(ctx, bounds); 
   };
 
   var parent = this;
@@ -66,7 +66,7 @@ var PebbleUI = function(rocky, options) {
     this.z = options.z || 0;
 
     // Intentionally empty
-    this.render = function(ctx, bounds) { };
+    this._render = function(ctx, bounds) { };
 
     return this;
   };
@@ -77,7 +77,7 @@ var PebbleUI = function(rocky, options) {
 
     var rectElement = new parent.Element(options);
     
-    rectElement.render = function(ctx, bounds) {
+    rectElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this.backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, this.color);
       rocky.graphics_fill_rect(ctx, this.bounds, 0, rocky.GCornersAll);
@@ -92,7 +92,7 @@ var PebbleUI = function(rocky, options) {
 
     var circleElement = new parent.Element(options);
 
-    circleElement.render = function(ctx, bounds) {
+    circleElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this.backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, rocky.GColorClear);
       rocky.graphics_fill_radial(ctx, this.bounds, rocky.GOvalScaleModeFitCircle, 
@@ -116,7 +116,7 @@ var PebbleUI = function(rocky, options) {
 
     textElement.text = options.text || "";
 
-    textElement.render = function(ctx, bounds) {
+    textElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_text_color(ctx, this.color);
       rocky.graphics_draw_text(ctx, this.text, this.font, this.bounds, 
                                     rocky.GTextOverflowModeWordWrap, 
@@ -133,9 +133,9 @@ var PebbleUI = function(rocky, options) {
     var imageElement = new parent.Element(options);
 
     imageElement.bitmap = rocky.gbitmap_create(options.url || "");
-    imageElement.bitmap.onload = function() { rocky.mark_dirty(); };
+    imageElement.bitmap.onload = function() { setTimeout(rocky.mark_dirty, 0); };
 
-    imageElement.render = function(ctx, bounds) {
+    imageElement._render = function(ctx, bounds) {
       rocky.graphics_draw_bitmap_in_rect(ctx, this.bitmap, this.bounds);
     };
 
@@ -163,6 +163,8 @@ var PebbleUI = function(rocky, options) {
       parent.windows.push(windowElement);
       
       setTimeout(rocky.mark_dirty, 0);
+
+      return this;
     };
 
     windowElement.hide = function() {
@@ -173,6 +175,8 @@ var PebbleUI = function(rocky, options) {
       }
       
       setTimeout(rocky.mark_dirty, 0);
+
+      return this;
     };
 
     windowElement.add = function(el) {
@@ -192,6 +196,8 @@ var PebbleUI = function(rocky, options) {
         return a.z-b.z; 
       });
       setTimeout(rocky.mark_dirty, 0);
+
+      return this;
     };
 
     windowElement.remove = function(el) {
@@ -202,6 +208,8 @@ var PebbleUI = function(rocky, options) {
       } 
 
       setTimeout(rocky.mark_dirty, 0);
+
+      return this;
     };
 
     windowElement._defaultBackHandler = function(event) {
@@ -211,19 +219,27 @@ var PebbleUI = function(rocky, options) {
 
     windowElement.onUp = function(cb) {
       windowElement.upHandler = cb;
+
+      return this;
     };
 
     windowElement.onDown = function(cb) {
       windowElement.downHandler = cb;
+
+      return this;
     };
 
     windowElement.onSelect = function(cb) {
       windowElement.selectHandler = cb;
+
+      return this;
     };
 
     windowElement.onBack = function(cb) {
       if (cb) windowElement.backHhandler = cb;
       else windowElement.backHandler = windowElement._defaultBackHandler;
+
+      return this;
     };
 
     windowElement._invokeButtonCallbackByCode = function(code, event) {
@@ -245,12 +261,12 @@ var PebbleUI = function(rocky, options) {
       }
     };
 
-    windowElement.render = function(ctx, bounds) {
-      windowElement.background.render(ctx, bounds);
+    windowElement._render = function(ctx, bounds) {
+      windowElement.background._render(ctx, bounds);
 
-      // Render the remainder of the elements
+      // _render the remainder of the elements
       windowElement.elements.forEach(function(el) {
-        if (el.render) el.render(ctx, bounds);
+        if (el._render) el._render(ctx, bounds);
       }.bind(windowElement));
     };
 
@@ -303,25 +319,31 @@ var PebbleUI = function(rocky, options) {
         }
       }
 
-      rocky.mark_dirty();
+      setTimeout(rocky.mark_dirty, 0);
     }
 
     card.title = function(data) {
       _modifyText(card.titleElement, data);
+
+      return this;
     };
 
     card.subtitle = function(data) {
       _modifyText(card.subtitleElement, data);
+
+      return this;
     };
 
     card.body = function(data) {
       _modifyText(card.bodyElement, data);
+
+      return this;
     };
     
     return card;
   };
 
-  rocky.update_proc = this.render.bind(this);
+  rocky.update_proc = this._render.bind(this);
   return this;  
 };
 
