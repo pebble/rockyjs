@@ -295,7 +295,7 @@ var PebbleUI = function(rocky, options) {
       bounds: [10, 60, 124, 108],
       text: options.body || "",
       color: options.bodyColor || rocky.GColorBlack,
-      font: options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18_BOLD)
+      font: options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18)
     });
 
     card.add(card.titleElement);

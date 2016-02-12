@@ -14,7 +14,7 @@
     backgroundColor: GColorBlue 
   })).add(new UI.Text({ 
     bounds: [30,80, 104, 108], 
-    text: "This is some text or whatever, blah blah blah", 
+    text: "This is some text or whatever, blah blah blah.. press back to go back a screen", 
     color: GColorYellow 
   })).add(new UI.Image({
     bounds: [10,10,25,25], 
