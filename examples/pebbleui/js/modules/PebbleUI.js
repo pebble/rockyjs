@@ -33,6 +33,7 @@ var PebbleUI = function(rocky, options) {
     if (!win) return;
 
     if (code < 37 || code > 40) return;   // ignore everything except the arrow keys
+    event.preventDefault();
     
     if (!keys[code]) {
       keys[code] = { timedown: event.timeStamp };
