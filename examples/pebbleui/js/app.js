@@ -1,4 +1,3 @@
-// Better example with a card
 (function() {
   var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
   rocky.export_global_c_symbols();
