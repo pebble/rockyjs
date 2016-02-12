@@ -12,8 +12,8 @@ var PebbleUI = function(rocky, options) {
     if (!this.windows || this.windows.length < 1) return null;
     
     // otherwise _render the active screen
-    return this.windows[this.windows.length-1]
-  }
+    return this.windows[this.windows.length-1];
+  };
 
   this._render = function(ctx, bounds) {
     var win = this._getTopWindow();
@@ -161,7 +161,7 @@ var PebbleUI = function(rocky, options) {
       } 
       
       parent.windows.push(windowElement);
-      setTimeout(rocky.mark_dirty, 0)
+      setTimeout(rocky.mark_dirty, 0);
       return this;
     };
 
@@ -211,7 +211,7 @@ var PebbleUI = function(rocky, options) {
     windowElement._defaultBackHandler = function(event) {
       // Remove the current window
       windowElement.hide();
-    }
+    };
 
     windowElement.onUp = function(cb) {
       windowElement.upHandler = cb;
@@ -312,7 +312,7 @@ var PebbleUI = function(rocky, options) {
       }
 
       setTimeout(rocky.mark_dirty, 0);
-    }
+    };
 
     card.title = function(data) {
       _modifyText(card.titleElement, data);

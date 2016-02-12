@@ -32,7 +32,9 @@
     bodyColor: GColorWhite,
     onUp: function(event) { this.body("You Pressed Up!"); },
     onDown: function(event) { this.body("You Pressed Down!"); },
-    onSelect: function(event) { graphicsDemoWindow.show(); }
+    onSelect: function(event) { graphicsDemoWindow.show(); },
+    // Override the onBack handler so it doesn't quit the app
+    onBack: function(event) { /* Do Nothing */ }
   }).show();
 
 })();
