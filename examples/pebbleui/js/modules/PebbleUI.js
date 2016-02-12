@@ -3,7 +3,7 @@ var PebbleUI = function(rocky, options) {
 
   this.options = options;
   this.windows = [];
-  this.currentZ = 0;
+
   // Load the default font
   this.defaultFont = rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18);
 
@@ -17,23 +17,26 @@ var PebbleUI = function(rocky, options) {
 
   var parent = this;
 
-  // Everything is an Element
+  // Everything is an Element!
   this.Element = function(options) {
     options = options || { };
 
     this.bounds = options.bounds || [0,0,144,168];
-    this.z = options.z || parent.currentZ++;
 
     this.backgroundColor = options.backgroundColor || rocky.GColorClear;
     this.color = options.color || rocky.GColorBlack;
+    this.z = options.z || 0;
 
-    this.render = null;
+    // Intentionally empty
+    this.render = function(ctx, bounds) { };
 
     return this;
   };
 
   // A Rect is an Element
   this.Rect = function(options) {
+    options = options || {};
+
     var rectElement = new parent.Element(options);
     
     rectElement.render = function(ctx, bounds) {
@@ -47,6 +50,8 @@ var PebbleUI = function(rocky, options) {
 
   // A Circle is an Element
   this.Circle = function(options) {
+    options = options || {};
+
     var circleElement = new parent.Element(options);
 
     circleElement.render = function(ctx, bounds) {
@@ -68,6 +73,7 @@ var PebbleUI = function(rocky, options) {
 
     textElement.text = options.text || "";
     textElement.font = options.font || parent.defaultFont;
+    textElement.color = options.color || rocky.GColorBlack;
     textElement.alignment = options.alignment || rocky.GTextAlignmentLeft;
 
     textElement.text = options.text || "";
@@ -84,6 +90,8 @@ var PebbleUI = function(rocky, options) {
 
   // An Image is an Element
   this.Image = function(options) {
+    options = options || {};
+
     var imageElement = new parent.Element(options);
 
     imageElement.bitmap = rocky.gbitmap_create(options.url || "");
@@ -101,7 +109,8 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var windowElement = new parent.Element(options);
-    
+    windowElement.currentZ = 0;
+
     windowElement.background = new parent.Rect(options);
 
     windowElement.elements = [];
@@ -130,6 +139,10 @@ var PebbleUI = function(rocky, options) {
 
     windowElement.add = function(el) {
       var elementIndex = windowElement.elements.indexOf(el);
+      
+      // add a Z-Index if it's not already set
+      if (!el.z) el.z = windowElement.currentZ++;
+
       // Remove the elements from the stack if it exists
       if (elementIndex >= 0) {
         windowElement.elements.splice(windowIndex, 1);
@@ -170,31 +183,32 @@ var PebbleUI = function(rocky, options) {
   this.Card = function(options) {   
     options = options || {};
 
-    var card = new Window(options);
+    var card = new parent.Window(options);
 
-    card.titleText = options.title || "";
-    car.subtitleText = options.subtitle || "";
-    this.bodyText = options.body || "";
+    card.titleElement = new parent.Text({
+      bounds: [10,0, 124, 20],
+      text: options.title || "",
+      color: options.titleColor || rocky.GColorBlack,
+      font: options.titleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28_BOLD)
+    });
+    card.subtitleElement = new parent.Text({
+      bounds: [10, 30, 124, 20],
+      text: options.subtitle || "",
+      color: options.subtitleColor || rocky.GColorBlack,
+      font: options.subtitleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28)
+    });
+    card.bodyElement = new parent.Text({
+      bounds: [10, 60, 124, 108],
+      text: options.body || "",
+      color: options.bodyColor || rocky.GColorBlack,
+      font: options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24_BOLD)
+    });
 
-    this.titleFont = options.titleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28_BOLD);
-    this.subtitleFont = options.subtitleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28);
-    this.bodyFont = options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24_BOLD);
-
-
-
-    this.render = function(ctx, bounds) {
-      rocky.graphics_draw_text(ctx, this.titleText, this.titleFont, [10, 0, bounds.w-10, 20], 0, 0);
-      rocky.graphics_draw_text(ctx, this.subtitleText, this.subtitleFont, [10, 30, bounds.w-10, 50], 0, 0);
-      rocky.graphics_draw_text(ctx, this.bodyText, this.bodyFont, [10, 60, bounds.w-10, bounds.h], 0, 0);
-    };
-
-    this.show = function() {
-    };
-
-    this.hide = function() {
-    };
+    card.add(card.titleElement);
+    card.add(card.subtitleElement);
+    card.add(card.bodyElement);
     
-    return this;
+    return card;
   };
 
   rocky.update_proc = this.render.bind(this);
