@@ -1,0 +1,11 @@
+canvas {
+  border-radius: 6px;
+  image-rendering: pixelated;
+}
+
+#watchBody {
+  width: 244px;
+  height: 350px;
+  padding: 91px 50px;
+  background: url(http://pebble.github.io/rockyjs/img/basaltLight.png) no-repeat;
+}
