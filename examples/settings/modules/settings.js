@@ -38,7 +38,7 @@ var Settings = function(configureUrl, defaultValues) {
       console.log('loaded: ' + this.jsonString);
       this.values = JSON.parse(this.jsonString);
     } else {
-      if (typeof(this.defaultValues)!='undefined') {
+      if (typeof (this.defaultValues) !== 'undefined') {
         this.saveConfiguration(JSON.stringify(this.defaultValues));
       }
     }
@@ -66,15 +66,15 @@ var Settings = function(configureUrl, defaultValues) {
     return val ? val[1] : val;
   };
 
-  //https://github.com/smallstoneapps/gcolor.js
+  // https://github.com/smallstoneapps/gcolor.js
   this.GColorFromHex = function(hex) {
     var hexNum = parseInt(hex, 16);
     var a = 192;
     var r = (((hexNum >> 16) & 0xFF) >> 6) << 4;
-    var g = (((hexNum >>  8) & 0xFF) >> 6) << 2;
-    var b = (((hexNum >>  0) & 0xFF) >> 6) << 0;
+    var g = (((hexNum >> 8) & 0xFF) >> 6) << 2;
+    var b = (((hexNum >> 0) & 0xFF) >> 6) << 0;
     return a + r + g + b;
-  }
+  };
 
   this.initialize();
 
