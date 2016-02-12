@@ -26,12 +26,12 @@
     backgroundColor: GColorBlack,
     title: "Pebble.js",
     titleColor: GColorRed,
-    subtitle: "This is some text",
+    subtitle: "Press a button",
     subtitleColor: GColorYellow,
-    body: "Press a button :)",
+    body: "... and see what happens!",
     bodyColor: GColorWhite,
-    onUp: function(event) { this.body("Up!"); },
-    onDown: function(event) { this.body("Down!"); },
+    onUp: function(event) { this.body("You Pressed Up!"); },
+    onDown: function(event) { this.body("You Pressed Down!"); },
     onSelect: function(event) { graphicsDemoWindow.show(); }
   }).show();
 

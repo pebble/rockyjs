@@ -161,9 +161,7 @@ var PebbleUI = function(rocky, options) {
       } 
       
       parent.windows.push(windowElement);
-      
-      setTimeout(rocky.mark_dirty, 0);
-
+      setTimeout(rocky.mark_dirty, 0)
       return this;
     };
 
@@ -175,7 +173,6 @@ var PebbleUI = function(rocky, options) {
       }
       
       setTimeout(rocky.mark_dirty, 0);
-
       return this;
     };
 
@@ -195,8 +192,8 @@ var PebbleUI = function(rocky, options) {
       windowElement.elements = windowElement.elements.sort(function(a,b) { 
         return a.z-b.z; 
       });
-      setTimeout(rocky.mark_dirty, 0);
 
+      setTimeout(rocky.mark_dirty, 0);
       return this;
     };
 
@@ -208,7 +205,6 @@ var PebbleUI = function(rocky, options) {
       } 
 
       setTimeout(rocky.mark_dirty, 0);
-
       return this;
     };
 
@@ -219,26 +215,22 @@ var PebbleUI = function(rocky, options) {
 
     windowElement.onUp = function(cb) {
       windowElement.upHandler = cb;
-
       return this;
     };
 
     windowElement.onDown = function(cb) {
       windowElement.downHandler = cb;
-
       return this;
     };
 
     windowElement.onSelect = function(cb) {
       windowElement.selectHandler = cb;
-
       return this;
     };
 
     windowElement.onBack = function(cb) {
       if (cb) windowElement.backHhandler = cb;
       else windowElement.backHandler = windowElement._defaultBackHandler;
-
       return this;
     };
 
@@ -290,19 +282,19 @@ var PebbleUI = function(rocky, options) {
       bounds: [10,0, 124, 20],
       text: options.title || "",
       color: options.titleColor || rocky.GColorBlack,
-      font: options.titleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28_BOLD)
+      font: options.titleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24_BOLD)
     });
     card.subtitleElement = new parent.Text({
       bounds: [10, 30, 124, 20],
       text: options.subtitle || "",
       color: options.subtitleColor || rocky.GColorBlack,
-      font: options.subtitleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28)
+      font: options.subtitleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24)
     });
     card.bodyElement = new parent.Text({
       bounds: [10, 60, 124, 108],
       text: options.body || "",
       color: options.bodyColor || rocky.GColorBlack,
-      font: options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24_BOLD)
+      font: options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18_BOLD)
     });
 
     card.add(card.titleElement);
@@ -324,19 +316,16 @@ var PebbleUI = function(rocky, options) {
 
     card.title = function(data) {
       _modifyText(card.titleElement, data);
-
       return this;
     };
 
     card.subtitle = function(data) {
       _modifyText(card.subtitleElement, data);
-
       return this;
     };
 
     card.body = function(data) {
       _modifyText(card.bodyElement, data);
-
       return this;
     };
     
