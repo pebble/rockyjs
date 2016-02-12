@@ -1,6 +1,6 @@
 var PebbleUI = function(rocky, options) {
   options = options || {};
-  
+
   this.options = options;
   this.windows = [];
   this.currentZ = 0;
@@ -18,11 +18,11 @@ var PebbleUI = function(rocky, options) {
   var parent = this;
 
   // Everything is an Element
-  this.Element = function(bounds, options) {
+  this.Element = function(options) {
     options = options || { };
 
-    this.bounds = bounds;
-    this.z = options.z || parent.currentZ++;    // z-index
+    this.bounds = options.bounds || [0,0,144,168];
+    this.z = options.z || parent.currentZ++;
 
     this.backgroundColor = options.backgroundColor || rocky.GColorClear;
     this.color = options.color || rocky.GColorBlack;
@@ -33,131 +33,136 @@ var PebbleUI = function(rocky, options) {
   };
 
   // A Rect is an Element
-  this.Rect = function(bounds, options) {
-    var rect = new parent.Element(bounds, options);
+  this.Rect = function(options) {
+    var rectElement = new parent.Element(options);
     
-    rect.render = function(ctx, bounds) {
+    rectElement.render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this.backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, this.color);
       rocky.graphics_fill_rect(ctx, this.bounds, 0, rocky.GCornersAll);
     };
 
-    return rect;
+    return rectElement;
   };
 
   // A Circle is an Element
-  this.Circle = function(bounds, options) {
-    var circle = new parent.Element(bounds, options);
-    circle.render = function(ctx, bounds) {
+  this.Circle = function(options) {
+    var circleElement = new parent.Element(options);
+
+    circleElement.render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this.backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, rocky.GColorClear);
       rocky.graphics_fill_radial(ctx, this.bounds, rocky.GOvalScaleModeFitCircle, 
-                                  Math.min(this.bounds[2], this.bounds[3])/2, 
-                                  rocky.DEG_TO_TRIGANGLE(0), rocky.DEG_TO_TRIGANGLE(360));
+                                      Math.min(this.bounds[2], this.bounds[3])/2, 
+                                      rocky.DEG_TO_TRIGANGLE(0), rocky.DEG_TO_TRIGANGLE(360));
     };
 
-    return circle;
+    return circleElement;
   };
 
   // A Text is an Element
-  this.Text = function(bounds, text, options) {
+  this.Text = function(options) {
     options = options || {};
 
-    var t = new parent.Element(bounds, options);
-    t.font = options.font || parent.defaultFont;
-    t.alignment = options.alignment || rocky.GTextAlignmentLeft;
-    t.text = text;
+    var textElement = new parent.Element(options);
 
-    t.render = function(ctx, bounds) {
-      rocky.graphics_context_set_text_color(ctx, t.color);
-      rocky.graphics_draw_text(ctx, t.text, t.font, t.bounds, 
-                                rocky.GTextOverflowModeWordWrap, 
-                                t.alignment, null);
+    textElement.text = options.text || "";
+    textElement.font = options.font || parent.defaultFont;
+    textElement.alignment = options.alignment || rocky.GTextAlignmentLeft;
+
+    textElement.text = options.text || "";
+
+    textElement.render = function(ctx, bounds) {
+      rocky.graphics_context_set_text_color(ctx, this.color);
+      rocky.graphics_draw_text(ctx, this.text, this.font, this.bounds, 
+                                    rocky.GTextOverflowModeWordWrap, 
+                                    this.alignment, null);
     };
 
-    return t;
+    return textElement;
   };
 
   // An Image is an Element
-  this.Image = function(url, bounds, options) {
-    var image = new parent.Element(bounds, options);
-    
-    image.bitmap = rocky.gbitmap_create(url);
-    image.bitmap.onload = function() { rocky.mark_dirty(); };
+  this.Image = function(options) {
+    var imageElement = new parent.Element(options);
 
-    image.render = function(ctx, bounds) {
+    imageElement.bitmap = rocky.gbitmap_create(options.url || "");
+    imageElement.bitmap.onload = function() { rocky.mark_dirty(); };
+
+    imageElement.render = function(ctx, bounds) {
       rocky.graphics_draw_bitmap_in_rect(ctx, this.bitmap, this.bounds);
     };
 
-    return image;
+    return imageElement;
   };
 
   // A Window is an Element
   this.Window = function(options) {
     options = options || {};
 
-    this.background = new parent.Rect([0,0,144,168], options);
-    this.parent = parent;
+    var windowElement = new parent.Element(options);
+    
+    windowElement.background = new parent.Rect(options);
 
-    this.elements = [];
+    windowElement.elements = [];
 
-    this.show = function() {
-      var windowIndex = this.parent.windows.indexOf(this);
+    windowElement.show = function() {
+      var windowIndex = parent.windows.indexOf(windowElement);
       // Remove the window from the stack if it exists
       if (windowIndex >= 0) {
-        this.parent.windows.splice(windowIndex, 1);
+        parent.windows.splice(windowIndex, 1);
       } 
       
-      this.parent.windows.push(this);
+      parent.windows.push(windowElement);
       
       setTimeout(rocky.mark_dirty, 0);
     };
 
-    this.hide = function() {
-      var windowIndex = this.parent.windows.indexOf(this);
+    windowElement.hide = function() {
+      var windowIndex = parent.windows.indexOf(windowElement);
       // Remove the window from the stack if it exists
       if (windowIndex >= 0) {
-        this.parent.windows.splice(windowIndex, 1);
+        parent.windows.splice(windowIndex, 1);
       }
       
       setTimeout(rocky.mark_dirty, 0);
     };
 
-    this.render = function(ctx, bounds) {
-      this.background.render(ctx, bounds);
-
-      // Render the remainder of the elements
-      this.elements.forEach(function(el) {
-        if (el.render) el.render(ctx, bounds);
-      }.bind(this));
-    };
-
-    this.add = function(el) {
-      var elementIndex = this.elements.indexOf(el);
+    windowElement.add = function(el) {
+      var elementIndex = windowElement.elements.indexOf(el);
       // Remove the elements from the stack if it exists
       if (elementIndex >= 0) {
-        this.elements.splice(windowIndex, 1);
+        windowElement.elements.splice(windowIndex, 1);
       } 
       
       // Add the element to the list and sort
-      this.elements.push(el);
-      this.elements = this.elements.sort(function(a,b) { 
+      windowElement.elements.push(el);
+      windowElement.elements = windowElement.elements.sort(function(a,b) { 
         return a.z-b.z; 
       });
       setTimeout(rocky.mark_dirty, 0);
     };
 
-    this.remove = function(el) {
-      var elementIndex = this.elements.indexOf(el);
+    windowElement.remove = function(el) {
+      var elementIndex = windowElement.elements.indexOf(el);
       // Remove the elements from the stack if it exists
       if (elementIndex >= 0) {
-        this.elements.splice(windowIndex, 1);
+        windowElement.elements.splice(windowIndex, 1);
       } 
 
       setTimeout(rocky.mark_dirty, 0);
     };
 
-    return this;
+    windowElement.render = function(ctx, bounds) {
+      windowElement.background.render(ctx, bounds);
+
+      // Render the remainder of the elements
+      windowElement.elements.forEach(function(el) {
+        if (el.render) el.render(ctx, bounds);
+      }.bind(windowElement));
+    };
+
+    return windowElement;
   };
 
   // A Card is ~*not*~ an Element 
@@ -165,16 +170,18 @@ var PebbleUI = function(rocky, options) {
   this.Card = function(options) {   
     options = options || {};
 
-    this.parent = parent;
-    
-    this.titleText = options.title || "";
-    this.subtitleText = options.subtitle || "";
+    var card = new Window(options);
+
+    card.titleText = options.title || "";
+    car.subtitleText = options.subtitle || "";
     this.bodyText = options.body || "";
-  
+
     this.titleFont = options.titleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28_BOLD);
     this.subtitleFont = options.subtitleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_28);
     this.bodyFont = options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24_BOLD);
-  
+
+
+
     this.render = function(ctx, bounds) {
       rocky.graphics_draw_text(ctx, this.titleText, this.titleFont, [10, 0, bounds.w-10, 20], 0, 0);
       rocky.graphics_draw_text(ctx, this.subtitleText, this.subtitleFont, [10, 30, bounds.w-10, 50], 0, 0);
@@ -183,12 +190,8 @@ var PebbleUI = function(rocky, options) {
 
     this.show = function() {
     };
-    
-    this.hide = function() {
-    };
 
-    this.on = function(event, callback) {
-      
+    this.hide = function() {
     };
     
     return this;
