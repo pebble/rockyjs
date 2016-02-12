@@ -60,7 +60,6 @@ var PebbleUI = function(rocky, options) {
         var id = setInterval((function() {
           if(this._boundsAreEqual(this.bounds, targetBounds)) {
             clearInterval(id);
-
             if(stoppedCallback) {
               stoppedCallback();
             }
@@ -68,6 +67,7 @@ var PebbleUI = function(rocky, options) {
 
           for(var i = 0; i < this.bounds.length; i++) {
             if(Math.abs(this.bounds[i] - targetBounds[i]) < deltas[i]) {
+              // Close enough
               this.bounds[i] = targetBounds[i];
               continue;
             }

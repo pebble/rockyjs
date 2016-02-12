@@ -4,26 +4,24 @@
 
   var UI = new PebbleUI(rocky);
   var main = new UI.Window({ 
-    backgroundColor: GColorBlack 
+    backgroundColor: GColorWhite 
   });
+  var imgSize = 48;
   var image = new UI.Image({
-    bounds: [0, 0, 25, 25], 
-    url: "https://www.ciee.org/high-school-summer-abroad/images/sitewide/homeBtn25x25.png",
-    z: -1
+    bounds: [0, 0, imgSize, imgSize], 
+    url: "https://cdn0.iconfinder.com/data/icons/black-48x48-icons/48/Bee.png"
   }); 
   main.add(image);
   main.show();
 
-  var stages = [
-    [0, 0, 25, 25],
-    [144 - 25, 0, 25, 25],
-    [144 - 25, 168 - 25, 25, 25],
-    [0, 168 - 25, 25, 25]
-  ];
+  function random(max) {
+    return Math.floor(Math.random() * (max - 0)) + 0;
+  }
 
   var currentTarget = 1;
   function nextAnimation() {
-    image.animateBounds(stages[currentTarget], 500, 0, nextAnimation);
+    var to = [random(144 - imgSize), random(168 - imgSize), imgSize, imgSize];
+    image.animateBounds(to, 500, 0, nextAnimation);
 
     currentTarget += (currentTarget == 3) ? -3 : 1;
   }
