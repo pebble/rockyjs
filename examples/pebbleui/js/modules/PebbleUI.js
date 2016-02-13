@@ -123,8 +123,6 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var circleElement = new parent.Element(options);
-    console.log(rocky.DEG_TO_TRIGANGLE(0));
-    console.log(rocky.DEG_TO_TRIGANGLE(360));
     circleElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this._backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, rocky.GColorClear);
