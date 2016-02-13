@@ -9,9 +9,9 @@ var PebbleUI = function(rocky, options) {
   this._getTopWindow = function() {
     // short circuit if there's nothing to _render
     if (!this._windows || this._windows.length < 1) return null;
-    
+
     // otherwise _render the active screen
-    return this._windows[this._windows.length-1];
+    return this._windows[this._windows.length - 1];
   };
 
   this._dirty = false;
@@ -22,17 +22,17 @@ var PebbleUI = function(rocky, options) {
 
     // Otherwise, render when possible
     this._dirty = true;
-    setTimeout(function() { 
+    setTimeout(function() {
       rocky.mark_dirty();
       this._dirty = false;
     }.bind(this), 0);
-  }
+  };
 
   this._render = function(ctx, bounds) {
     var win = this._getTopWindow();
-    if (win) win._render(ctx, bounds); 
+    if (win) win._render(ctx, bounds);
   };
-  
+
   var parent = this;
 
   this._window = window || {};
@@ -46,24 +46,24 @@ var PebbleUI = function(rocky, options) {
 
     if (code < 37 || code > 40) return;   // ignore everything except the arrow keys
     event.preventDefault();
-    
+
     if (!keys[code]) {
       keys[code] = { timedown: event.timeStamp };
-      win._invokeButtonCallbackByCode(code, { type: "short" });
+      win._invokeButtonCallbackByCode(code, { type: 'short' });
     }
 
     if (event.timeStamp - keys[code].timedown > 500 && !keys[code].longPress) {
       keys[code].longPress = true;  // Mark that we've fired the longPress
-      win._invokeButtonCallbackByCode(code, { type: "long" });
+      win._invokeButtonCallbackByCode(code, { type: 'long' });
     }
   });
 
   this._window.addEventListener('keyup', function(event) {
     var code = event.keyCode;
     var keys = parent._keys;
-    
+
     if (code < 37 || code > 40) return;   // ignore everything except the arrow keys
-    
+
     delete keys[code];
   });
 
@@ -71,7 +71,7 @@ var PebbleUI = function(rocky, options) {
   this.Element = function(options) {
     this.options = options || { };
 
-    this.bounds = this.options.bounds || [0,0,144,168];
+    this.bounds = this.options.bounds || [0, 0, 144, 168];
     this._backgroundColor = options.backgroundColor || rocky.GColorClear;
     this._color = options.color || rocky.GColorBlack;
     this.z = options.z || 0;
@@ -88,7 +88,10 @@ var PebbleUI = function(rocky, options) {
 
     var lineElement = new parent.Element(options);
     lineElement._p1 = [options.bounds[0], options.bounds[1]];
-    lineElement._p2 = [options.bounds[0]+options.bounds[2], options.bounds[1]+options.bounds[3]];
+    lineElement._p2 = [
+      options.bounds[0] + options.bounds[2],
+      options.bounds[1] + options.bounds[3]
+    ];
     lineElement._strokeWidth = options.width || 2;
 
     lineElement._render = function(ctx, bounds) {
@@ -105,7 +108,7 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var rectElement = new parent.Element(options);
-    
+
     rectElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this._backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, this._color);
@@ -120,13 +123,14 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var circleElement = new parent.Element(options);
-
+    console.log(rocky.DEG_TO_TRIGANGLE(0));
+    console.log(rocky.DEG_TO_TRIGANGLE(360));
     circleElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_fill_color(ctx, this._backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, rocky.GColorClear);
-      rocky.graphics_fill_radial(ctx, this.bounds, rocky.GOvalScaleModeFitCircle, 
-                                      Math.min(this.bounds[2], this.bounds[3])/2, 
-                                      rocky.DEG_TO_TRIGANGLE(0), rocky.DEG_TO_TRIGANGLE(360));
+      rocky.graphics_fill_radial(ctx, this.bounds, rocky.GOvalScaleModeFitCircle,
+                                Math.min(this.bounds[2], this.bounds[3]) / 2,
+                                0, rocky.DEG_TO_TRIGANGLE(360));
     };
 
     return circleElement;
@@ -138,8 +142,9 @@ var PebbleUI = function(rocky, options) {
 
     var textElement = new parent.Element(options);
 
-    textElement._text = options.text || "";
-    textElement._font = fonts_get_system_font(options.font) || fonts_get_system_font(parent._defaultFont);
+    textElement._text = options.text || '';
+    textElement._font = rocky.fonts_get_system_font(options.font) ||
+                        rocky.fonts_get_system_font(parent._defaultFont);
     textElement._color = options.color || rocky.GColorBlack;
     textElement._alignment = options.alignment || rocky.GTextAlignmentLeft;
 
@@ -147,18 +152,18 @@ var PebbleUI = function(rocky, options) {
       if (typeof data === 'string') {
         this._text = data;
       } else {
-        for(var key in data) {
+        for (var key in data) {
           this._text[key] = data[key];
         }
       }
 
       parent.mark_dirty();
-    }
+    };
 
     textElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_text_color(ctx, this._color);
-      rocky.graphics_draw_text(ctx, this._text, this._font, this.bounds, 
-                                    rocky.GTextOverflowModeWordWrap, 
+      rocky.graphics_draw_text(ctx, this._text, this._font, this.bounds,
+                                    rocky.GTextOverflowModeWordWrap,
                                     this._alignment, null);
     };
 
@@ -171,7 +176,7 @@ var PebbleUI = function(rocky, options) {
 
     var imageElement = new parent.Element(options);
 
-    imageElement._bitmap = rocky.gbitmap_create(options.url || "");
+    imageElement._bitmap = rocky.gbitmap_create(options.url || '');
     imageElement._bitmap.onload = function() { parent.mark_dirty(); };
 
     imageElement._render = function(ctx, bounds) {
@@ -186,7 +191,7 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var windowElement = new parent.Element(options);
-    
+
     windowElement._currentZ = 0;
     windowElement._background = new parent.Rect(options);
     windowElement._elements = [];
@@ -196,8 +201,8 @@ var PebbleUI = function(rocky, options) {
         // Remove the window from the stack if it exists
       if (windowIndex >= 0) {
         parent._windows.splice(windowIndex, 1);
-      } 
-      
+      }
+
       parent._windows.push(this);
       parent.mark_dirty();
       return this;
@@ -209,26 +214,26 @@ var PebbleUI = function(rocky, options) {
       if (windowIndex >= 0) {
         parent._windows.splice(windowIndex, 1);
       }
-      
+
       parent.mark_dirty();
       return this;
     };
 
     windowElement.add = function(el) {
       var elementIndex = this._elements.indexOf(el);
-      
+
       // add a Z-Index if it's not already set
       if (!el.z) el.z = this._currentZ++;
 
       // Remove the elements from the stack if it exists
       if (elementIndex >= 0) {
-        this._elements.splice(windowIndex, 1);
-      } 
-      
+        this._elements.splice(elementIndex, 1);
+      }
+
       // Add the element to the list and sort
       this._elements.push(el);
-      this._elements = this._elements.sort(function(a,b) { 
-        return a.z-b.z; 
+      this._elements = this._elements.sort(function(a, b) {
+        return a.z - b.z;
       });
 
       parent.mark_dirty();
@@ -239,8 +244,8 @@ var PebbleUI = function(rocky, options) {
       var elementIndex = this._elements.indexOf(el);
       // Remove the elements from the stack if it exists
       if (elementIndex >= 0) {
-        this._elements.splice(windowIndex, 1);
-      } 
+        this._elements.splice(elementIndex, 1);
+      }
 
       parent.mark_dirty();
       return this;
@@ -287,7 +292,7 @@ var PebbleUI = function(rocky, options) {
           if (this._downHandler) this._downHandler(event);
           break;
         default:
-          console.log("Unknown keycode: " + code);
+          console.log('Unknown keycode: ' + code);
       }
     };
 
@@ -309,28 +314,28 @@ var PebbleUI = function(rocky, options) {
     return windowElement;
   };
 
-  // A Card is not an Element 
+  // A Card is not an Element
   // But it is a Window (which is an Element)
-  this.Card = function(options) {   
+  this.Card = function(options) {
     options = options || {};
 
     var card = new parent.Window(options);
 
     card._title = new parent.Text({
-      bounds: [10,0, 124, 20],
-      text: options.title || "",
+      bounds: [10, 0, 124, 20],
+      text: options.title || '',
       color: options.titleColor || rocky.GColorBlack,
       font: options.titleFont || rocky.FONT_KEY_GOTHIC_24_BOLD
     });
     card._subtitle = new parent.Text({
       bounds: [10, 30, 124, 20],
-      text: options.subtitle || "",
+      text: options.subtitle || '',
       color: options.subtitleColor || rocky.GColorBlack,
       font: options.subtitleFont || rocky.FONT_KEY_GOTHIC_24
     });
     card._body = new parent.Text({
       bounds: [10, 60, 124, 108],
-      text: options.body || "",
+      text: options.body || '',
       color: options.bodyColor || rocky.GColorBlack,
       font: options.bodyFont || rocky.FONT_KEY_GOTHIC_18
     });
@@ -353,7 +358,7 @@ var PebbleUI = function(rocky, options) {
       this._body.set(data);
       return this;
     };
-    
+
     return card;
   };
 
@@ -361,39 +366,39 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var menuItem = new parent.Element(options);
-    
+
     menuItem._background = new parent.Rect(options);
 
     menuItem._title = new parent.Text({
       bounds: options.bounds.slice(0),
-      text: options.title || "",
+      text: options.title || '',
       color: options.titleColor || rocky.GColorBlack,
       font: options.titleFont || rocky.FONT_KEY_GOTHIC_28
     });
 
     menuItem._details = new parent.Text({
       bounds: options.bounds.slice(0),
-      text: options.details || "",
+      text: options.details || '',
       color: options.detailsColor || rocky.GColorBlack,
       font: options.detailsFont || rocky.FONT_KEY_GOTHIC_18
     });
 
     // Modify the bounds:
-    menuItem._title.bounds[0] += 5; 
+    menuItem._title.bounds[0] += 5;
     menuItem._title.bounds[1] += 0;
 
-    menuItem._details.bounds[0]+= 5;
-    menuItem._details.bounds[1]+= 27;
+    menuItem._details.bounds[0] += 5;
+    menuItem._details.bounds[1] += 27;
 
     menuItem.title = function(data) {
-      this._title.set(newTitle);
+      this._title.set(data);
       return this;
-    }
+    };
 
     menuItem.details = function(data) {
-      this._details.set(newDetails);
+      this._details.set(data);
       return this;
-    }
+    };
 
     menuItem._render = function(ctx, bounds) {
       this._background._render(ctx, bounds);
@@ -415,13 +420,13 @@ var PebbleUI = function(rocky, options) {
     menu._items = options.list || [];
 
     menu._titleBar = new parent.Rect({
-      bounds: [0,0,144,24],
+      bounds: [0, 0, 144, 24],
       backgroundColor: options.backgroundColor || rocky.GColorClear
     });
 
     menu._title = new parent.Text({
-      bounds: [4,3, 144, 20],
-      text: options.title || "",
+      bounds: [4, 3, 144, 20],
+      text: options.title || '',
       font: options.titleFont || rocky.FONT_KEY_GOTHIC_14_BOLD
     });
 
@@ -431,9 +436,9 @@ var PebbleUI = function(rocky, options) {
       new parent.MenuItem({
         bounds: [0, 20, 144, 49],
         backgroundColor: options.selectedItemBackgroundColor || rocky.GColorBlack,
-        title: "",
+        title: '',
         titleColor: options.selectedItemColor || rocky.GColorWhite,
-        details: "",
+        details: '',
         detailsColor: options.selectedItemDetailsColor || rocky.GColorWhite
       })
     );
@@ -442,9 +447,9 @@ var PebbleUI = function(rocky, options) {
       new parent.MenuItem({
         bounds: [0, 69, 144, 49],
         backgroundColor: options.backgroundColor || rocky.GColorClear,
-        title: "",
+        title: '',
         titleColor: options.itemColor || rocky.GColorBlack,
-        details: "",
+        details: '',
         detailsColor: options.itemDetailsColor || rocky.GColorBlack
       })
     );
@@ -453,16 +458,16 @@ var PebbleUI = function(rocky, options) {
       new parent.MenuItem({
         bounds: [0, 118, 144, 49],
         backgroundColor: options.backgroundColor || rocky.GColorClear,
-        title: "",
+        title: '',
         titleColor: options.itemColor || rocky.GColorBlack,
-        details: "",
+        details: '',
         detailsColor: options.itemDetailsColor || rocky.GColorBlack
       })
     );
 
     menu._itemSeparator = new parent.Line({
-      bounds: [0,118, 144, 0],
-      color: options.separatorColor || GColorBlack
+      bounds: [0, 118, 144, 0],
+      color: options.separatorColor || rocky.GColorBlack
     });
 
     menu.add(menu._titleBar);
@@ -474,18 +479,18 @@ var PebbleUI = function(rocky, options) {
 
     menu._update = function() {
       for (var i = 0; i < 3; i++) {
-        if (this._current+i < this._items.length) {
-          this._itemBoxes[i]._title.set(this._items[this._current+i].title);
-          this._itemBoxes[i]._details.set(this._items[this._current+i].details);
+        if (this._current + i < this._items.length) {
+          this._itemBoxes[i]._title.set(this._items[this._current + i].title);
+          this._itemBoxes[i]._details.set(this._items[this._current + i].details);
         } else {
-          this._itemBoxes[i]._title.set("");
-          this._itemBoxes[i]._details.set("");
+          this._itemBoxes[i]._title.set('');
+          this._itemBoxes[i]._details.set('');
         }
       }
     };
 
-    menu._upHandler = function(event) { 
-      if (event.type == "long") return;
+    menu._upHandler = function(event) {
+      if (event.type === 'long') return;
 
       this._current = Math.max(0, --this._current);
       this._update();
@@ -493,9 +498,9 @@ var PebbleUI = function(rocky, options) {
     };
 
     menu._downHandler = function(event) {
-      if (event.type == "long") return;
+      if (event.type === 'long') return;
 
-      this._current = Math.min(this._items.length-1, ++this._current);
+      this._current = Math.min(this._items.length - 1, ++this._current);
       this._update();
       parent.mark_dirty();
     };
@@ -508,22 +513,22 @@ var PebbleUI = function(rocky, options) {
     };
 
     menu.onUp = function(cb) {
-      console.log("You cannot override a Menu's button handlers");
+      console.log('You cannot override a Menu\'s button handlers');
       return this;
     };
 
     menu.onDown = function(cb) {
-      console.log("You cannot override a Menu's button handlers");
+      console.log('You cannot override a Menu\'s button handlers');
       return this;
     };
 
     menu.onSelect = function(cb) {
-      console.log("You cannot override a Menu's button handlers");
+      console.log('You cannot override a Menu\'s button handlers');
       return this;
     };
 
     menu.onBack = function(cb) {
-      console.log("You cannot override a Menu's button handlers");
+      console.log('You cannot override a Menu\'s button handlers');
       return this;
     };
 
@@ -537,7 +542,7 @@ var PebbleUI = function(rocky, options) {
       if (id < this._items.length) this._current = id;
       this._update();
       return this;
-    }
+    };
 
     menu.onSelected = function(callback) {
       this._onItemSelected = callback.bind(this);
@@ -548,5 +553,7 @@ var PebbleUI = function(rocky, options) {
   };
 
   rocky.update_proc = this._render.bind(this);
-  return this;  
+  return this;
 };
+
+if (module) module.exports = PebbleUI;
