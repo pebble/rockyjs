@@ -5,7 +5,7 @@ var PebbleUI = function(rocky, options) {
   this.windows = [];
 
   // Load the default font
-  this.defaultFont = rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18);
+  this.defaultFont = rocky.FONT_KEY_GOTHIC_18;
 
   this._getTopWindow = function() {
     // short circuit if there's nothing to _render
@@ -72,6 +72,24 @@ var PebbleUI = function(rocky, options) {
     return this;
   };
 
+  // A Line is an Element
+  this.Line = function(options) {
+    options = options || {};
+
+    var lineElement = new parent.Element(options);
+    lineElement.p1 = [options.bounds[0], options.bounds[1]];
+    lineElement.p2 = [options.bounds[0]+options.bounds[2], options.bounds[1]+options.bounds[3]];
+    lineElement.strokeWidth = options.width || 2;
+
+    lineElement._render = function(ctx, bounds) {
+      rocky.graphics_context_set_stroke_color(ctx, this.color);
+      rocky.graphics_context_set_stroke_width(ctx, this.strokeWidth);
+      rocky.graphics_draw_line(ctx, this.p1, this.p2);
+    };
+
+    return lineElement;
+  };
+
   // A Rect is an Element
   this.Rect = function(options) {
     options = options || {};
@@ -110,16 +128,21 @@ var PebbleUI = function(rocky, options) {
 
     var textElement = new parent.Element(options);
 
-    textElement.text = options.text || "";
-    textElement.font = options.font || parent.defaultFont;
+    textElement._text = options.text || "";
+    textElement.font = fonts_get_system_font(options.font) || fonts_get_system_font(parent.defaultFont);
     textElement.color = options.color || rocky.GColorBlack;
     textElement.alignment = options.alignment || rocky.GTextAlignmentLeft;
 
-    textElement.text = options.text || "";
+    textElement.text = function(text) {
+      textElement._text = text;
+      setTimeout(rocky.mark_dirty, 0);
+
+      return this;
+    };
 
     textElement._render = function(ctx, bounds) {
       rocky.graphics_context_set_text_color(ctx, this.color);
-      rocky.graphics_draw_text(ctx, this.text, this.font, this.bounds, 
+      rocky.graphics_draw_text(ctx, this._text, this.font, this.bounds, 
                                     rocky.GTextOverflowModeWordWrap, 
                                     this.alignment, null);
     };
@@ -260,7 +283,7 @@ var PebbleUI = function(rocky, options) {
       // _render the remainder of the elements
       windowElement.elements.forEach(function(el) {
         if (el._render) el._render(ctx, bounds);
-      }.bind(windowElement));
+      });
     };
 
     // Set callbacks
@@ -272,8 +295,8 @@ var PebbleUI = function(rocky, options) {
     return windowElement;
   };
 
-  // A Card is ~*not*~ an Element 
-  // But it is a Window, (which is an Element)
+  // A Card is not an Element 
+  // But it is a Window (which is an Element)
   this.Card = function(options) {   
     options = options || {};
 
@@ -283,19 +306,19 @@ var PebbleUI = function(rocky, options) {
       bounds: [10,0, 124, 20],
       text: options.title || "",
       color: options.titleColor || rocky.GColorBlack,
-      font: options.titleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24_BOLD)
+      font: options.titleFont || rocky.FONT_KEY_GOTHIC_24_BOLD
     });
     card.subtitleElement = new parent.Text({
       bounds: [10, 30, 124, 20],
       text: options.subtitle || "",
       color: options.subtitleColor || rocky.GColorBlack,
-      font: options.subtitleFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_24)
+      font: options.subtitleFont || rocky.FONT_KEY_GOTHIC_24
     });
     card.bodyElement = new parent.Text({
       bounds: [10, 60, 124, 108],
       text: options.body || "",
       color: options.bodyColor || rocky.GColorBlack,
-      font: options.bodyFont || rocky.fonts_get_system_font(rocky.FONT_KEY_GOTHIC_18)
+      font: options.bodyFont || rocky.FONT_KEY_GOTHIC_18
     });
 
     card.add(card.titleElement);
@@ -331,6 +354,179 @@ var PebbleUI = function(rocky, options) {
     };
     
     return card;
+  };
+
+  this.MenuItem = function(options) {
+    options = options || {};
+
+    var menuItem = new parent.Element(options);
+    
+    menuItem.background = new parent.Rect(options);
+
+    menuItem.title = new parent.Text({
+      bounds: options.bounds.slice(0),
+      text: options.title || "",
+      color: options.titleColor || rocky.GColorBlack,
+      font: options.titleFont || rocky.FONT_KEY_GOTHIC_28
+    });
+
+    menuItem.details = new parent.Text({
+      bounds: options.bounds.slice(0),
+      text: options.details || "",
+      color: options.detailsColor || rocky.GColorBlack,
+      font: options.detailsFont || rocky.FONT_KEY_GOTHIC_18
+    });
+
+    // Modify the bounds:
+    menuItem.title.bounds[0] += 5; 
+    menuItem.title.bounds[1] += 0;
+
+    menuItem.details.bounds[0]+= 5;
+    menuItem.details.bounds[1]+= 27;
+
+    menuItem._render = function(ctx, bounds) {
+      menuItem.background._render(ctx, bounds);
+      menuItem.title._render(ctx, bounds);
+      menuItem.details._render(ctx, bounds);
+    };
+
+    return menuItem;
+  };
+
+  // A Menu is not an Element
+  this.Menu = function(options) {
+    options = options || {};
+
+    var menu = new parent.Window(options);
+
+    menu._current = 0;
+    menu._items = options.list || [];
+
+    menu._titleBar = new parent.Rect({
+      bounds: [0,0,144,24],
+      backgroundColor: options.backgroundColor || rocky.GColorClear
+    });
+
+    menu._title = new parent.Text({
+      bounds: [4,3, 144, 20],
+      text: options.title || "",
+      font: options.titleFont || rocky.FONT_KEY_GOTHIC_14_BOLD
+    });
+
+    menu._itemBoxes = [];
+
+    menu._itemBoxes.push(
+      new parent.MenuItem({
+        bounds: [0, 20, 144, 49],
+        backgroundColor: options.selectedItemBackgroundColor || rocky.GColorBlack,
+        title: "",
+        titleColor: options.selectedItemColor || rocky.GColorWhite,
+        details: "",
+        detailsColor: options.selectedItemDetailsColor || rocky.GColorWhite
+      })
+    );
+
+    menu._itemBoxes.push(
+      new parent.MenuItem({
+        bounds: [0, 69, 144, 49],
+        backgroundColor: options.backgroundColor || rocky.GColorClear,
+        title: "",
+        titleColor: options.itemColor || rocky.GColorBlack,
+        details: "",
+        detailsColor: options.itemDetailsColor || rocky.GColorBlack
+      })
+    );
+
+    menu._itemBoxes.push(
+      new parent.MenuItem({
+        bounds: [0, 118, 144, 49],
+        backgroundColor: options.backgroundColor || rocky.GColorClear,
+        title: "",
+        titleColor: options.itemColor || rocky.GColorBlack,
+        details: "",
+        detailsColor: options.itemDetailsColor || rocky.GColorBlack
+      })
+    );
+
+    menu._itemSeparator = new parent.Line({
+      bounds: [0,118, 144, 0],
+      color: options.separatorColor || GColorBlack
+    });
+
+    menu.add(menu._titleBar);
+    menu.add(menu._title);
+    menu.add(menu._itemBoxes[0]);
+    menu.add(menu._itemBoxes[1]);
+    menu.add(menu._itemBoxes[2]);
+    menu.add(menu._itemSeparator);
+
+    menu._update = function() {
+      for (var i = 0; i < 3; i++) {
+        if (menu._current+i < menu._items.length) {
+          menu._itemBoxes[i].title.text(menu._items[menu._current+i].title);
+          menu._itemBoxes[i].details.text(menu._items[menu._current+i].details);
+        } else {
+          menu._itemBoxes[i].title.text("");
+          menu._itemBoxes[i].details.text("");
+        }
+      }
+    };
+
+    menu.upHandler = function(event) { 
+      if (event.type == "long") return;
+
+      menu._current = Math.max(0, --menu._current);
+      menu._update();
+      setTimeout(rocky.mark_dirty, 0);
+    };
+
+    menu.downHandler = function(event) {
+      if (event.type == "long") return;
+
+      menu._current = Math.min(menu._items.length-1, ++menu._current);
+      menu._update();
+      setTimeout(rocky.mark_dirty, 0);
+    };
+
+    menu.selectHandler = function(event) {
+      if (menu._items.length === 0) return;
+      if (!menu._onItemSelected) return;
+
+      menu._onItemSelected(menu._items[menu._current]);
+    };
+
+    menu.onUp = function(cb) {
+      console.log("You cannot override a Menu's button handlers");
+      return this;
+    };
+
+    menu.onDown = function(cb) {
+      console.log("You cannot override a Menu's button handlers");
+      return this;
+    };
+
+    menu.onSelect = function(cb) {
+      console.log("You cannot override a Menu's button handlers");
+      return this;
+    };
+
+    menu.onBack = function(cb) {
+      console.log("You cannot override a Menu's button handlers");
+      return this;
+    };
+
+    menu.push = function(item) {
+      menu._items.push(item);
+      this._update();
+      return this;
+    };
+
+    menu.onSelected = function(callback) {
+      menu._onItemSelected = callback.bind(menu);
+      return this;
+    };
+
+    return menu;
   };
 
   rocky.update_proc = this._render.bind(this);
