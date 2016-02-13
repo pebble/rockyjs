@@ -1,32 +1,44 @@
 var PebbleUI = function(rocky, options) {
   options = options || {};
 
-  this.options = options;
-  this.windows = [];
+  this._windows = [];
 
   // Load the default font
-  this.defaultFont = rocky.FONT_KEY_GOTHIC_18;
+  this._defaultFont = options.defaultFont || rocky.FONT_KEY_GOTHIC_18;
 
   this._getTopWindow = function() {
     // short circuit if there's nothing to _render
-    if (!this.windows || this.windows.length < 1) return null;
+    if (!this._windows || this._windows.length < 1) return null;
     
     // otherwise _render the active screen
-    return this.windows[this.windows.length-1];
+    return this._windows[this._windows.length-1];
   };
+
+  this._dirty = false;
+
+  this.mark_dirty = function() {
+    // don't do anything if it's already marked dirty
+    if (this._dirty === true) return;
+
+    // Otherwise, render when possible
+    this._dirty = true;
+    setTimeout(function() { 
+      rocky.mark_dirty();
+      this._dirty = false;
+    }.bind(this), 0);
+  }
 
   this._render = function(ctx, bounds) {
     var win = this._getTopWindow();
     if (win) win._render(ctx, bounds); 
   };
-
+  
   var parent = this;
 
-  this.window = window || {};
-
+  this._window = window || {};
   this._keys = {};
 
-  this.window.addEventListener('keydown', function(event) {
+  this._window.addEventListener('keydown', function(event) {
     var code = event.keyCode;
     var keys = parent._keys;
     var win = parent._getTopWindow();
@@ -46,7 +58,7 @@ var PebbleUI = function(rocky, options) {
     }
   });
 
-  this.window.addEventListener('keyup', function(event) {
+  this._window.addEventListener('keyup', function(event) {
     var code = event.keyCode;
     var keys = parent._keys;
     
@@ -55,15 +67,13 @@ var PebbleUI = function(rocky, options) {
     delete keys[code];
   });
 
-
   // Everything is an Element!
   this.Element = function(options) {
-    options = options || { };
+    this.options = options || { };
 
-    this.bounds = options.bounds || [0,0,144,168];
-
-    this.backgroundColor = options.backgroundColor || rocky.GColorClear;
-    this.color = options.color || rocky.GColorBlack;
+    this.bounds = this.options.bounds || [0,0,144,168];
+    this._backgroundColor = options.backgroundColor || rocky.GColorClear;
+    this._color = options.color || rocky.GColorBlack;
     this.z = options.z || 0;
 
     // Intentionally empty
@@ -77,14 +87,14 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var lineElement = new parent.Element(options);
-    lineElement.p1 = [options.bounds[0], options.bounds[1]];
-    lineElement.p2 = [options.bounds[0]+options.bounds[2], options.bounds[1]+options.bounds[3]];
-    lineElement.strokeWidth = options.width || 2;
+    lineElement._p1 = [options.bounds[0], options.bounds[1]];
+    lineElement._p2 = [options.bounds[0]+options.bounds[2], options.bounds[1]+options.bounds[3]];
+    lineElement._strokeWidth = options.width || 2;
 
     lineElement._render = function(ctx, bounds) {
-      rocky.graphics_context_set_stroke_color(ctx, this.color);
-      rocky.graphics_context_set_stroke_width(ctx, this.strokeWidth);
-      rocky.graphics_draw_line(ctx, this.p1, this.p2);
+      rocky.graphics_context_set_stroke_color(ctx, this._color);
+      rocky.graphics_context_set_stroke_width(ctx, this._strokeWidth);
+      rocky.graphics_draw_line(ctx, this._p1, this._p2);
     };
 
     return lineElement;
@@ -97,8 +107,8 @@ var PebbleUI = function(rocky, options) {
     var rectElement = new parent.Element(options);
     
     rectElement._render = function(ctx, bounds) {
-      rocky.graphics_context_set_fill_color(ctx, this.backgroundColor);
-      rocky.graphics_context_set_stroke_color(ctx, this.color);
+      rocky.graphics_context_set_fill_color(ctx, this._backgroundColor);
+      rocky.graphics_context_set_stroke_color(ctx, this._color);
       rocky.graphics_fill_rect(ctx, this.bounds, 0, rocky.GCornersAll);
     };
 
@@ -112,7 +122,7 @@ var PebbleUI = function(rocky, options) {
     var circleElement = new parent.Element(options);
 
     circleElement._render = function(ctx, bounds) {
-      rocky.graphics_context_set_fill_color(ctx, this.backgroundColor);
+      rocky.graphics_context_set_fill_color(ctx, this._backgroundColor);
       rocky.graphics_context_set_stroke_color(ctx, rocky.GColorClear);
       rocky.graphics_fill_radial(ctx, this.bounds, rocky.GOvalScaleModeFitCircle, 
                                       Math.min(this.bounds[2], this.bounds[3])/2, 
@@ -129,22 +139,27 @@ var PebbleUI = function(rocky, options) {
     var textElement = new parent.Element(options);
 
     textElement._text = options.text || "";
-    textElement.font = fonts_get_system_font(options.font) || fonts_get_system_font(parent.defaultFont);
-    textElement.color = options.color || rocky.GColorBlack;
-    textElement.alignment = options.alignment || rocky.GTextAlignmentLeft;
+    textElement._font = fonts_get_system_font(options.font) || fonts_get_system_font(parent._defaultFont);
+    textElement._color = options.color || rocky.GColorBlack;
+    textElement._alignment = options.alignment || rocky.GTextAlignmentLeft;
 
-    textElement.text = function(text) {
-      textElement._text = text;
-      setTimeout(rocky.mark_dirty, 0);
+    textElement.set = function(data) {
+      if (typeof data === 'string') {
+        this._text = data;
+      } else {
+        for(var key in data) {
+          this._text[key] = data[key];
+        }
+      }
 
-      return this;
-    };
+      parent.mark_dirty();
+    }
 
     textElement._render = function(ctx, bounds) {
-      rocky.graphics_context_set_text_color(ctx, this.color);
-      rocky.graphics_draw_text(ctx, this._text, this.font, this.bounds, 
+      rocky.graphics_context_set_text_color(ctx, this._color);
+      rocky.graphics_draw_text(ctx, this._text, this._font, this.bounds, 
                                     rocky.GTextOverflowModeWordWrap, 
-                                    this.alignment, null);
+                                    this._alignment, null);
     };
 
     return textElement;
@@ -156,11 +171,11 @@ var PebbleUI = function(rocky, options) {
 
     var imageElement = new parent.Element(options);
 
-    imageElement.bitmap = rocky.gbitmap_create(options.url || "");
-    imageElement.bitmap.onload = function() { setTimeout(rocky.mark_dirty, 0); };
+    imageElement._bitmap = rocky.gbitmap_create(options.url || "");
+    imageElement._bitmap.onload = function() { parent.mark_dirty(); };
 
     imageElement._render = function(ctx, bounds) {
-      rocky.graphics_draw_bitmap_in_rect(ctx, this.bitmap, this.bounds);
+      rocky.graphics_draw_bitmap_in_rect(ctx, this._bitmap, this.bounds);
     };
 
     return imageElement;
@@ -171,126 +186,125 @@ var PebbleUI = function(rocky, options) {
     options = options || {};
 
     var windowElement = new parent.Element(options);
-    windowElement.currentZ = 0;
-
-    windowElement.background = new parent.Rect(options);
-
-    windowElement.elements = [];
+    
+    windowElement._currentZ = 0;
+    windowElement._background = new parent.Rect(options);
+    windowElement._elements = [];
 
     windowElement.show = function() {
-      var windowIndex = parent.windows.indexOf(windowElement);
-      // Remove the window from the stack if it exists
+      var windowIndex = parent._windows.indexOf(this);
+        // Remove the window from the stack if it exists
       if (windowIndex >= 0) {
-        parent.windows.splice(windowIndex, 1);
+        parent._windows.splice(windowIndex, 1);
       } 
       
-      parent.windows.push(windowElement);
-      setTimeout(rocky.mark_dirty, 0);
+      parent._windows.push(this);
+      parent.mark_dirty();
       return this;
     };
 
     windowElement.hide = function() {
-      var windowIndex = parent.windows.indexOf(windowElement);
+      var windowIndex = parent._windows.indexOf(this);
       // Remove the window from the stack if it exists
       if (windowIndex >= 0) {
-        parent.windows.splice(windowIndex, 1);
+        parent._windows.splice(windowIndex, 1);
       }
       
-      setTimeout(rocky.mark_dirty, 0);
+      parent.mark_dirty();
       return this;
     };
 
     windowElement.add = function(el) {
-      var elementIndex = windowElement.elements.indexOf(el);
+      var elementIndex = this._elements.indexOf(el);
       
       // add a Z-Index if it's not already set
-      if (!el.z) el.z = windowElement.currentZ++;
+      if (!el.z) el.z = this._currentZ++;
 
       // Remove the elements from the stack if it exists
       if (elementIndex >= 0) {
-        windowElement.elements.splice(windowIndex, 1);
+        this._elements.splice(windowIndex, 1);
       } 
       
       // Add the element to the list and sort
-      windowElement.elements.push(el);
-      windowElement.elements = windowElement.elements.sort(function(a,b) { 
+      this._elements.push(el);
+      this._elements = this._elements.sort(function(a,b) { 
         return a.z-b.z; 
       });
 
-      setTimeout(rocky.mark_dirty, 0);
+      parent.mark_dirty();
       return this;
     };
 
     windowElement.remove = function(el) {
-      var elementIndex = windowElement.elements.indexOf(el);
+      var elementIndex = this._elements.indexOf(el);
       // Remove the elements from the stack if it exists
       if (elementIndex >= 0) {
-        windowElement.elements.splice(windowIndex, 1);
+        this._elements.splice(windowIndex, 1);
       } 
 
-      setTimeout(rocky.mark_dirty, 0);
+      parent.mark_dirty();
       return this;
     };
 
     windowElement._defaultBackHandler = function(event) {
       // Remove the current window
-      windowElement.hide();
+      this.hide();
     };
 
     windowElement.onUp = function(cb) {
-      windowElement.upHandler = cb;
+      this._upHandler = cb;
       return this;
     };
 
     windowElement.onDown = function(cb) {
-      windowElement.downHandler = cb;
+      this._downHandler = cb;
       return this;
     };
 
     windowElement.onSelect = function(cb) {
-      windowElement.selectHandler = cb;
+      this._selectHandler = cb;
       return this;
     };
 
     windowElement.onBack = function(cb) {
-      if (cb) windowElement.backHhandler = cb;
-      else windowElement.backHandler = windowElement._defaultBackHandler;
+      if (cb) this._backHandler = cb;
+      else this._backHandler = this._defaultBackHandler;
       return this;
     };
 
     windowElement._invokeButtonCallbackByCode = function(code, event) {
       switch (code) {
         case 37:
-          if (windowElement.backHandler) windowElement.backHandler(event);
+          if (this._backHandler) this._backHandler(event);
           break;
         case 38:
-          if (windowElement.upHandler) windowElement.upHandler(event);
+          if (this._upHandler) this._upHandler(event);
           break;
         case 39:
-          if (windowElement.selectHandler) windowElement.selectHandler(event);
+          if (this._selectHandler) this._selectHandler(event);
           break;
         case 40:
-          if (windowElement.downHandler) windowElement.downHandler(event);
+          if (this._downHandler) this._downHandler(event);
           break;
         default:
           console.log("Unknown keycode: " + code);
       }
     };
 
+    // Set callbacks
+    windowElement._backHandler = options.onBack || windowElement._defaultBackHandler;
+    windowElement._selectHandler = options.onSelect;
+    windowElement._upHandler = options.onUp;
+    windowElement._downHandler = options.onDown;
+
     windowElement._render = function(ctx, bounds) {
-      windowElement.background._render(ctx, bounds);
+      this._background._render(ctx, bounds);
 
       // _render the remainder of the elements
-      windowElement.elements.forEach(function(el) {
+      this._elements.forEach(function(el) {
         if (el._render) el._render(ctx, bounds);
       });
     };
-
-    // Set callbacks
-    windowElement.backHandler = options.onBack || windowElement._defaultBackHandler;
-    windowElement.selectHandler = options.onSelect;
-    windowElement.upHandler = options.onUp;
-    windowElement.downHandler = options.onDown;
 
     return windowElement;
   };
@@ -302,54 +316,41 @@ var PebbleUI = function(rocky, options) {
 
     var card = new parent.Window(options);
 
-    card.titleElement = new parent.Text({
+    card._title = new parent.Text({
       bounds: [10,0, 124, 20],
       text: options.title || "",
       color: options.titleColor || rocky.GColorBlack,
       font: options.titleFont || rocky.FONT_KEY_GOTHIC_24_BOLD
     });
-    card.subtitleElement = new parent.Text({
+    card._subtitle = new parent.Text({
       bounds: [10, 30, 124, 20],
       text: options.subtitle || "",
       color: options.subtitleColor || rocky.GColorBlack,
       font: options.subtitleFont || rocky.FONT_KEY_GOTHIC_24
     });
-    card.bodyElement = new parent.Text({
+    card._body = new parent.Text({
       bounds: [10, 60, 124, 108],
       text: options.body || "",
       color: options.bodyColor || rocky.GColorBlack,
       font: options.bodyFont || rocky.FONT_KEY_GOTHIC_18
     });
 
-    card.add(card.titleElement);
-    card.add(card.subtitleElement);
-    card.add(card.bodyElement);
-
-    // _ indicates a private method
-    var _modifyText = function(el, data) {
-      if (typeof data === 'string') {
-        el.text = data;
-      } else {
-        for(var key in data) {
-          el[key] = data[key];
-        }
-      }
-
-      setTimeout(rocky.mark_dirty, 0);
-    };
+    card.add(card._title);
+    card.add(card._subtitle);
+    card.add(card._body);
 
     card.title = function(data) {
-      _modifyText(card.titleElement, data);
+      this._title.set(data);
       return this;
     };
 
     card.subtitle = function(data) {
-      _modifyText(card.subtitleElement, data);
+      this._subtitle.set(data);
       return this;
     };
 
     card.body = function(data) {
-      _modifyText(card.bodyElement, data);
+      this._body.set(data);
       return this;
     };
     
@@ -361,16 +362,16 @@ var PebbleUI = function(rocky, options) {
 
     var menuItem = new parent.Element(options);
     
-    menuItem.background = new parent.Rect(options);
+    menuItem._background = new parent.Rect(options);
 
-    menuItem.title = new parent.Text({
+    menuItem._title = new parent.Text({
       bounds: options.bounds.slice(0),
       text: options.title || "",
       color: options.titleColor || rocky.GColorBlack,
       font: options.titleFont || rocky.FONT_KEY_GOTHIC_28
     });
 
-    menuItem.details = new parent.Text({
+    menuItem._details = new parent.Text({
       bounds: options.bounds.slice(0),
       text: options.details || "",
       color: options.detailsColor || rocky.GColorBlack,
@@ -378,22 +379,33 @@ var PebbleUI = function(rocky, options) {
     });
 
     // Modify the bounds:
-    menuItem.title.bounds[0] += 5; 
-    menuItem.title.bounds[1] += 0;
+    menuItem._title.bounds[0] += 5; 
+    menuItem._title.bounds[1] += 0;
 
-    menuItem.details.bounds[0]+= 5;
-    menuItem.details.bounds[1]+= 27;
+    menuItem._details.bounds[0]+= 5;
+    menuItem._details.bounds[1]+= 27;
+
+    menuItem.title = function(data) {
+      this._title.set(newTitle);
+      return this;
+    }
+
+    menuItem.details = function(data) {
+      this._details.set(newDetails);
+      return this;
+    }
 
     menuItem._render = function(ctx, bounds) {
-      menuItem.background._render(ctx, bounds);
-      menuItem.title._render(ctx, bounds);
-      menuItem.details._render(ctx, bounds);
+      this._background._render(ctx, bounds);
+      this._title._render(ctx, bounds);
+      this._details._render(ctx, bounds);
     };
 
     return menuItem;
   };
 
   // A Menu is not an Element
+  // But it is a Window (which is an Element)
   this.Menu = function(options) {
     options = options || {};
 
@@ -462,37 +474,37 @@ var PebbleUI = function(rocky, options) {
 
     menu._update = function() {
       for (var i = 0; i < 3; i++) {
-        if (menu._current+i < menu._items.length) {
-          menu._itemBoxes[i].title.text(menu._items[menu._current+i].title);
-          menu._itemBoxes[i].details.text(menu._items[menu._current+i].details);
+        if (this._current+i < this._items.length) {
+          this._itemBoxes[i]._title.set(this._items[this._current+i].title);
+          this._itemBoxes[i]._details.set(this._items[this._current+i].details);
         } else {
-          menu._itemBoxes[i].title.text("");
-          menu._itemBoxes[i].details.text("");
+          this._itemBoxes[i]._title.set("");
+          this._itemBoxes[i]._details.set("");
         }
       }
     };
 
-    menu.upHandler = function(event) { 
+    menu._upHandler = function(event) { 
       if (event.type == "long") return;
 
-      menu._current = Math.max(0, --menu._current);
-      menu._update();
-      setTimeout(rocky.mark_dirty, 0);
+      this._current = Math.max(0, --this._current);
+      this._update();
+      parent.mark_dirty();
     };
 
-    menu.downHandler = function(event) {
+    menu._downHandler = function(event) {
       if (event.type == "long") return;
 
-      menu._current = Math.min(menu._items.length-1, ++menu._current);
-      menu._update();
-      setTimeout(rocky.mark_dirty, 0);
+      this._current = Math.min(this._items.length-1, ++this._current);
+      this._update();
+      parent.mark_dirty();
     };
 
-    menu.selectHandler = function(event) {
-      if (menu._items.length === 0) return;
-      if (!menu._onItemSelected) return;
+    menu._selectHandler = function(event) {
+      if (this._items.length === 0) return;
+      if (!this._onItemSelected) return;
 
-      menu._onItemSelected(menu._items[menu._current]);
+      this._onItemSelected(this._items[this._current]);
     };
 
     menu.onUp = function(cb) {
@@ -516,13 +528,19 @@ var PebbleUI = function(rocky, options) {
     };
 
     menu.push = function(item) {
-      menu._items.push(item);
+      this._items.push(item);
       this._update();
       return this;
     };
 
+    menu.select = function(id) {
+      if (id < this._items.length) this._current = id;
+      this._update();
+      return this;
+    }
+
     menu.onSelected = function(callback) {
-      menu._onItemSelected = callback.bind(menu);
+      this._onItemSelected = callback.bind(this);
       return this;
     };
 
@@ -532,4 +550,3 @@ var PebbleUI = function(rocky, options) {
   rocky.update_proc = this._render.bind(this);
   return this;  
 };
-

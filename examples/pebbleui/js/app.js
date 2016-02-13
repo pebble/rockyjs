@@ -3,7 +3,7 @@
   rocky.export_global_c_symbols();
 
   var UI = new PebbleUI(rocky);
-  
+
   var graphics = new UI.Window({ 
     backgroundColor: GColorBlack 
   }).add(new UI.Circle({
@@ -61,5 +61,4 @@
     // Override the onBack handler so it doesn't pop the window
     onBack: function(event) { /* Do Nothing */ }
   }).show();
-
 })();
