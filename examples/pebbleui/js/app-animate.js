@@ -18,12 +18,9 @@
     return Math.floor(Math.random() * (max - 0)) + 0;
   }
 
-  var currentTarget = 1;
   function nextAnimation() {
     var to = [random(144 - imgSize), random(168 - imgSize), imgSize, imgSize];
     image.animateBounds(to, 500, 0, nextAnimation);
-
-    currentTarget += (currentTarget == 3) ? -3 : 1;
   }
   nextAnimation();
 })();
