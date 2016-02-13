@@ -553,5 +553,3 @@ var PebbleUI = function(rocky, options) {
   rocky.update_proc = this._render.bind(this);
   return this;
 };
-
-if (module) module.exports = PebbleUI;

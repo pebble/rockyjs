@@ -15,7 +15,7 @@
   <script src="js/modules/PebbleUI.js"></script>
   <script>
     (function() {
-      rocky = document.Rocky.bindCanvas(document.getElementById('pebble'));
+      rocky = Rocky.bindCanvas(document.getElementById('pebble'));
       rocky.export_global_c_symbols();
 
       var UI = new PebbleUI(rocky);
@@ -26,7 +26,7 @@
         bounds: [0, 0, 144, 168],
         backgroundColor: rocky.GColorRed
       })).add(new UI.Line({
-        color: rocky.GColorGreen,
+        color: rocky.GColorOxfordBlue,
         width: 2,
         bounds: [10, 10, 60, 50]
       })).add(new UI.Rect({
