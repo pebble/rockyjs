@@ -425,7 +425,8 @@ var PebbleUI = function(rocky, options) {
     menu._title = new parent.Text({
       bounds: [4, 3, 144, 20],
       text: options.title || '',
-      font: options.titleFont || rocky.FONT_KEY_GOTHIC_14_BOLD
+      font: options.titleFont || rocky.FONT_KEY_GOTHIC_14_BOLD,
+      color: options.titleColor || rocky.GColorBlack,
     });
 
     menu._itemBoxes = [];
@@ -465,7 +466,7 @@ var PebbleUI = function(rocky, options) {
 
     menu._itemSeparator = new parent.Line({
       bounds: [0, 118, 144, 0],
-      color: options.separatorColor || rocky.GColorBlack
+      color: options.selectedItemBackgroundColor || rocky.GColorBlack
     });
 
     menu.add(menu._titleBar);

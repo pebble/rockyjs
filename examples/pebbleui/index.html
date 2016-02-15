@@ -45,7 +45,15 @@
       }));
 
       var menu = new UI.Menu({
-        title: 'Fruit List'
+        title: 'Fruit List',
+        backgroundColor: rocky.GColorBlack,
+        selectedItemColor: rocky.GColorBlack,
+        selectedItemDetailsColor: rocky.GColorBlack,
+
+        titleColor: rocky.GColorWhite,
+        selectedItemBackgroundColor: rocky.GColorWhite,
+        itemColor: rocky.GColorWhite,
+        itemDetailsColor: rocky.GColorWhite
       }).onSelected(function(item) {
         // Dynamically create a card
         new UI.Card({
@@ -56,7 +64,7 @@
 
       menu.push({
         title: 'Apple',
-        details: 'Green and Crisp'
+        details: 'Green and Crisp',
       }).push({
         title: 'Orange',
         details: 'Peel first!'
