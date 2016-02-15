@@ -1,4 +1,4 @@
-/*
+﻿/*
 
   Copyright © 2015-2016 Pebble Technology Corp.,
   All Rights Reserved. http://pebble.github.io/rockyjs/LICENSE
@@ -132,6 +132,9 @@ Rocky.bindCanvas = function(canvas, options) {
 
   // schedule one render pass for the next run iteration of the run loop
   setTimeout(function() { binding.mark_dirty(); }, 0);
+
+  // expose framebuffer to the caller
+  binding.framebuffer = framebufferPixels;
 
   return binding;
 };
