@@ -426,7 +426,7 @@ var PebbleUI = function(rocky, options) {
       bounds: [4, 3, 144, 20],
       text: options.title || '',
       font: options.titleFont || rocky.FONT_KEY_GOTHIC_14_BOLD,
-      color: options.titleColor || rocky.GColorBlack,
+      color: options.titleColor || rocky.GColorBlack
     });
 
     menu._itemBoxes = [];
@@ -554,3 +554,8 @@ var PebbleUI = function(rocky, options) {
   rocky.update_proc = this._render.bind(this);
   return this;
 };
+
+// Export the PebbleUI object
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PebbleUI;
+}
