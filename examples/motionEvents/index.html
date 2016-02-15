@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Compass</title>
+
+    <!-- build:template
+    <script src="../../<%= rockyjs_path %>"></script>
+    /build -->
+    <!-- build:remove -->
+    <!-- this template/remove construct is a workaround as processhtml doesn't support variables for values -->
+    <script src="../../src/html-binding.js"></script>
+    <script src="../../src/symbols-manual.js"></script>
+    <script src="../../src/symbols-generated.js"></script>
+    <script src="../../src/transpiled.js"></script>
+    <!-- /build -->
+
+    <!-- build:css ../../css/bootstrap.min.css -->
+    <link href="../../html/css/bootstrap.min.css" rel="stylesheet">
+    <!-- /build -->
+    <!-- build:css ../../css/style.css -->
+    <link href="../../html/css/style.css" rel="stylesheet">
+    <!-- /build -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="../common/css/style.css">
+    <style>
+        #pebble {
+        width: 246px;
+        height: 352px;
+        padding: 91px 50px;
+        background: url(../../html/img/basaltLight.png) no-repeat;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>Compass</h1>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="pebble" class="rocky" width="144" height="168"></canvas>
+    </div>
+    <!-- build:template
+    <%= github_banner %>
+    /build -->
+</div>
+</body>
+
+<script>
+    (function () {
+        var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+        // puts all C-symbols from rocky onto window.* so they can be used almost
+        // the same way you were using them in C
+        rocky.export_global_c_symbols();
+
+        function draw_ticks(ctx, bounds, north) {
+            var innerBounds = grect_inset(bounds, 10);
+            var midBounds = grect_inset(bounds, 5);
+            var outerBounds = grect_inset(bounds, 3);
+            var numTicks = 16;
+            for (var i = 0; i < numTicks; i++) {
+                var angle = north + (i / numTicks * Math.PI * 2);
+                var inner = gpoint_from_polar(innerBounds, GOvalScaleModeFitCircle, angle);
+                var mid = gpoint_from_polar(midBounds, GOvalScaleModeFitCircle, angle);
+                var outer = gpoint_from_polar(outerBounds, GOvalScaleModeFitCircle, angle);
+
+                graphics_context_set_stroke_width(ctx, (i == 0) ? 4 : 1);
+                graphics_context_set_stroke_color(ctx, (i == 0) ? GColorRed : GColorWhite);
+
+                graphics_draw_line(ctx, (i %2 == 0) ? inner : mid, outer);
+            }
+            var textBounds = grect_inset(bounds, 25);
+            ["N", "E", "S", "W"].map(function(direction, idx, arr) {
+                var angle = north + (idx / arr.length * Math.PI * 2);
+                var rect = grect_centered_from_polar(textBounds, GOvalScaleModeFitCircle, angle, [30, 40]);
+                graphics_draw_text(ctx, direction, font, rect, 0, GTextAlignmentCenter);
+            });
+
+            var deg = (heading * 180 / Math.PI) % 360;
+            var rect = GRect(10, 0, 150, 28);
+            grect_align(rect, bounds, GAlignBottomLeft, false);
+            graphics_draw_text(ctx, ''+Math.round(deg)+'°', font, rect, 0, 0);
+        }
+
+
+        var font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+
+        var heading = 0;
+        rocky.update_proc = function (ctx, bounds) {
+            graphics_context_set_fill_color(ctx, GColorBlack);
+            graphics_fill_rect(ctx, bounds);
+            graphics_context_set_text_color(ctx, GColorWhite);
+
+            draw_ticks(ctx, bounds, heading);
+
+//            graphics_draw_text(ctx, "Hallo Company Meeting", font, [0, 0, 100, 100], 0, 0);
+        };
+
+        var fakeUpdate = setInterval(function() {
+            heading = new Date().getTime() / 2000;
+        });
+
+        var ref, dir;
+        window.addEventListener('deviceorientation', function(e) {
+            var direction, delta;
+            if (typeof e.webkitCompassHeading !== 'undefined') {
+                direction = e.webkitCompassHeading;
+                if (typeof window.orientation !== 'undefined') {
+                    direction += window.orientation;
+                }
+            } else {
+                // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
+                direction = 360 - e.alpha;
+            }
+
+            delta = Math.round(direction) - ref;
+            ref = Math.round(direction);
+            if (delta < -180)
+                delta += 360;
+            if (delta > 180)
+                delta -= 360;
+            dir += delta;
+            heading = direction;
+            while (heading >= 360) {
+                heading -= 360;
+            }
+            while (heading < 0) {
+                heading += 360;
+            }
+            if (heading != 0) {
+                clearInterval(fakeUpdate);
+            }
+            heading = 360 - heading;
+            heading = heading / 360 * Math.PI * 2;
+
+        });
+
+        setInterval(function(){rocky.mark_dirty();}, 1000 / 20);
+    })();
+</script>
+</html>
