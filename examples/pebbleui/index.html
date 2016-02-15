@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Pebble UI</title>
+
+    <!-- build:template
+    <script src="../../<%= rockyjs_path %>"></script>
+    /build -->
+    <!-- build:remove -->
+    <!-- this template/remove construct is a workaround as processhtml doesn't support variables for values -->
+    <script src="../../src/html-binding.js"></script>
+    <script src="../../src/symbols-manual.js"></script>
+    <script src="../../src/symbols-generated.js"></script>
+    <script src="../../src/transpiled.js"></script>
+    <!-- /build -->
+
+    <!-- build:css ../../css/bootstrap.min.css -->
+    <link href="../../html/css/bootstrap.min.css" rel="stylesheet">
+    <!-- /build -->
+    <!-- build:css ../../css/style.css -->
+    <link href="../../html/css/style.css" rel="stylesheet">
+    <!-- /build -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Include PebbleUI Rocky Module -->
+    <script src="js/modules/PebbleUI.js"></script>
+    <link rel="stylesheet" href="../common/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>Pebble UI</h1>
+        <p class="lead">
+            This example shows how a UI layer can be built on top of Rocky, and used to build more complex applications.
+        </p>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>
+    </div>
+
+    <div class="col-md-6">
+        <h2>What's going on?</h2>
+        <p>
+            This example demonstrates how to use PebbleUI to create a simple application with cards, menus, and general windows.
+        </p>
+        <p>View <a href="js/modules/PebbleUI.js">PebbleUI.js</a> for more details.
+    </div>
+    <!-- build:template
+    <%= github_banner %>
+    /build -->
+</div>
+</body>
+
+<script>
+(function() {
+  rocky = Rocky.bindCanvas(document.getElementById('pebble'));
+  rocky.export_global_c_symbols();
+
+  var UI = new PebbleUI(rocky);
+
+  var graphics = new UI.Window({
+    backgroundColor: rocky.GColorBlack
+  }).add(new UI.Circle({
+    bounds: [0, 0, 144, 168],
+    backgroundColor: rocky.GColorRed
+  })).add(new UI.Line({
+    color: rocky.GColorOxfordBlue,
+    width: 2,
+    bounds: [10, 10, 60, 50]
+  })).add(new UI.Rect({
+    bounds: [70, 125, 60, 30],
+    backgroundColor: rocky.GColorBlue
+  })).add(new UI.Text({
+    bounds: [30, 30, 104, 108],
+    text: 'This is some text or whatever, blah blah blah.. ' +
+          'press back to go back a screen',
+    color: rocky.GColorYellow
+  })).add(new UI.Image({
+    bounds: [10, 10, 25, 25],
+    url: 'https://www.ciee.org/high-school-summer-abroad/' +
+          'images/sitewide/homeBtn25x25.png',
+    z: -1
+  }));
+
+  var menu = new UI.Menu({
+    title: 'Fruit List',
+    backgroundColor: rocky.GColorBlack,
+    selectedItemColor: rocky.GColorBlack,
+    selectedItemDetailsColor: rocky.GColorBlack,
+
+    titleColor: rocky.GColorWhite,
+    selectedItemBackgroundColor: rocky.GColorWhite,
+    itemColor: rocky.GColorWhite,
+    itemDetailsColor: rocky.GColorWhite
+  }).onSelected(function(item) {
+    // Dynamically create a card
+    new UI.Card({
+      title: item.title,
+      subtitle: item.details
+    }).show();
+  });
+
+  menu.push({
+    title: 'Apple',
+    details: 'Green and Crisp',
+  }).push({
+    title: 'Orange',
+    details: 'Peel first!'
+  }).push({
+    title: 'Melon',
+    details: 'Only three left'
+  });
+
+  new UI.Card({
+    backgroundColor: rocky.GColorBlack,
+    title: 'Pebble.js',
+    titleColor: rocky.GColorRed,
+    subtitle: 'Press a button',
+    subtitleColor: rocky.GColorYellow,
+    body: '... and see what happens!',
+    bodyColor: rocky.GColorWhite,
+    onUp: function(event) { this.body('You Pressed Up!'); },
+    onDown: function(event) { graphics.show(); },
+    onSelect: function(event) { menu.show(); },
+    // Override the onBack handler so it doesn't pop the window
+    onBack: function(event) { /* Do Nothing */ }
+  }).show();
+})();
+</script>
+</html>
