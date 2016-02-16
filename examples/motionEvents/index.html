@@ -33,23 +33,33 @@
     <![endif]-->
 
     <link rel="stylesheet" href="../common/css/style.css">
-    <style>
-        #pebble {
-        width: 246px;
-        height: 352px;
-        padding: 91px 50px;
-        background: url(../../html/img/basaltLight.png) no-repeat;
-        }
-    </style>
 </head>
 <body>
 <div class="container">
     <div class="page-header">
         <h1>Compass</h1>
+        <p class="lead">
+            This example demonstrates how one can use <a href="https://developer.mozilla.org/en-US/docs/Web/API/DeviceMotionEvent">DeviceMotionEvent</a>
+            to mimic Pebble's compass application.
+        </p>
     </div>
 
     <div class="col-md-6">
-        <canvas id="pebble" class="rocky" width="144" height="168"></canvas>
+        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>
+    </div>
+
+    <div class="col-md-6">
+        <h2>What's going on?</h2>
+        <p>
+            This example is a simpler version of <a href="https://github.com/pebble-hacks/pebble-compass">Pebble's compass application</a>.
+            The code subscribes to <a href="https://developer.mozilla.org/en-US/docs/Web/API/DeviceMotionEvent">device motion events</a>
+            where available and uses some animated fake heading where it doesn't exist (e.g. on your desktop).
+        </p>
+        <p>
+            Although the actual draw code, e.g. <code>draw_ticks()</code> is an interesting example of Rocky's drawing
+            routines, the focus of this example is to show how one can leverage today's web APIs
+            (here: <code>window.addEventListener('deviceorientation', yourFunction)</code>) to mix themwith Rocky.js.
+        </p>
     </div>
     <!-- build:template
     <%= github_banner %>
@@ -64,56 +74,65 @@
         // the same way you were using them in C
         rocky.export_global_c_symbols();
 
-        function draw_ticks(ctx, bounds, north) {
+        // draws tick marks + compass points (N,E,S,W) inside of a given rectangle bounds
+        // pass argument heading (in rad) to indicate
+        //   by how much the the this compass rose should be rotated
+        function draw_ticks(ctx, bounds, heading) {
             var innerBounds = grect_inset(bounds, 10);
             var midBounds = grect_inset(bounds, 5);
             var outerBounds = grect_inset(bounds, 3);
             var numTicks = 16;
+
             for (var i = 0; i < numTicks; i++) {
-                var angle = north + (i / numTicks * Math.PI * 2);
+                var angle = heading + (i / numTicks * Math.PI * 2);
                 var inner = gpoint_from_polar(innerBounds, GOvalScaleModeFitCircle, angle);
                 var mid = gpoint_from_polar(midBounds, GOvalScaleModeFitCircle, angle);
                 var outer = gpoint_from_polar(outerBounds, GOvalScaleModeFitCircle, angle);
 
-                graphics_context_set_stroke_width(ctx, (i == 0) ? 4 : 1);
-                graphics_context_set_stroke_color(ctx, (i == 0) ? GColorRed : GColorWhite);
+                // draw tick for north thocker and in red
+                var isNorth = (i == 0);
+                graphics_context_set_stroke_width(ctx, isNorth ? 4 : 1);
+                graphics_context_set_stroke_color(ctx, isNorth ? GColorRed : GColorWhite);
 
                 graphics_draw_line(ctx, (i %2 == 0) ? inner : mid, outer);
             }
+
+            // draws the textual indications for compass points
             var textBounds = grect_inset(bounds, 25);
             ["N", "E", "S", "W"].map(function(direction, idx, arr) {
-                var angle = north + (idx / arr.length * Math.PI * 2);
+                var angle = heading + (idx / arr.length * Math.PI * 2);
                 var rect = grect_centered_from_polar(textBounds, GOvalScaleModeFitCircle, angle, [30, 40]);
                 graphics_draw_text(ctx, direction, font, rect, 0, GTextAlignmentCenter);
             });
 
-            var deg = (heading * 180 / Math.PI) % 360;
-            var rect = GRect(10, 0, 150, 28);
-            grect_align(rect, bounds, GAlignBottomLeft, false);
-            graphics_draw_text(ctx, ''+Math.round(deg)+'°', font, rect, 0, 0);
         }
 
-
         var font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
-
         var heading = 0;
         rocky.update_proc = function (ctx, bounds) {
+            // make sure background is black and we draw in white
             graphics_context_set_fill_color(ctx, GColorBlack);
             graphics_fill_rect(ctx, bounds);
             graphics_context_set_text_color(ctx, GColorWhite);
 
             draw_ticks(ctx, bounds, heading);
 
-//            graphics_draw_text(ctx, "Hallo Company Meeting", font, [0, 0, 100, 100], 0, 0);
+            // draw the heading at the bottom left corner
+            var deg = (heading * 180 / Math.PI) % 360;
+            var rect = GRect(10, 0, 150, 28);
+            grect_align(rect, bounds, GAlignBottomLeft, false);
+            graphics_draw_text(ctx, ''+Math.round(deg)+'°', font, rect, 0, 0);
+
         };
 
+        // this updates the heading if we don't receive deviceorientation events
         var fakeUpdate = setInterval(function() {
             heading = new Date().getTime() / 2000;
+            rocky.mark_dirty();
         });
 
-        var ref, dir;
         window.addEventListener('deviceorientation', function(e) {
-            var direction, delta;
+            var direction;
             if (typeof e.webkitCompassHeading !== 'undefined') {
                 direction = e.webkitCompassHeading;
                 if (typeof window.orientation !== 'undefined') {
@@ -124,29 +143,17 @@
                 direction = 360 - e.alpha;
             }
 
-            delta = Math.round(direction) - ref;
-            ref = Math.round(direction);
-            if (delta < -180)
-                delta += 360;
-            if (delta > 180)
-                delta -= 360;
-            dir += delta;
-            heading = direction;
-            while (heading >= 360) {
-                heading -= 360;
-            }
-            while (heading < 0) {
-                heading += 360;
-            }
+            // heading is the "opposite" of direction
+            heading = (360 - direction) % 360;
+            // convert to rad
+            heading = heading * 2 * Math.PI / 360;
+
+            // if we ever receive a "real" event, cancel the timer for our fake heading
             if (heading != 0) {
                 clearInterval(fakeUpdate);
             }
-            heading = 360 - heading;
-            heading = heading / 360 * Math.PI * 2;
-
+            rocky.mark_dirty();
         });
-
-        setInterval(function(){rocky.mark_dirty();}, 1000 / 20);
     })();
 </script>
 </html>
