@@ -68,20 +68,19 @@
 </div>
 </body>
 <script>
-var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
-rocky.export_global_c_symbols();
-
-/**** App ****/
-
-var currentText = "Press an arrow key";
-
-rocky.update_proc = function (ctx, bounds) {  
-  graphics_context_set_text_color(ctx, GColorBlack);
-  graphics_draw_text(ctx, currentText, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), 
-                     bounds, GTextOverflowModeWordWrap, GTextAlignmentLeft, null);
-};
 
 (function() {
+  var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+  rocky.export_global_c_symbols();
+
+  var currentText = "Press an arrow key";
+
+  rocky.update_proc = function (ctx, bounds) {  
+    graphics_context_set_text_color(ctx, GColorBlack);
+    graphics_draw_text(ctx, currentText, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), 
+                       bounds, GTextOverflowModeWordWrap, GTextAlignmentLeft, null);
+  };
+
   onPress("back", function() {
     console.log("Back Button Pressed");
     currentText = "Back lets us run away.";
