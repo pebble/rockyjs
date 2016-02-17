@@ -9,4 +9,5 @@ This folder contains a variety of examples designed to help you understand some 
  - [GPath](gpath/index.html) – Shows how to use APIs around `GPath`.
  - [APNG/GIF](apng/index.html) – Renders an animatd GIF/animated PNG.
  - [Text](text/index.html) – Shows how to draw text and use fonts.
+ - [Buttons](buttons/index.html) - Shows how to interact using keyboard arrows.
  - [Community Examples](community.html) - Additional examples built by community members.
