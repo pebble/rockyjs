@@ -9,4 +9,5 @@ This folder contains a variety of examples designed to help you understand some 
  - [GPath](gpath/index.html) – Shows how to use APIs around `GPath`.
  - [APNG/GIF](apng/index.html) – Renders an animatd GIF/animated PNG.
  - [Text](text/index.html) – Shows how to draw text and use fonts.
+ - [Compass](motionEvents/index.html) – Uses DeviceMotionEvent to implement a simple compass app.
  - [Community Examples](community.html) - Additional examples built by community members.
