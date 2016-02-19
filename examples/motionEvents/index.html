@@ -40,7 +40,8 @@
         <h1>Compass</h1>
         <p class="lead">
             This example demonstrates how one can use <a href="https://developer.mozilla.org/en-US/docs/Web/API/DeviceMotionEvent">DeviceMotionEvent</a>
-            to mimic Pebble's compass application.
+            to mimic Pebble's compass application.<br>
+            Works best on a mobile device!
         </p>
     </div>
 
@@ -58,7 +59,7 @@
         <p>
             Although the actual draw code, e.g. <code>draw_ticks()</code> is an interesting example of Rocky's drawing
             routines, the focus of this example is to show how one can leverage today's web APIs
-            (here: <code>window.addEventListener('deviceorientation', yourFunction)</code>) to mix themwith Rocky.js.
+            (here: <code>window.addEventListener('deviceorientation', yourFunction)</code>) to mix them with Rocky.js.
         </p>
     </div>
     <!-- build:template
@@ -94,7 +95,7 @@
                 graphics_context_set_stroke_width(ctx, isNorth ? 4 : 1);
                 graphics_context_set_stroke_color(ctx, isNorth ? GColorRed : GColorWhite);
 
-                graphics_draw_line(ctx, (i %2 == 0) ? inner : mid, outer);
+                graphics_draw_line(ctx, (i % 2 == 0) ? inner : mid, outer);
             }
 
             // draws the textual indications for compass points
@@ -121,7 +122,14 @@
             var deg = (heading * 180 / Math.PI) % 360;
             var rect = GRect(10, 0, 150, 28);
             grect_align(rect, bounds, GAlignBottomLeft, false);
-            graphics_draw_text(ctx, ''+Math.round(deg)+'°', font, rect, 0, 0);
+            graphics_draw_text(ctx, ''+Math.round(deg) + '°', font, rect, 0, 0);
+
+            if (fakeUpdate) {
+                grect_align(rect, bounds, GAlignBottomRight, false);
+                var messages = ['faked values', 'open on', 'your phone'];
+                var text = messages[new Date().getSeconds() % messages.length];
+                graphics_draw_text(ctx, text, font, rect, 0, GTextAlignmentRight);
+            }
 
         };
 
@@ -151,6 +159,7 @@
             // if we ever receive a "real" event, cancel the timer for our fake heading
             if (heading != 0) {
                 clearInterval(fakeUpdate);
+                fakeUpdate = undefined;
             }
             rocky.mark_dirty();
         });
