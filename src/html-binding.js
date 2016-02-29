@@ -41,6 +41,7 @@ Rocky.bindCanvas = function(canvas, options) {
                                          canvasW * canvasH);
   var graphicsContext = module.ccall('app_state_get_graphics_context', 'number', []);
 
+  var scheduledRender = undefined;
   // result of this function
   var binding = {
     module: module,
@@ -48,26 +49,36 @@ Rocky.bindCanvas = function(canvas, options) {
       // meant to be override by clients
       // will be called whenever a clients calls #mark_dirty()
     },
-    mark_dirty: function() {
-      // initializes the graphics context and framebuffer with default values
-      // before rendering
-      var bounds = binding.GRect(0, 0, framebufferW, framebufferH);
-      binding.graphics_context_set_fill_color(graphicsContext, binding.GColorWhite);
-      binding.graphics_fill_rect(graphicsContext, bounds);
+    mark_dirty: function(callback, keepFramebuffer) {
+      clearTimeout(scheduledRender);
+      scheduledRender = setTimeout(function() {
+        // initializes the graphics context and framebuffer with default values
+        // before rendering
+        var bounds = binding.GRect(0, 0, framebufferW, framebufferH);
+        if (!keepFramebuffer) {
+          binding.graphics_context_set_fill_color(graphicsContext,
+            binding.GColorWhite);
+          binding.graphics_fill_rect(graphicsContext, bounds);
+        }
 
-      binding.graphics_context_set_fill_color(graphicsContext, binding.GColorBlack);
-      binding.graphics_context_set_stroke_color(graphicsContext,
+        binding.graphics_context_set_fill_color(graphicsContext,
                                                 binding.GColorBlack);
-      binding.graphics_context_set_stroke_width(graphicsContext, 1);
-      binding.graphics_context_set_antialiased(graphicsContext, true);
+        binding.graphics_context_set_stroke_color(graphicsContext,
+          binding.GColorBlack);
+        binding.graphics_context_set_stroke_width(graphicsContext, 1);
+        binding.graphics_context_set_antialiased(graphicsContext, true);
 
-      binding.graphics_context_set_text_color(graphicsContext, binding.GColorBlack);
+        binding.graphics_context_set_text_color(graphicsContext,
+                                                binding.GColorBlack);
+        binding.graphics_context_set_compositing_mode(graphicsContext,
+          binding.GCompOpSet);
 
-      binding.graphics_context_set_compositing_mode(graphicsContext,
-                                                    binding.GCompOpSet);
-
-      binding.update_proc(graphicsContext, bounds);
-      binding.render_framebuffer(canvasCtx);
+        callback = callback || function(ctx, bounds) {
+            binding.update_proc(ctx, bounds);
+          };
+        callback(graphicsContext, bounds);
+        binding.render_framebuffer(canvasCtx);
+      }, 0);
     },
     render_framebuffer: function() {
       // renders current state of the framebuffer to the bound canvas
@@ -131,7 +142,7 @@ Rocky.bindCanvas = function(canvas, options) {
   Rocky.activeBinding = binding;
 
   // schedule one render pass for the next run iteration of the run loop
-  setTimeout(function() { binding.mark_dirty(); }, 0);
+  binding.mark_dirty();
 
   return binding;
 };
