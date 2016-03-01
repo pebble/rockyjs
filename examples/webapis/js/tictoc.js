@@ -1,20 +1,22 @@
 /*global rocky, Rocky:false */
 
 // book keeping so that we can easily animate the two hands for the watchface
-// .radius/.angle are updated by tween/event handler
+// .radius/.angle are updated by tween/event handler (see below)
 var renderState = {
   minute: {style: 'white', radius: 0, angle: 0},
   hour: {style: 'red', radius: 0, angle: 0}
 };
 
-rocky.on('render', function(ctx) {
+rocky.ondraw = function(drawEvent) {
+  var ctx = drawEvent.context;
+
   // clear canvas on each render
   ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
+  ctx.fillRect(0, 0, this.innerWidth, this.innerHeight);
 
   // center point
-  var cx = ctx.canvas.clientWidth / 2;
-  var cy = ctx.canvas.clientHeight / 2;
+  var cx = this.innerWidth / 2;
+  var cy = this.innerHeight / 2;
 
   var drawHand = function(state) {
     ctx.lineWidth = 8;
@@ -28,20 +30,16 @@ rocky.on('render', function(ctx) {
 
   drawHand(renderState.minute);
   drawHand(renderState.hour);
-});
+};
 
-// one could implement this based on setInterval()/setTimeout()
-// we use this small wrapper for convenience
-rocky.tween({
-  duration: 500,
-  easing: 'easeOutQuart',
-  step: function(t, ctx) {
-    var maxRadius = Math.min(ctx.canvas.clientWidth, ctx.canvas.clientHeight) / 2;
-    renderState.minute.radius = t * (maxRadius - 7);
-    renderState.hour.radius = t * (maxRadius - 28);
-    // animations trigger .requestRender() automatically
-    // in fact, .step() handlers are running on the context of .on('beforerender')
-  }
+rocky.once('visibilitychange', function() {
+  // assumes this.visibilitystate === 'visible' on first and hence only call (.once)
+  var maxRadius = Math.min(this.innerWidth, this.innerHeight) / 2;
+
+  // micro implementation of TweenJS
+  this.tween(renderState, {override: true, requestDraw: true})
+      .to({'minute.radius': maxRadius - 7,
+             'hour.radius': maxRadius - 28}, 500, 'easeOutQuart');
 });
 
 // calls handler on each full minute and once immediately
@@ -49,5 +47,5 @@ rocky.on('minutechange', function(e) {
   var wfh = new Rocky.WatchfaceHelper(e.date);
   renderState.minute.angle = wfh.minuteAngle;
   renderState.hour.angle = wfh.hourAngle;
-  rocky.requestRender();
+  rocky.requestDraw();
 });
