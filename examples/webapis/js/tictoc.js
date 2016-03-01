@@ -1,30 +1,33 @@
 /*global rocky, Rocky:false */
 
 // book keeping so that we can easily animate the two hands for the watchface
-// .radius/.angle are updated by tween/event handler (see below)
+// .scale/.angle are updated by tween/event handler (see below)
 var renderState = {
-  minute: {style: 'white', radius: 0, angle: 0},
-  hour: {style: 'red', radius: 0, angle: 0}
+  minute: {style: 'white', scale: 0, angle: 0},
+  hour: {style: 'red', scale: 0, angle: 0}
 };
 
 rocky.ondraw = function(drawEvent) {
   var ctx = drawEvent.context;
+  var w = this.innerWidth;
+  var h = this.innerHeight;
 
   // clear canvas on each render
   ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, this.innerWidth, this.innerHeight);
+  ctx.fillRect(0, 0, w, h);
 
   // center point
-  var cx = this.innerWidth / 2;
-  var cy = this.innerHeight / 2;
+  var cx = w / 2;
+  var cy = h / 2;
+  var maxRadius = Math.min(w, h) / 2;
 
   var drawHand = function(state) {
     ctx.lineWidth = 8;
     ctx.strokeStyle = state.style;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + Math.sin(state.angle) * state.radius,
-               cy + Math.cos(state.angle) * state.radius);
+    ctx.lineTo(cx + Math.sin(state.angle) * state.scale * maxRadius,
+               cy + Math.cos(state.angle) * state.scale * maxRadius);
     ctx.stroke();
   };
 
@@ -34,12 +37,11 @@ rocky.ondraw = function(drawEvent) {
 
 rocky.once('visibilitychange', function() {
   // assumes this.visibilitystate === 'visible' on first and hence only call (.once)
-  var maxRadius = Math.min(this.innerWidth, this.innerHeight) / 2;
 
   // micro implementation of TweenJS
-  this.tween(renderState, {override: true, requestDraw: true})
-      .to({'minute.radius': maxRadius - 7,
-             'hour.radius': maxRadius - 28}, 500, 'easeOutQuart');
+  this.tween(renderState, {eachStep: 'requestDraw'})
+      .to({'minute.scale': 0.95,
+             'hour.scale': 0.8}, 500, 'easeOutQuart');
 });
 
 // calls handler on each full minute and once immediately
