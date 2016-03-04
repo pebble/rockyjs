@@ -11,6 +11,8 @@ if (typeof (Rocky) === 'undefined') {
   Rocky = {};
 }
 
+// TODO: replace me with a slimmer implementation
+
 ;(function () {
   'use strict';
 

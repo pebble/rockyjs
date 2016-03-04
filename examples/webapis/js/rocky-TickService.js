@@ -13,7 +13,7 @@ if (typeof (Rocky.eventServices) === 'undefined') {
     console.log('new service');
     this.lastKnownListeners = [];
 
-    binding.on('eventlistenerchange', function(emitter) {
+    binding.emitter.on('eventlistenerchange', function(emitter) {
       this.schedule(emitter);
     }.bind(this));
   };
