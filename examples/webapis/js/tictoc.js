@@ -48,11 +48,12 @@ rocky.once('visibilitychange', function() {
 
   // micro implementation of TweenJS (will later be an npm Module)
   // http://www.createjs.com/docs/tweenjs/modules/TweenJS.html
+  // TODO: this is still WIP, see rocky-TweenJS.js
   //Rocky.tween(renderState, {onChange: rocky.requestDraw})
   //     .to({'minute.scale': 0.95,
   //          'hour.scale': 0.8}, 500, 'easeOutQuart');
-   renderState.minute.scale = 0.95;
-   renderState.hour.scale = 0.8;
+  renderState.minute.scale = 0.95;
+  renderState.hour.scale = 0.8;
 });
 
 // listener is called on each full minute and once immediately after registration
