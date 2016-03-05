@@ -10,7 +10,6 @@ if (typeof (Rocky.eventServices) === 'undefined') {
 
 (function() {
   Rocky.TickService = function(binding) {
-    console.log('new service');
     this.lastKnownListeners = [];
 
     binding.emitter.on('eventlistenerchange', function(emitter) {

@@ -7,7 +7,7 @@ Rocky = Rocky || {};
     var introStart = new Date().getTime();
     var duration = typeof animation.duration === 'undefined' ?
                    200 : animation.duration;
-    var easing = EasingFunctions[animation.easing] || EasingFunctions['linear'];
+    var easing = Ease[animation.easing] || Ease['linear'];
     var step = animation.step || function() {};
 
     var handler = function(ctx) {
