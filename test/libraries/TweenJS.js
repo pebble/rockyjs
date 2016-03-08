@@ -1,7 +1,7 @@
 /*eslint "no-unused-expressions": 0*/
 /*eslint max-len: [2, 100, 4]*/
-/* globals describe:false, it:false, xit: false */
-/* globals before:false, beforeEach: false, afterEach: false */
+/* globals describe:false, it:false */
+/* globals beforeEach: false*/
 
 var TweenJS = require('../../examples/webapis/js/rocky-TweenJS');
 var expect = require('chai').expect;
