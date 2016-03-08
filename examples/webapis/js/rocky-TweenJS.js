@@ -113,8 +113,9 @@ if (typeof (Rocky) === 'undefined') {
     if (typeof keyPath === 'string') {
       var keyParts = keyPath.split('.');
       while (keyParts.length > 1 && typeof (target) === 'object') {
-        if (target )
-        target = target[keyParts.shift()];
+        if (target) {
+          target = target[keyParts.shift()];
+        }
       }
       keyPath = keyParts[0];
     }

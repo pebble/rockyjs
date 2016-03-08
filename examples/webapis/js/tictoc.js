@@ -40,8 +40,10 @@ rocky.on('draw', function(drawEvent) {
   drawHand(renderState.hour, ctx, cx, cy, maxRadius);
 });
 
-// animates the watchface by expanding the hands after we completely transitioned to the app.
-// we don't use .on('ready', f) as this would be too early for the desired visual effect.
+// animates the watchface by expanding the hands
+// after we completely transitioned to the app.
+// we don't use .on('ready', f) as this would be too early
+// for the desired visual effect.
 rocky.once('visibilitychange', function() {
   // https://developer.mozilla.org/en-US/docs/Web/Events/visibilitychange
   // assumes this.visibilitystate === 'visible' on first and hence only call (.once)

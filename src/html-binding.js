@@ -41,7 +41,7 @@ Rocky.bindCanvas = function(canvas, options) {
                                          canvasW * canvasH);
   var graphicsContext = module.ccall('app_state_get_graphics_context', 'number', []);
 
-  var scheduledRender = undefined;
+  var scheduledRender;
   // result of this function
   var binding = {
     module: module,
@@ -74,8 +74,8 @@ Rocky.bindCanvas = function(canvas, options) {
           binding.GCompOpSet);
 
         callback = callback || function(ctx, bounds) {
-            binding.update_proc(ctx, bounds);
-          };
+          binding.update_proc(ctx, bounds);
+        };
         callback(graphicsContext, bounds);
         binding.render_framebuffer(canvasCtx);
       }, 0);

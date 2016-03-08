@@ -25,7 +25,7 @@ Rocky = Rocky || {};
   };
 
   // https://gist.github.com/gre/1650294
-  var EasingFunctions = {
+  var Ease = {
     // no easing, no acceleration
     linear: function(t) {
       return t;
