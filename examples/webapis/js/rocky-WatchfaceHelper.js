@@ -12,9 +12,11 @@ if (typeof (Rocky) === 'undefined') {
 
   Rocky.WatchfaceHelper = function(date) {
     date = date || new Date();
-    // TODO: test me against overflows, e.g. 12:00:00 must align all hands perfectly
-    this.secondAngle = clockwiseRad(date.getSeconds() / 60);
-    this.minuteAngle = clockwiseRad(date.getMinutes() / 60) + this.secondAngle / 60;
-    this.hourAngle = clockwiseRad(date.getHours() % 12 / 12) + this.minuteAngle / 60;
+    var secondFraction = date.getSeconds() / 60;
+    var minuteFraction = (date.getMinutes() + secondFraction) / 60;
+    var hourFraction = (date.getHours() % 12 + minuteFraction) / 12;
+    this.secondAngle = clockwiseRad(secondFraction);
+    this.minuteAngle = clockwiseRad(minuteFraction);
+    this.hourAngle = clockwiseRad(hourFraction);
   };
 })();
