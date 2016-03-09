@@ -35,9 +35,12 @@ rocky.on('draw', function(drawEvent) {
   // center point
   var cx = w / 2;
   var cy = h / 2;
-  var maxRadius = Math.min(w, h) / 2;
+  var maxRadius = Math.min(w, h - 2 * 10) / 2;
   drawHand(renderState.minute, ctx, cx, cy, maxRadius);
   drawHand(renderState.hour, ctx, cx, cy, maxRadius);
+
+  // Draw a 12 o clock indicator
+  drawHand({style: 'white', scale: 0, angle: 0}, ctx, cx, 8, 0);
 });
 
 // animates the watchface by expanding the hands
@@ -52,8 +55,7 @@ rocky.once('visibilitychange', function() {
   // http://www.createjs.com/docs/tweenjs/modules/TweenJS.html
   // TODO: this is still WIP, see rocky-TweenJS.js
   Rocky.tween(renderState, {onChange: rocky.requestDraw})
-       .to({'minute.scale': 0.95,
-            'hour.scale': 0.8}, 700, 'easeOutQuart');
+       .to({'minute.scale': 0.85, 'hour.scale': 0.6}, 700, 'easeOutQuart');
 });
 
 // listener is called on each full minute and once immediately after registration
