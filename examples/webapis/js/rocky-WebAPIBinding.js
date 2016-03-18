@@ -20,8 +20,13 @@ if (typeof (Rocky) === 'undefined') {
     };
 
     // -----------------
-    // TODO: extract so that this core is separate from Rocky.js
-    _private.binding = Rocky.bindCanvas(canvasElement);
+    if (typeof Rocky.bindCanvas === 'function') {
+      _private.binding = Rocky.bindCanvas(canvasElement);
+    } else if (typeof Rocky.bindNative === 'function') {
+      _private.binding = Rocky.bindNative(canvasElement);
+    } else {
+      throw new Error('cannot create a binding');
+    }
     _private.binding.update_proc = function(ctx, bounds) {
       var ctx2D = new Rocky.CanvasRenderingContext2D(_private.binding, ctx, bounds);
       _private.callRender(ctx2D, bounds);
@@ -35,11 +40,12 @@ if (typeof (Rocky) === 'undefined') {
     (Rocky.eventServices || []).forEach(function(EventService) {
       _private.eventServices.push(new EventService(_private));
     });
-    // derive this form binding
+
+    // TODO: derive this form binding
     this.innerWidth = 144;
     this.innerHeight = 168;
 
-    // make this for real
+    // TODO: make this for real
     setTimeout(function() {_private.emitter.emit('visibilitychange');});
     // -----------------
   };
