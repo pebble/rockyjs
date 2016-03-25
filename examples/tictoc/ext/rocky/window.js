@@ -1,27 +1,8 @@
 /*eslint "no-unused-vars": [2, { "args": "none", "vars": "local" }]*/
-/*global Rocky:true, TimerService:true, Window:true*/
 
-if (typeof (Rocky) === 'undefined') {
-  Rocky = {};
-}
+import Rocky from 'rocky';
 
-TimerService = {
-  'subscribe': function(granularity, cb) {
-    function timer_loop() {
-      var date = new Date();
-      var dt = {
-        hour: date.getHours(),
-        min: date.getMinutes(),
-        sec: date.getSeconds()
-      };
-      cb(dt);
-    }
-    setInterval(timer_loop, 1000);
-    timer_loop();
-  }
-};
-
-Window = function() {
+export default function Window() {
   var that = this;
   this.rootLayer = {
     'bounds': {'origin': {'x': 0, 'y': 0}, 'size': {'w': 144, 'h': 168}},
@@ -76,4 +57,4 @@ Window = function() {
   this.setWindowHandlers = function(handlers) {
     this.handlers = handlers;
   };
-};
+}

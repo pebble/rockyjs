@@ -1,5 +1,10 @@
 /*eslint no-unused-vars: 0*/
-/* global TimerService:false, Window:false _timeout:true, _intervalId:true */
+
+import Window from 'rocky/window';
+import TimerService from 'rocky/timer-service';
+
+// todo: remove these globals by fixing jswrap_interactive.c
+var _timeout, _intervalId;
 
 // some library code, could be extracted into some JS files
 var scheduleAnimation = function(options) {
@@ -11,7 +16,6 @@ var scheduleAnimation = function(options) {
   var stopHandler = options.stop || function() {
   };
 
-  // todo: remove these globals by fixing jswrap_interactive.c
   _timeout = setTimeout(function() {
     var msPassed = 0;
     var msPerStep = 1000 / 30;
