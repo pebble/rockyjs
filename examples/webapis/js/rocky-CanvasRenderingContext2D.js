@@ -6,8 +6,8 @@ if (typeof (Rocky) === 'undefined') {
 
 (function() {
 
-  Rocky.CanvasRenderingContext2D = function(rocky, ctx, bounds) {
-    this.rocky = rocky;
+  Rocky.CanvasRenderingContext2D = function(rockyBinding, ctx, bounds) {
+    this.binding = rockyBinding;
     this.cPtr = ctx;
     this.canvas = {
       clientWidth: bounds.w,
@@ -17,8 +17,8 @@ if (typeof (Rocky) === 'undefined') {
   };
 
   Rocky.CanvasRenderingContext2D.prototype.fillRect = function(x, y, width, height) {
-    var rect = this.rocky.GRect(x, y, width, height);
-    this.rocky.graphics_fill_rect(this.cPtr, rect, 0, 0);
+    var rect = this.binding.GRect(x, y, width, height);
+    this.binding.graphics_fill_rect(this.cPtr, rect, 0, 0);
   };
 
   Object.defineProperties(Rocky.CanvasRenderingContext2D.prototype, {
@@ -28,7 +28,7 @@ if (typeof (Rocky) === 'undefined') {
       },
       set: function(value) {
         var color = Rocky.GColorFromStyle(value);
-        this.rocky.graphics_context_set_fill_color(this.cPtr, color);
+        this.binding.graphics_context_set_fill_color(this.cPtr, color);
       }
     },
     'strokeStyle': {
@@ -37,7 +37,7 @@ if (typeof (Rocky) === 'undefined') {
       },
       set: function(value) {
         var color = Rocky.GColorFromStyle(value);
-        this.rocky.graphics_context_set_stroke_color(this.cPtr, color);
+        this.binding.graphics_context_set_stroke_color(this.cPtr, color);
       }
     },
     'lineWidth': {
@@ -45,7 +45,7 @@ if (typeof (Rocky) === 'undefined') {
         return 'not implement, yet';
       },
       set: function(value) {
-        this.rocky.graphics_context_set_stroke_width(this.cPtr, value);
+        this.binding.graphics_context_set_stroke_width(this.cPtr, value);
       }
     }
   });
@@ -57,7 +57,7 @@ if (typeof (Rocky) === 'undefined') {
   Rocky.CanvasRenderingContext2D.prototype.stroke = function(path) {
     path = path || this.currentPath;
     // TODO: implement this fully
-    this.rocky.graphics_draw_line(this.cPtr, path.p0, path.p1);
+    this.binding.graphics_draw_line(this.cPtr, path.p0, path.p1);
   };
 
   // forward path calls to current Path2D instance
