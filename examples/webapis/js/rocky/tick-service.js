@@ -1,23 +1,13 @@
-/*global Rocky:true */
-
-if (typeof (Rocky) === 'undefined') {
-  Rocky = {};
-}
-
-if (typeof (Rocky.eventServices) === 'undefined') {
-  Rocky.eventServices = [];
-}
-
 (function() {
-  Rocky.TickService = function(binding) {
+  function TickService(binding) {
     this.lastKnownListeners = [];
 
     binding.emitter.on('eventlistenerchange', function(emitter) {
       this.schedule(emitter);
     }.bind(this));
-  };
+  }
 
-  Rocky.TickService.Events = {
+  TickService.Events = {
     SecondChange: 'secondchange',
     MinuteChange: 'minutechange',
     HourChange: 'hourchange',
@@ -31,7 +21,7 @@ if (typeof (Rocky.eventServices) === 'undefined') {
     ['daychange', 1000 * 60 * 60 * 24]
   ];
 
-  Rocky.TickService.prototype.eventObject = function(date) {
+  TickService.prototype.eventObject = function(date) {
     var now = date.getTime();
     var result = {date: date};
     for (var i = 0; i < segmentSizes.length; i++) {
@@ -45,13 +35,13 @@ if (typeof (Rocky.eventServices) === 'undefined') {
     return result;
   };
 
-  Rocky.TickService.prototype.schedule = function(emitter) {
+  TickService.prototype.schedule = function(emitter) {
     var now = new Date();
 
     // call newly added listeners immediately if they were not marked as "once"
     var newListeners = [];
-    for (var k in Rocky.TickService.Events) {
-      var eventName = Rocky.TickService.Events[k];
+    for (var k in TickService.Events) {
+      var eventName = TickService.Events[k];
       newListeners = newListeners.concat(emitter.getListeners(eventName));
     }
     var event = this.eventObject(now);
@@ -88,5 +78,5 @@ if (typeof (Rocky.eventServices) === 'undefined') {
     }
   };
 
-  Rocky.eventServices.push(Rocky.TickService);
+  module.exports = TickService;
 })();

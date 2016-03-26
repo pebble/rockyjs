@@ -1,22 +1,21 @@
-/*global Rocky:true */
 /*eslint max-len: [2, 100, 4]*/
 
-if (typeof (Rocky) === 'undefined') {
-  Rocky = {};
-}
-
 (function() {
-  Rocky.WebAPIBinding = function(canvasElement) {
+  var CanvasRenderingContext2D = require('./canvas-rendering-context-2d');
+  var EventEmitter = require('./event-emitter');
+  var Rocky = require('rocky');
+
+  function WebAPIBinding(canvasElement) {
     var _private = {};
     this._private = _private;
 
-    _private.emitter = new Rocky.EventEmitter();
+    _private.emitter = new EventEmitter();
     _private.callRender = function(ctx) {
       var emitter = _private.emitter;
       var event = {context: ctx};
-      emitter.emit(Rocky.WebAPIBinding.Events.BeforeDraw, event);
-      emitter.emit(Rocky.WebAPIBinding.Events.Draw, event);
-      emitter.emit(Rocky.WebAPIBinding.Events.AfterDraw, event);
+      emitter.emit(WebAPIBinding.Events.BeforeDraw, event);
+      emitter.emit(WebAPIBinding.Events.Draw, event);
+      emitter.emit(WebAPIBinding.Events.AfterDraw, event);
     };
 
     // -----------------
@@ -28,7 +27,7 @@ if (typeof (Rocky) === 'undefined') {
       throw new Error('cannot create a binding');
     }
     _private.binding.update_proc = function(ctx, bounds) {
-      var ctx2D = new Rocky.CanvasRenderingContext2D(_private.binding, ctx, bounds);
+      var ctx2D = new CanvasRenderingContext2D(_private.binding, ctx, bounds);
       _private.callRender(ctx2D, bounds);
     };
     this.requestDraw = function() {
@@ -37,7 +36,7 @@ if (typeof (Rocky) === 'undefined') {
 
     // iterate over all known event services
     _private.eventServices = [];
-    (Rocky.eventServices || []).forEach(function(EventService) {
+    ([require('./tick-service')]).forEach(function(EventService) {
       _private.eventServices.push(new EventService(_private));
     });
 
@@ -53,27 +52,28 @@ if (typeof (Rocky) === 'undefined') {
   // delegate a subset of the EventEmitter API
   ['addListener', 'on', 'addOnceListener', 'once', 'removeListener', 'off'].forEach(
     function(n) {
-      Rocky.WebAPIBinding.prototype[n] = function(event, callback) {
+      WebAPIBinding.prototype[n] = function(event, callback) {
         // TODO: find a better way to refer to the emitter
         //       without creating a leak or exposing _private
         var emitter = this._private.emitter;
         emitter[n](event, callback.bind(this));
-        if (event !== Rocky.WebAPIBinding.Events.EventListenerChange) {
-          emitter.emit(Rocky.WebAPIBinding.Events.EventListenerChange, emitter);
+        if (event !== WebAPIBinding.Events.EventListenerChange) {
+          emitter.emit(WebAPIBinding.Events.EventListenerChange, emitter);
         }
       };
     }
   );
 
   // replicate EventTarget APIs
-  Rocky.WebAPIBinding.prototype.addEventListener = Rocky.WebAPIBinding.prototype.addListener;
-  Rocky.WebAPIBinding.prototype.removeEventListener = Rocky.WebAPIBinding.prototype.removeListener;
+  WebAPIBinding.prototype.addEventListener = WebAPIBinding.prototype.addListener;
+  WebAPIBinding.prototype.removeEventListener = WebAPIBinding.prototype.removeListener;
 
-  Rocky.WebAPIBinding.Events = {
+  WebAPIBinding.Events = {
     BeforeDraw: 'beforedraw',
     Draw: 'draw',
     AfterDraw: 'afterdraw',
     EventListenerChange: 'eventlistenerchange'
   };
-})();
 
+  module.exports = WebAPIBinding;
+})();

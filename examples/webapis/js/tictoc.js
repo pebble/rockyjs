@@ -1,7 +1,6 @@
-/*global rocky, Rocky:false */
-// in the future, we will replace the singleton
-// `rocky` as well as the namespace `Rocky`, e.g.
-// `Rocky.tween` and `Rocky.WatchfaceHelper` with modules
+/*global rocky*/
+var TweenJS = require('microtween');
+var WatchfaceHelper = require('watchface-helper');
 
 // book keeping so that we can easily animate the two hands for the watchface
 // .scale/.angle are updated by tween/event handler (see below)
@@ -56,14 +55,14 @@ rocky.once('visibilitychange', function() {
 
   // micro implementation of TweenJS (will later be an npm Module)
   // http://www.createjs.com/docs/tweenjs/modules/TweenJS.html
-  Rocky.tween(renderState, {onChange: rocky.requestDraw})
-       .to({'minute.scale': 0.85, 'hour.scale': 0.6}, 700, 'easeOutQuart');
+  TweenJS.tween(renderState, {onChange: rocky.requestDraw})
+    .to({'minute.scale': 0.85, 'hour.scale': 0.6}, 700, 'easeOutQuart');
 });
 
 // listener is called on each full minute and once immediately after registration
 rocky.on('minutechange', function(e) {
   // WatchfaceHelper will later be extracted as npm module
-  var wfh = new Rocky.WatchfaceHelper(e.date);
+  var wfh = new WatchfaceHelper(e.date);
   renderState.minute.angle = wfh.minuteAngle;
   renderState.hour.angle = wfh.hourAngle;
   rocky.requestDraw();

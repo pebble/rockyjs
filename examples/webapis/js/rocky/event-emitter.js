@@ -7,10 +7,6 @@
 
 /*eslint-disable */
 
-if (typeof (Rocky) === 'undefined') {
-  Rocky = {};
-}
-
 // TODO: replace me with a slimmer implementation
 
 ;(function () {
@@ -26,8 +22,8 @@ if (typeof (Rocky) === 'undefined') {
 
   // Shortcuts to improve speed and size
   var proto = EventEmitter.prototype;
-  var exports = this;
-  var originalGlobalValue = exports.EventEmitter;
+  // var exports = this;
+  // var originalGlobalValue = exports.EventEmitter;
 
   /**
    * Finds the index of the listener for the event in its storage array.
@@ -457,5 +453,5 @@ if (typeof (Rocky) === 'undefined') {
     return this._events || (this._events = {});
   };
 
-  Rocky.EventEmitter = EventEmitter;
+  module.exports = EventEmitter;
 }.call(this));

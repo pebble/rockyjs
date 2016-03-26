@@ -1,12 +1,6 @@
-/*global Rocky:true */
-
-// TODO: this is still WIP
-
-if (typeof (Rocky) === 'undefined') {
-  Rocky = {};
-}
-
 (function() {
+  var Rocky = require('rocky');
+
   var FRAME_DURATION = 1000 / 30;
   // micro implementation of TweenJS (will later be an npm Module)
   // http://www.createjs.com/docs/tweenjs/modules/TweenJS.html

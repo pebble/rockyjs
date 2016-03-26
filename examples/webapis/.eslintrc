@@ -1,0 +1,11 @@
+{
+    "extends": "pebble",
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+    },
+    "rules": {
+        "max-params": 0,
+        "strict": [2, "never"]
+    },
+}

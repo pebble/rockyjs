@@ -1,9 +1,3 @@
-/*global Rocky:true */
-
-if (typeof (Rocky) === 'undefined') {
-  Rocky = {};
-}
-
 (function() {
   var colorNames = {
     black: 0xC0,
@@ -11,7 +5,7 @@ if (typeof (Rocky) === 'undefined') {
     white: 0xFF
   };
 
-  Rocky.GColorFromStyle = function(style) {
+  module.exports = function GColorFromStyle(style) {
     // TODO: implement fully
     return colorNames[style];
   };
