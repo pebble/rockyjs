@@ -143,6 +143,11 @@ module.exports = function(grunt) {
         indent: 4
       },
       files: ['package.json']
+    },
+    pack: {
+      examples: {
+        src: ['examples/*/webpack.config.js']
+      }
     }
   });
 
@@ -184,6 +189,7 @@ module.exports = function(grunt) {
   });
 
   require('./tasks/dist')(grunt);
+  require('./tasks/pack')(grunt);
 
   var build_tasks = ['eslint:src'];
 
@@ -194,7 +200,7 @@ module.exports = function(grunt) {
     grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
   }
 
-  build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy', 'modify_json');
+  build_tasks.push('concat:rockyjs', 'pack:examples', 'processhtml:examples', 'md2html', 'copy', 'modify_json');
 
   grunt.registerTask('pre-publish', 'should not be called directly', ['build', 'build-missing-dists']);
 
