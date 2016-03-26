@@ -2,7 +2,7 @@
     "extends": "pebble",
     "rules": {
         "max-params": 0,
-        "strict": [2, "never"]
+        "strict": 0
     },
 }
 
