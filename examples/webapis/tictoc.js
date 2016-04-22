@@ -269,8 +269,8 @@ var rocky = new Rocky.WebAPIBinding();
 // book keeping so that we can easily animate the two hands for the watchface
 // .scale/.angle are updated by tween/event handler (see below)
 var renderState = {
-  minute: {style: 'white', scale: 0.85, angle: 0},
-  hour: {style: 'red', scale: 0.6, angle: 0}
+  minute: {style: 'white', scale: 0.80, angle: 0},
+  hour: {style: 'red', scale: 0.51, angle: 0}
 };
 
 // helper function for the draw function (see below)
@@ -307,6 +307,8 @@ rocky.on('draw', function(drawEvent) {
 
   // Draw a 12 o clock indicator
   drawHand({style: 'white', scale: 0, angle: 0}, ctx, cx, 8, 0);
+  // overdraw center so that no white part of the minute hand is visible
+  drawHand({style: 'red', scale: 0, angle: 0}, ctx, cx, cy, 0);
 });
 
 // listener is called on each full minute and once immediately after registration
