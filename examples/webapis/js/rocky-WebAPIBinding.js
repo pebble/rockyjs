@@ -34,11 +34,6 @@ if (typeof (Rocky) === 'undefined') {
     this.requestDraw = function() {
       _private.binding.mark_dirty();
     };
-
-    // TODO: derive this form binding
-    this.innerWidth = 144;
-    this.innerHeight = 168;
-
     // -----------------
   };
 

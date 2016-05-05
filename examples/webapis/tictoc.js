@@ -35,11 +35,6 @@ if (typeof (Rocky) === 'undefined') {
     this.requestDraw = function() {
       _private.binding.mark_dirty();
     };
-
-    // TODO: derive this form binding
-    this.innerWidth = 144;
-    this.innerHeight = 168;
-
     // -----------------
   };
 
@@ -291,8 +286,8 @@ var drawHand = function(handState, ctx, cx, cy, maxRadius) {
 // the 'draw' event might also fire at other meaningful times (e.g. upon launch)
 rocky.on('draw', function(drawEvent) {
   var ctx = drawEvent.context;
-  var w = this.innerWidth;
-  var h = this.innerHeight;
+  var w = ctx.canvas.clientWidth;
+  var h = ctx.canvas.clientHeight;
 
   // clear canvas on each render
   ctx.fillStyle = 'black';
