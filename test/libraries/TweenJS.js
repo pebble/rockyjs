@@ -3,7 +3,7 @@
 /* globals describe:false, it:false */
 /* globals beforeEach: false*/
 
-var TweenJS = require('../../examples/webapis/js/rocky-TweenJS');
+var TweenJS = require('../../examples/webapis/js/vendor/microtween');
 var expect = require('chai').expect;
 
 describe('TweenJS', function() {

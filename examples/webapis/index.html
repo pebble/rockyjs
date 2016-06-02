@@ -17,7 +17,8 @@
     <script src="../../src/symbols-generated.js"></script>
     <script src="../../src/transpiled.js"></script>
     <!-- /build -->
-    
+
+    <script src="build/rocky.js"></script>
 
     <!-- build:css ../../css/bootstrap.min.css -->
     <link href="../../html/css/bootstrap.min.css" rel="stylesheet">
@@ -33,14 +34,6 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <script src="js/rocky-EventEmitter.js"></script>
-    <script src="js/rocky-WebAPIBinding.js"></script>
-    <script src="js/rocky-CanvasRenderingContext2D.js"></script>
-    <script src="js/rocky-colorstyle.js"></script>
-    <script src="js/rocky-Path2D.js"></script>
-    <script src="js/rocky-WatchfaceHelper.js"></script>
-    <script src="js/rocky-TickService.js"></script>
-    <script src="js/rocky-TweenJS.js"></script>
     <link rel="stylesheet" href="../common/css/style.css">
 </head>
 <body>
@@ -53,7 +46,7 @@
     </div>
 
     <div class="col-md-6">
-        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>    
+        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>
     </div>
     <div class="col-md-6">
         <h2>What's going on?</h2>
@@ -73,7 +66,7 @@
     })();
 </script>
 
-<!-- JavaScript Implementation of TicToc --> 
-<script src="js/tictoc.js"></script>
+<!-- JavaScript Implementation of TicToc -->
+<script src="build/app.js"></script>
 
 </html>
