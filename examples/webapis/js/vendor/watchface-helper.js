@@ -6,7 +6,7 @@ function clockwiseRad(fraction) {
 module.exports = function WatchfaceHelper(date) {
   date = date || new Date();
   var secondFraction = date.getSeconds() / 60;
-  var minuteFraction = (date.getMinutes() + secondFraction) / 60;
+  var minuteFraction = (date.getMinutes()) / 60;
   var hourFraction = (date.getHours() % 12 + minuteFraction) / 12;
   this.secondAngle = clockwiseRad(secondFraction);
   this.minuteAngle = clockwiseRad(minuteFraction);

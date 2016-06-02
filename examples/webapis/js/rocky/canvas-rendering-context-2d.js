@@ -12,8 +12,7 @@ function CanvasRenderingContext2D(rockyBinding, ctx, bounds) {
 }
 
 CanvasRenderingContext2D.prototype.fillRect = function(x, y, width, height) {
-  var rect = this.binding.GRect(x, y, width, height);
-  this.binding.graphics_fill_rect(this.cPtr, rect, 0, 0);
+  this.binding.graphics_fill_rect(this.cPtr, [x, y, width, height], 0, 0);
 };
 
 Object.defineProperties(CanvasRenderingContext2D.prototype, {
