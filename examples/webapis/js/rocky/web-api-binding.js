@@ -2,7 +2,18 @@
 
 var CanvasRenderingContext2D = require('./canvas-rendering-context-2d');
 var TickService = require('./tick-service');
-var Rocky = require('rocky');
+
+function bind(canvasElement) {
+  var Rocky = require('rocky-namespace');
+
+  if (typeof Rocky.bindCanvas === 'function') {
+    return Rocky.bindCanvas(canvasElement);
+  } else if (typeof Rocky.bindNative === 'function') {
+    return Rocky.bindNative(canvasElement);
+  } else {
+    throw new Error('cannot create a binding');
+  }
+}
 
 function WebAPIBinding(canvasElement) {
   var _private = {};
@@ -18,13 +29,7 @@ function WebAPIBinding(canvasElement) {
   };
 
   // -----------------
-  if (typeof Rocky.bindCanvas === 'function') {
-    _private.binding = Rocky.bindCanvas(canvasElement);
-  } else if (typeof Rocky.bindNative === 'function') {
-    _private.binding = Rocky.bindNative(canvasElement);
-  } else {
-    throw new Error('cannot create a binding');
-  }
+  _private.binding = bind(canvasElement);
   _private.binding.update_proc = function(ctx, bounds) {
     var ctx2D = new CanvasRenderingContext2D(_private.binding, ctx, bounds);
     _private.subscriptions.emit('draw', {context: ctx2D});

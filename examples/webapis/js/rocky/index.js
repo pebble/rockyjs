@@ -1,2 +1,3 @@
-var Rocky = require('rocky');
-Rocky.WebAPIBinding = require('./web-api-binding');
+var Rocky = require('./namespace');
+var rocky = new Rocky.WebAPIBinding();
+module.exports = rocky;

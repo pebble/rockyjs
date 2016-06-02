@@ -4,7 +4,9 @@
   "description": "",
   "private": true,
   "scripts": {
-    "build": "webpack --config webpack.config.js --progress --colors",
+    "build": "npm run build:web && npm run build:native",
+    "build:native": "webpack --config webpack.native.js --progress --colors",
+    "build:web": "webpack --config webpack.web.js --progress --colors",
     "test": "eslint ext && eslint js"
   },
   "author": "Pebble Technology",

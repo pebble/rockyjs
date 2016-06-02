@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         return exec('npm install', { cwd: example })
           .then(function() {
             grunt.log.writeln('Building: ' + example);
-            return exec('npm run build', { cwd: example });
+            return exec('npm run build:web', { cwd: example });
           });
       };
     });

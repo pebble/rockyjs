@@ -1,4 +1,4 @@
-/*global rocky*/
+var rocky = require('rocky');
 var WatchfaceHelper = require('watchface-helper');
 
 // book keeping so that we can easily animate the two hands for the watchface

@@ -146,7 +146,7 @@ module.exports = function(grunt) {
     },
     pack: {
       examples: {
-        src: ['examples/*/webpack.config.js']
+        src: ['examples/*/webpack.web.js']
       }
     }
   });
