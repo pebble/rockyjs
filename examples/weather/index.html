@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Weather Example</title>
+
+    <!-- build:template
+    <script src="../../<%= rockyjs_path %>"></script>
+    /build -->
+    <!-- build:remove -->
+    <!-- this template/remove construct is a workaround as processhtml doesn't support variables for values -->
+    <script src="../../src/html-binding.js"></script>
+    <script src="../../src/symbols-manual.js"></script>
+    <script src="../../src/symbols-generated.js"></script>
+    <script src="../../src/transpiled.js"></script>
+    <!-- /build -->
+
+    <script src="modules/weather.js"></script>
+
+    <!-- build:css ../../css/bootstrap.min.css -->
+    <link href="../../html/css/bootstrap.min.css" rel="stylesheet">
+    <!-- /build -->
+    <!-- build:css ../../css/style.css -->
+    <link href="../../html/css/style.css" rel="stylesheet">
+    <!-- /build -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="../common/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>Weather Example</h1>
+        <p class="lead">
+            This is an example that uses a <code>Weather</code> object in a Rocky app.
+        </p>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="pebble" class="rocky" width="432" height="504"></canvas>
+    </div>
+
+    <div class="col-md-6">
+        <h2>What's going on?</h2>
+        <p>
+            This example uses the OpenWeather API to obtain data.
+        </p>
+        <p>
+            A <code>Weather</code> object is created with <code>new Weather('YOUR-API_KEY');</code>.
+        </p>
+
+    </div>
+    <!-- build:template
+    <%= github_banner %>
+    /build -->
+</div>
+</body>
+
+<script>
+    (function () {
+        var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
+        // puts all C-symbols from rocky onto window.* so they can be used almost
+        // the same way you were using them in C
+        rocky.export_global_c_symbols();
+
+        // please don't steal my API key :)
+        var weather = new Weather('9858eb71a058d377abcd05f64763b42b');
+
+        rocky.update_proc = function (ctx, bounds) {
+          graphics_context_set_text_color(ctx, GColorBlack);
+
+          if (weather.isAvailable) {
+            graphics_draw_bitmap_in_rect(ctx, weather.icon(), GRect(32, 10, 80, 80));
+
+            graphics_draw_text(ctx, weather.temperatureCelcius + '°',
+                                 fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), GRect(0, 90, 144, 32),
+                                 GTextOverflowModeWordWrap, GTextAlignmentCenter, null);
+
+            graphics_draw_text(ctx, weather.cityName,
+                                fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 122, 144, 46),
+                                GTextOverflowModeWordWrap, GTextAlignmentCenter, null);
+          }
+
+        };
+
+        setInterval(function () {rocky.mark_dirty();}, 1000);
+    })();
+</script>
+</html>
