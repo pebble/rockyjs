@@ -14,13 +14,15 @@
         "type": "git",
         "url": "https://github.com/pebble/rockyjs.git"
     },
-    "license": "http://pebble.github.io/rockyjs/LICENSE",
+    "license": "https://github.com/pebble/rockyjs/blob/master/LICENSE",
     "keywords": [
         "pebble",
         "browser",
-        "emscripten"
+        "emscripten",
+        "rocky.js"
     ],
     "devDependencies": {
+        "ace-builds": "^1.2.5",
         "atob": "^2.0.0",
         "chai": "^3.4.1",
         "eslint-config-pebble": "^1.2.0",

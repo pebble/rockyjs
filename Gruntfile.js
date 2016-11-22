@@ -6,19 +6,21 @@ module.exports = function(grunt) {
 
     var pkg = grunt.file.readJSON('package.json');
     var githubBanner = grunt.template.process(grunt.file.read('html/misc/githubBanner.html'), {data: {pkg: pkg}});
+    var deprecatedBanner = grunt.template.process(grunt.file.read('html/misc/deprecated.html'), {data: {pkg: pkg}});
     var isMasterBuildOnTravis = process.env.TRAVIS_BRANCH === 'master';
+    var rockyjsLegacyPath = 'dist/rocky-0.3.0.js';
 
     grunt.initConfig({
         tintin_root: process.env.TINTIN_ROOT,
         pkg: pkg,
         rockyjs_path: isMasterBuildOnTravis ? "dist/rocky-dev.js" : "dist/rocky.js",
-        license_banner: "/* Copyright © 2015-2016 Pebble Technology Corp., All Rights Reserved. <%=pkg.license%> */\n\n",
+        license_banner: grunt.file.read('license-banner.txt') + '\n\n',
         uglify: {
             options: {
                 banner: '<%=license_banner%>'
             },
             applib: {
-                src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/applib.js',
+                src: '<%= tintin_root %>/build/applib/applib-targets/emscripten/html/rocky.js',
                 dest: 'src/transpiled.js'
             }
         },
@@ -42,21 +44,43 @@ module.exports = function(grunt) {
             examples:{
                 options: {
                     process: true,
-                    data: {rockyjs_path: "<%=rockyjs_path%>", github_banner: githubBanner}
+                    data: {
+                        rockyjs_path: "<%=rockyjs_path%>",
+                        rockyjs_legacy_path: rockyjsLegacyPath,
+                        github_banner: githubBanner,
+                        deprecated_banner: deprecatedBanner
+                    }
                 },
                 files: [
                     {
                         expand: true,
-                        cwd: 'examples',
+                        cwd: 'examples-legacy',
                         src: ['**/*.*', '!**/*.md'],
-                        dest: 'build/examples'
+                        dest: 'build/examples-legacy'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'simple',
+                        src: ['**/*.*'],
+                        dest: 'build/simple'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'playground',
+                        src: ['**/*.*'],
+                        dest: 'build/playground'
                     },
                     {
                         expand: true,
                         cwd: 'html',
                         src: ['css/*'],
                         dest: 'build'
-
+                    },
+                    {
+                        expand: true,
+                        cwd: 'build/docs-legacy',
+                        src: ['**/*.*'],
+                        dest: 'build/docs-legacy'
                     }
                 ]
             }
@@ -66,7 +90,7 @@ module.exports = function(grunt) {
                 files: [
                     {
                         expand: true,
-                        src: ['examples/*.md', 'docs/*.md', '*.md'],
+                        src: ['examples-legacy/*.md', 'docs-legacy/*.md', '*.md'],
                         dest: 'build',
                         ext: '.html',
                         rename: function(dir, file) {
@@ -81,6 +105,7 @@ module.exports = function(grunt) {
                     templateData: {
                         pkg: pkg,
                         github_banner: githubBanner,
+                        deprecated_banner: deprecatedBanner
                     }
                 }
             }
@@ -93,12 +118,19 @@ module.exports = function(grunt) {
                         cwd: 'html',
                         src: ['img/*'],
                         dest: 'build'
-                    }
+                    },
+                    {
+                        expand: true,
+                        cwd: 'node_modules/ace-builds/src-min-noconflict',
+                        src: ['**/*.*'],
+                        dest: 'build/playground/js/ace'
+                    },
+
                 ]
             }
         },
         eslint: {
-            src: ['src/**/*.js', '!src/transpiled.js', 'examples/**/*.js', '!examples/interactive/js/TangleKit/**/*.js'],
+            src: ['src/**/*.js', '!src/transpiled.js', 'examples-legacy/**/*.js', '!examples-legacy/interactive/js/TangleKit/**/*.js'],
             options: {
                 format: 'unix'
             },
@@ -188,7 +220,7 @@ module.exports = function(grunt) {
         grunt.verbose.write("Cannot find transpiled applib at " + grunt.config('uglify').applib.src + " - skipping uglify")
     }
 
-    build_tasks.push('concat:rockyjs', 'processhtml:examples', 'md2html', 'copy', 'modify_json');
+    build_tasks.push('concat:rockyjs', 'md2html', 'processhtml:examples', 'copy', 'modify_json');
 
     grunt.registerTask('pre-publish', 'should not be called directly', ['build', 'build-missing-dists']);
 

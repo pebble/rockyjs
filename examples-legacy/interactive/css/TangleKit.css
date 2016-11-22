@@ -1,0 +1,128 @@
+/*
+ *  TangleKit.css
+ *  Tangle 0.1.0
+ *
+ *  Created by Bret Victor on 6/10/11.
+ *  (c) 2011 Bret Victor.  MIT open-source license.
+ *
+ */
+
+
+/* cursor */
+
+.TKCursorDragHorizontal {
+	cursor: pointer;
+	cursor: move;
+	cursor: col-resize;
+}
+
+
+/* TKToggle */
+
+.TKToggle,
+.TKIncrement {
+	color: #46f;
+	border-bottom: 1px dashed #46f;
+	cursor: pointer;
+}
+
+/* TKSelect */
+
+.TKSelect {
+        color: #46f;
+        border-bottom: 1px dashed #46f;
+        cursor: pointer;
+}
+
+/* TKAdjustableNumber and similar */
+
+.TKAdjustableNumber, .TKLogarithmicAdjustableNumber {
+	position:relative;
+	color: #46f;
+	border-bottom: 1px dashed #46f;
+}
+
+.TKAdjustableNumberHover {
+}
+
+.TKAdjustableNumberDown {
+	color: #00c;
+	border-bottom: 1px dashed #00c;
+}
+
+.TKAdjustableNumberHelp {
+	position:absolute;
+	color: #00f;
+	font: 9px "Helvetica-Neue", "Arial", sans-serif;
+}
+
+
+       .TKInlineSlider {
+        	display: inline-block;
+        	position:relative;
+        	background-color: #ccc;
+        	width: 200px;
+        	height: 12px;
+        	cursor: pointer;
+        	cursor: move;
+        	cursor: col-resize;
+        }
+        .TKInlineSliderBar {
+        	position:absolute;
+        	background-color: #f00;
+        	height: 12px;
+        	top: 0px;
+        	left: 0px;
+        }
+        
+   .TKExpandingListItem {
+        	color: #46f;
+        	border-bottom: 1px dashed #46f;
+        	cursor: pointer;
+        }
+        .TKExpandingListItem:hover {
+        	color: #00c;
+        	border-bottom: 1px dashed #00c;
+        }
+        
+        
+        .TKExpandingSetItem {
+        	color: #aaa;
+        	border-bottom: 1px dashed #aaa;
+        	cursor: pointer;
+        }
+        .TKExpandingSetItem:hover {
+        	color: #666;
+        	border-bottom: 1px dashed #666;
+        }
+        .TKExpandingSetItemSelected {
+        	color: #46f;
+        	font-weight:bold;
+        	border-bottom: 1px dashed #46f;
+        	cursor: pointer;
+        }
+        .TKExpandingSetItemSelected:hover {
+        	color: #02f;
+        	border-bottom: 1px dashed #02f;
+        }
+        .TKExpandingSetSummary {
+        	color: #46f;
+        	border-bottom: 1px dashed #46f;
+        	cursor: pointer;
+        }
+        
+.TKAdjustableNumberDown .TKAdjustableNumberHelp {
+    color: #f00;
+}
+
+.BarGraphBarDiv {
+    background-color: #aaa;
+    height: 6px;
+    margin-top: 1px;
+}
+
+.TKProgressCalendar-completed {
+    background-color: green;
+    color: white;
+    font-weight: bold;
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+  <!-- build:css ../css/bootstrap.min.css -->
+  <link href="../html/css/bootstrap.min.css" rel="stylesheet">
+  <!-- /build -->
+  <!-- build:css ../css/style.css -->
+  <link href="../html/css/style.css" rel="stylesheet">
+  <!-- /build -->
+  <link href="common/css/style.css" rel="stylesheet">
+  <title>Community Examples</title>
+</head>
+<body>
+<div class="container">
+  <div class="page-header">
+    <h1>Community Examples</h1>
+    <!-- build:template
+    <%= deprecated_banner %>
+    /build -->
+    <h3 id="https-message" class="alert alert-danger hide" role="alert">Some of the community examples won't work with <strong><em>HTTPS</em></strong>.
+      To fix this issue, <a id="https-message-link" href="#">reload this page with <em>HTTP</em></a>.</h3>
+    <p class="lead">
+    Below you can find what people are building with Rocky.js.
+    <a href="https://github.com/pebble/rockyjs/compare">Open a pull request</a> to share your work!
+    </p>
+  </div>
+  <div class="community-example">
+    <h3>Simply Square by <a class="example-author" href="https://github.com/NiVZ78">NiVZ78</a></h3>
+    <p><a class="jsbin-embed" href="http://jsbin.com/wakuha/embed?js,output&amp;height=350px">
+      Simply Square by NiVZ78 on jsbin.com
+    </a></p>
+  </div>
+  <div class="community-example">
+    <h3>91 Dub by <a class="example-author" href="https://github.com/orviwan">orviwan</a></h3>
+    <p><a class="jsbin-embed" href="http://jsbin.com/jaseda/embed?js,output&amp;height=350px">
+      91 Dub by orviwan on jsbin.com
+    </a></p>
+  </div>
+  <div class="community-example">
+    <h3>Isotime by <a class="example-author" href="https://github.com/C-D-Lewis">Chris Lewis</a></h3>
+    <p><a class="jsbin-embed" href="http://jsbin.com/qififa/140/edit?js,console,output&amp;height=350px">
+      Isotime by Chris Lewis on jsbin.com
+    </a></p>
+  </div>
+  <div class="community-example">
+    <h3>Game of Life by <a class="example-author" href="https://github.com/fletchto99/rockyjs-tests">Matt Langlois</a></h3>
+    <p><a class="jsbin-embed" href="http://jsbin.com/jakeqixuso/edit?js,output&amp;height=350px">
+      Game of Life on jsbin.com
+    </a></p>
+  </div>
+
+
+</div>
+<script>
+  // examples don't load on https
+  (function(){
+    if (location.protocol == 'https:') {
+      var linkElem = document.getElementById('https-message-link');
+      linkElem.setAttribute('href', location.href.replace(/^https:/, 'http:'));
+      document.getElementById('https-message').classList.remove('hide');
+    }
+  })();
+
+</script>
+<script src="https://static.jsbin.com/js/embed.min.js?3.35.9"></script>
+<!-- build:template
+<%= github_banner %>
+/build -->
+</body>
+</html>

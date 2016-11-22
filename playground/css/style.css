@@ -1,0 +1,43 @@
+.editor { 
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.rocky-column {
+}
+
+label {
+  font-size: 85%;
+}
+
+span.editor-title {
+  font-family: monospace;
+}
+#rocky-playground-title {
+  background-image: url('../img/icon.svg');
+  background-repeat: no-repeat;
+  background-position-x: 15px;
+  height: 40px;
+  padding: 0 0 0 64px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 25px;
+}
+
+#examples-form {
+  padding-top: 10px;
+}
+
+#console-clear-button {
+  font-size: 65%;
+}
+
+#top-row {
+  padding: 0.5em 0 0.5em;
+}
+
+#controls-row {
+  padding: 0.5em 0 0.5em;
+}

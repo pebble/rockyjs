@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>Rocky.js Playground</title>
+
+  <!-- build:css ../css/bootstrap.min.css -->
+  <link href="../html/css/bootstrap.min.css" rel="stylesheet">
+  <!-- /build -->
+  <!-- build:css ../css/style.css -->
+  <link href="../html/css/style.css" rel="stylesheet">
+  <!-- /build -->
+
+  <link href="https://fonts.googleapis.com/css?family=Oswald:700" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css"/>
+  
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script type="text/javascript" src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script type="text/javascript" src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- build:template
+  <script src="../../<%= rockyjs_path %>"></script>
+  /build -->
+</head>
+<body>
+  <div class="container">
+    <div class="row" id="top-row">
+      <div class="col-md-4" id="rocky-playground-title">Rocky.js Playground</div>
+      <div class="col-md-8">
+        <form id="examples-form">
+          <label for="example-select" style="display: inline;">Examples</label>
+          <select id="example-select"></select>
+        </form>
+      </div>
+    </div>
+    <div class="row" id="simulators-row"></div>
+    <div class="row" id="controls-row">
+      <form id="controls-form">
+        <div class="col-md-1">
+          <label for="run-button">&nbsp;</label>
+          <input type="button" id="run-button" value="Reload"/>
+        </div>
+        <div class="col-md-2">
+          <label for="timestamp-input">Set Time (Timestamp)</label>
+          <input id="timestamp-input" type="text" />
+        </div>
+        <div class="col-md-2">
+          <label for="24h-style-input">24h Style</label>
+          <input id="24h-style-input" type="checkbox" />
+        </div>
+        <div class="col-md-3">
+          <label for="timezone-offset-input">Timezone Offset (<span id="timezone-offset-span"></span>)</label>
+          <input id="timezone-offset-input" type="range" min="-720" max="840" step="15" value="0" />
+        </div>
+        <div class="col-md-1">
+          <label for="pkjs-connected-input">PKJS Connection</label>
+          <input id="pkjs-connected-input" type="checkbox" checked="true" />
+        </div>
+      </form>
+    </div>
+    <div class="row" id="editors-row">
+      <div class="col-md-6">
+        <span class="editor-title">rocky/index.js</span>
+        <div id="rocky-editor" class="editor col-md-6" style="height: 400px; width: 100%">console.log('Hello Rocky.js');</div>
+      </div>
+      <div class="col-md-6">
+        <span class="editor-title">pkjs/index.js</span>
+        <div id="pkjs-editor" class="editor col-md-6" style="height: 400px; width: 100%">console.log('Hello pkjs');</div>
+      </div>
+    </div>
+    <div class="row" id="console-row">
+      <div class="col-md-12">
+        <span class="editor-title">console</span>
+        <input type="button" id="console-clear-button" value="Clear"/>
+        <div id="console-editor" class="editor col-md-6" style="height: 200px; width: 100%"></div>
+      </div>
+    </div>
+  </div>
+  <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script data-main="js/index.js" src="js/require.js" type="text/javascript" charset="utf-8"></script>
+  <!-- build:template
+  <%= github_banner %>
+  /build -->
+</body>
+</html>
