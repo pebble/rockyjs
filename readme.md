@@ -2,19 +2,53 @@
 
 # Rocky.js
 
-Rocky.js is Pebble's framework for building watchfaces for Pebble smartwatches. As of [Pebble SDK 4.1](https://developer.pebble.com/blog/2016/08/15/introducing-rockyjs-watchfaces/), it can be used to create and publish watchfaces written in JavaScript!
+Rocky.js is Pebble's JavaScript framework for building watchfaces for Pebble smartwatches. As of [Pebble SDK 4.1](https://developer.pebble.com/blog/2016/08/15/introducing-rockyjs-watchfaces/), Rocky.js has been integrated into the [Pebble SDK](https://developer.pebble.com/sdk/) as well as [CloudPebble](https://cloudpebble.net/). As such, Rocky.js can officially be used to create and publish watchfaces written in JavaScript!
 
 Check out the [Rocky.js guides](https://developer.pebble.com/tutorials/js-watchface-tutorial/part1/) or [Rocky.js API reference](https://developer.pebble.com/docs/rockyjs/) if you want to learn more about developing with Rocky.js.
 
+While this repository used to serve as the breeding ground for Rocky.js, it has now become the home of the [Rocky.js Playground](http://pebble.github.io/rockyjs/playground/) and the simulator library the Playground is built on.
+
 ## Rocky.js Playground
 
-This repository has now become the home of the [Rocky.js Playground](http://pebble.github.io/rockyjs/playground/) and the simulator library the Playground is built on. The Rocky.js Playground is an in-browser "scratchpad" for Rocky.js development, featuring simulated Pebble smartwatches to run the app as you develop it, all running locally in your browser:
+The [Rocky.js Playground](http://pebble.github.io/rockyjs/playground/) is an in-browser "scratchpad" for Rocky.js development. It features simulated Pebble smartwatches to run your app as you develop it, all running locally in your browser:
 
 [<img src="img/rockyjs-playground-screenshot.png" alt="Rocky.js Playground Screenshot" style="width: 850px; box-shadow: 0px 2px 5px 0px #C4C4C4; margin: 20px 0;"/>](http://pebble.github.io/rockyjs/playground/)
 
 ### Rocky.js Simulator
 
+<!-- build:template
+<script type="text/javascript" src="<%= rockyjs_path %>"></script>
+/build -->
+<canvas id="pebble" class="rocky" width="168" height="144"></canvas>
+<script type="text/javascript">
+// Create a new simulator and bind it to the canvas:
+var rockySimulator = new RockySimulator({
+	canvas: document.getElementById("pebble"),
+	src: {
+	  rocky: 'http://raw.githubusercontent.com/pebble-examples/rocky-watchface-tutorial-part1/master/src/rocky/index.js',
+	  pkjs: 'http://raw.githubusercontent.com/pebble-examples/rocky-watchface-tutorial-part1/master/src/pkjs/index.js'
+	}
+});
+</script>
 
+The Rocky.js Simulator is a library that anyone can use to embed a simulated Pebble on a web page. The simplest way to embed a simulator takes just a few lines of code:
+
+<pre>
+&lt;canvas id="pebble" class="rocky" width="432" height="504"/&gt;
+&lt;script type="text/javascript" src="http://pebble.github.io/rockyjs/dist/rocky-1.0.js"&gt;
+&lt;script type="text/javascript"&gt;
+  // Create a new simulator and bind it to the canvas:
+  var rockySimulator =  new RockySimulator({
+    canvas: document.getElementById("pebble"),
+    src: {
+      rocky: 'https://url.to/app/rocky/index.js',
+      pkjs: 'https://url.to/app/pkjs/index.js'
+    }
+  });
+&lt;script&gt;
+</pre>
+
+To learn more about the Rocky.js Simulator library and its API, check out [the documentation](docs/). We've also put together a [simple example page](/simple). For a more complex example of using the library, check out the [source code of the Rocky.js Playground](https://github.com/pebble/rockyjs/tree/master/playground).
 
 ### Learn More
 

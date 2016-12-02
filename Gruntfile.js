@@ -81,6 +81,12 @@ module.exports = function(grunt) {
                         cwd: 'build/docs-legacy',
                         src: ['**/*.*'],
                         dest: 'build/docs-legacy'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'build/',
+                        src: ['index.html'],
+                        dest: 'build/'
                     }
                 ]
             }
@@ -105,7 +111,8 @@ module.exports = function(grunt) {
                     templateData: {
                         pkg: pkg,
                         github_banner: githubBanner,
-                        deprecated_banner: deprecatedBanner
+                        deprecated_banner: deprecatedBanner,
+                        rockyjs_path: "<%=rockyjs_path%>"
                     }
                 }
             }
